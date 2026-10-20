@@ -1,0 +1,59 @@
+# package gossip
+use std/disk
+use std/lists
+use std/net
+use std/random
+use std/sim
+use std/time
+
+digest has
+  set known to {}
+
+node has
+  set Generation to 0
+  set Heartbeat to 0
+  set Known to {}
+  set Down to {}
+  set peers to {}
+  set seenAt to {}
+
+define Join [n: node] to [seed: node]
+  set peers of n to {seed}
+
+# Versions combine generation and heartbeat, so a restarted node is believed again
+define Version
+  result ((Generation times 1000000) plus Heartbeat)
+
+define Learn [k: node] at [v: number]
+  set item k of Known to v
+  set item k of seenAt to time.Now
+  if ((k is not sim.Here) and (k is not in peers))
+    set peers to (lists.Append k to peers)
+
+define CheckPeers
+  set suspects to {}
+  each k, t in seenAt
+    if ((time.Now minus t) more than 4s)
+      set suspects to (lists.Append k to suspects)
+  set Down to suspects
+
+set Generation to ((disk.Read "generation" or 0) plus 1)
+
+disk.Write Generation at "generation"
+
+time.Every 1s
+  set Heartbeat to (Heartbeat plus 1)
+  Learn sim.Here at Version
+  CheckPeers
+  if ((lists.Size peers) more than 0)
+    net.Send (message digest with known Known) to (random.Pick peers)
+
+when (net.Received digest from sender)
+  each k, v in (known of digest)
+    if (k is in Known)
+      if (v more than (item k of Known))
+        Learn k at v
+    else
+      Learn k at v
+  if (sender is not in peers)
+    set peers to (lists.Append sender to peers)

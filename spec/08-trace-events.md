@@ -1,0 +1,74 @@
+# 8. Trace events
+
+The trace is the ordered list of facts a run produced. Only language
+words and native phrases record trace events, so the core vocabulary is
+fixed and every look package can animate every behaviour package.
+Packages add their own facts with `emit`. Plain state changes need no
+event: changes to exported state are recorded as `sim.Changed`.
+
+## 8.1 Core events
+
+Each row shows the event phrase an observer writes after `when`.
+
+| Event phrase | Recorded when | Typical animation |
+| --- | --- | --- |
+| `sim.Started` | the run starts | scene fades in |
+| `sim.Ended` | the run ends | scene settles |
+| `sim.Added [n: node]` | a node is created | node card appears |
+| `sim.Removed [n: node]` | `sim.Remove` | node card leaves |
+| `sim.Crashed [n: node]` | `sim.Crash` | card greys out |
+| `sim.Restarted [n: node]` | `sim.Restart` | card returns, state resets |
+| `sim.Changed [f: field] of [n: node] from [old: value] to [new: value]` | `set` changes an exported state field | value morphs |
+| `sim.Injected [r: msg] into [n: node]` | `deliver` from main | request arrives from outside |
+| `sim.Fired on [n: node]` | an `after` timer fires on a node | timer tick |
+| `sim.Broken [rule: text]` | an `always` turns false | highlight, pulse |
+| `sim.Emitted [e: msg] by [n: node]` | `emit`; `n` is `sim.Nobody` when main emits | defined by the look |
+| `sim.Failed [error: text]` | a run-time error stops the run | error banner |
+| `net.Sent [m: msg] from [a: node] to [b: node]` | `net.Send` | dot leaves `a` |
+| `net.Arrived [m: msg] from [a: node] to [b: node]` | the message is received | dot reaches `b` |
+| `net.Dropped [m: msg] from [a: node] to [b: node] because [r: text]` | loss, partition, crash or `net.DropNext` | dot fades midway |
+| `net.Partitioned [a: list] from [b: list]` | `net.Partition` | groups split |
+| `net.Healed` | `net.Heal` | groups rejoin |
+| `disk.Written [k: text] on [n: node]` | `disk.Write` | disk icon blinks |
+
+`value` is the "any value" hole type, available to native patterns only.
+`r` in `net.Dropped` is one of `"loss"`, `"partition"`, `"crashed"`, `"targeted"`.
+
+`net.Sent` and `net.Arrived` of the same message share a message id in the
+trace, so the scene builder can draw one flight from send to arrival.
+
+## 8.2 Package events with `emit`
+
+A package declares an event type with `has`, like a message, and records
+it with `emit`:
+
+```synod
+Elected has
+  set Term to 0
+```
+
+```synod
+emit (message Elected with Term Term)
+```
+
+The trace records it as `sim.Emitted`, with the emitting node. Looks
+observe it like any other event:
+
+```synod
+when (sim.Emitted raft.Elected by n)
+  look.Pulse (card of n)
+```
+
+- Exported (capitalized) event types are observable from other packages;
+  lower-case ones only inside their own package.
+- `emit` is allowed in node and main context, never in look or check context.
+- `std/lesson` is written this way: `lesson.Ask` emits `lesson.Asked`
+  (Predict mode pauses on it) and `lesson.Note` emits `lesson.Noted` (a caption).
+
+## 8.3 Coverage
+
+This vocabulary covers consensus, replication, gossip, membership,
+sharding, caching, load balancing, queues and storage: requests and
+responses are messages, scaling is `sim.Added`/`sim.Removed`, faults are
+crash, loss and partition, and load, lag or queue depth are exported
+state that shows up as `sim.Changed`.

@@ -1,0 +1,148 @@
+# package cassandra
+use github.com/synodlang/examples/gossip
+use github.com/synodlang/examples/ring
+use std/lists
+use std/maps
+use std/net
+use std/sim
+use std/text
+use std/time
+
+Write has
+  set Key to ""
+  set Value to ""
+
+Read has
+  set Key to ""
+
+Written has
+  set Key to ""
+  set Acks to 0
+
+ReadDone has
+  set Key to ""
+  set Value to ""
+
+Mutation has
+  set key to ""
+  set value to ""
+  set at to 0ms
+  set request to ""
+
+MutationAck has
+  set request to ""
+
+Fetch has
+  set key to ""
+  set request to ""
+
+FetchReply has
+  set request to ""
+  set value to ""
+  set at to 0ms
+
+Hint has
+  set target to sim.Nobody
+  set mutation to (message Mutation with key "")
+
+node has
+  set Data to {}
+  set PendingHints to 0
+  set versions to {}
+  set hints to {}
+  set nextRequest to 0
+  set acks to {}
+  set keys to {}
+  set replies to {}
+
+define Factor
+  result 3
+
+define Quorum
+  result 2
+
+# Membership comes from gossip, never from a global list
+define Members
+  result (maps.Keys gossip.Known)
+
+define ReplicasOf [k: text]
+  result (ring.Owners of k among Members count Factor)
+
+define NewRequest [k: text]
+  set nextRequest to (nextRequest plus 1)
+  set id to (text.From nextRequest)
+  set item id of keys to k
+  result id
+
+# Coordinator: write to every replica; keep a hint for replicas that look down
+when (sim.Delivered Write)
+  set id to (NewRequest (Key of Write))
+  set item id of acks to 0
+  set m to (message Mutation with key (Key of Write), value (Value of Write), at time.Now, request id)
+  each r in (ReplicasOf (Key of Write))
+    if (r is in gossip.Down)
+      set hints to (lists.Append (message Hint with target r, mutation m) to hints)
+      set PendingHints to (lists.Size hints)
+    else
+      net.Send m to r
+
+define Store [m: Mutation]
+  set item (key of m) of Data to (value of m)
+  set item (key of m) of versions to (at of m)
+
+# Replica: keep the newest value per key (last write wins)
+define Apply [m: Mutation]
+  set k to (key of m)
+  if (k is in versions)
+    if ((at of m) more than (item k of versions))
+      Store m
+  else
+    Store m
+
+when (net.Received Mutation from coordinator)
+  Apply Mutation
+  net.Send (message MutationAck with request (request of Mutation)) to coordinator
+
+# Coordinator: the write succeeds at QUORUM acknowledgements
+when (net.Received MutationAck from replica)
+  set id to (request of MutationAck)
+  set item id of acks to ((item id of acks) plus 1)
+  if ((item id of acks) is Quorum)
+    emit (message Written with Key (item id of keys), Acks Quorum)
+
+# Coordinator: read from the live replicas
+when (sim.Delivered Read)
+  set id to (NewRequest (Key of Read))
+  set item id of replies to {}
+  each r in (ReplicasOf (Key of Read))
+    if (r is not in gossip.Down)
+      net.Send (message Fetch with key (Key of Read), request id) to r
+
+when (net.Received Fetch from coordinator)
+  set k to (key of Fetch)
+  if (k is in Data)
+    net.Send (message FetchReply with request (request of Fetch), value (item k of Data), at (item k of versions)) to coordinator
+  else
+    net.Send (message FetchReply with request (request of Fetch)) to coordinator
+
+# Coordinator: at QUORUM replies, answer with the newest value
+when (net.Received FetchReply from replica)
+  set id to (request of FetchReply)
+  set item id of replies to (lists.Append FetchReply to (item id of replies))
+  if ((lists.Size (item id of replies)) is Quorum)
+    set best to (item 0 of (item id of replies))
+    each r in (item id of replies)
+      if ((at of r) more than (at of best))
+        set best to r
+    emit (message ReadDone with Key (item id of keys), Value (value of best))
+
+# Hinted handoff: replay hints once their target is back
+time.Every 1s
+  set waiting to {}
+  each h in hints
+    if ((target of h) is in gossip.Down)
+      set waiting to (lists.Append h to waiting)
+    else
+      net.Send (mutation of h) to (target of h)
+  set hints to waiting
+  set PendingHints to (lists.Size hints)

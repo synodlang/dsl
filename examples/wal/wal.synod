@@ -1,0 +1,48 @@
+# package wal
+use std/disk
+use std/lists
+use std/sim
+use std/text
+use std/time
+
+Put has
+  set Key to ""
+  set Value to ""
+
+Recovered has
+  set Replayed to 0
+
+node has
+  set Table to {}
+  set Lsn to 0
+  set Flushed to 0
+
+# On start: load the last checkpoint, then replay the log written after it
+define Recover
+  set Table to (disk.Read "pages" or {})
+  set Flushed to (disk.Read "flushed" or 0)
+  set Lsn to (disk.Read "last" or 0)
+  set replayed to 0
+  each i in (lists.Range (Flushed plus 1) to Lsn)
+    set entry to (disk.Read (text.From i) or (message Put with Key ""))
+    set item (Key of entry) of Table to (Value of entry)
+    set replayed to (replayed plus 1)
+  emit (message Recovered with Replayed replayed)
+
+# A checkpoint writes the whole table, so older log entries are no longer needed
+define Checkpoint
+  disk.Write Table at "pages"
+  disk.Write Lsn at "flushed"
+  set Flushed to Lsn
+
+Recover
+
+time.Every 2s
+  Checkpoint
+
+# Write-ahead: the log entry is durable before the in-memory table changes
+when (sim.Delivered Put)
+  set Lsn to (Lsn plus 1)
+  disk.Write Put at (text.From Lsn)
+  disk.Write Lsn at "last"
+  set item (Key of Put) of Table to (Value of Put)
