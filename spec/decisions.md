@@ -75,3 +75,5 @@ something the spec did not.
 | 67 | A tween on a property supersedes the part of a running tween on that property after its start | One timeline per property, no queues |
 | 68 | A run-time error in look context stops the scene, never the simulation; it is not recorded in the trace | Observers are pure (decision 17) |
 | 69 | `look.Place` is a constraint: the shape follows its anchor until the shape itself is moved | Rows and tags follow cards when layouts re-flow |
+| 70 | `synod.wasm` exposes a synchronous global `synod` (`check`, `run`, `format`, `version`); results are the CLI's bytes as strings and it never throws (errors are `{code, message}`, exit code 2) | Byte-identical to the CLI; exceptions cannot cross Go frames; a Web Worker keeps pages responsive |
+| 71 | `synod.wasm` embeds only std; other modules come in `files`, under `vendor/` as `synod get` lays them out; the site copies `synod.wasm` and its matching `wasm_exec.js` from a pinned release at build time | One loader for disk and memory; examples stay editable; no CORS on release assets |

@@ -19,8 +19,13 @@ organization at https://synodlang.github.io until a domain exists.
   and error pages, built from `dsl` and `std` at build time. Structure,
   sources and the tutorial plan are in `11-documentation.md`.
 - **Examples:** one page per example with editable source and a Run
-  button. It calls `synod.wasm` (check, run, scene) and plays the result
-  with `player`; diagnostics are shown inline. No recordings.
+  button. It calls `synod.wasm` (check, run) and plays the result
+  with `player`; diagnostics are shown inline. No recordings. The site
+  build downloads the wasm pair of a pinned compiler release, verifies it
+  against `SHA256SUMS` and serves it from the site; the module runs in a
+  Web Worker. An example page passes the examples module as `files` with
+  `program` set to the example's folder; a snippet that imports the
+  examples carries them under `vendor/`.
 - **Tribute:** a short page on Leslie Lamport's "The Part-Time Parliament"
   and why the language is named after the Synod protocol.
 

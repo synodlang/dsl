@@ -6,6 +6,10 @@ GitHub release page.
 
 ## Unreleased
 
+### Changed
+
+- WebAssembly build (M6): `implementation/01-compiler.md` specifies the JS API (`check`, `run`, `format`, `version`; a global `synod`, synchronous, never throws, `files` rules, other modules under `vendor/`), the `internal/pipeline` and `internal/jsapi` packages, the release assets and the cross-target checks; `scene(files, ...)` is gone. `10-roadmap.md` M6 and its acceptance, `05-cli.md` (wasm assets, `check`/`fmt` skip `vendor` folders), `09-site-and-org.md`, `11-documentation.md` and `04-formats.md` follow. Decisions 70 and 71.
+
 ## v0.2.3 — 2026-10-22
 
 Completes Synod 0.2: the visual layer is fully specified and every look in

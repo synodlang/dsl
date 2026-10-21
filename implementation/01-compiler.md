@@ -7,7 +7,9 @@ standard library plus `golang.org/x/...` where needed.
 
 ```
 cmd/synod/          CLI entry (05-cli.md)
-cmd/synod-wasm/     WebAssembly entry: JS API over syscall/js (see Targets)
+cmd/synod-wasm/     WebAssembly entry: registers the global `synod` (see Targets)
+internal/pipeline/  check/run/fmt output assembly shared by the CLI and wasm
+internal/jsapi/     the JS API in pure Go (JSON in, plain values out)
 internal/source/    files, positions, diagnostics
 internal/lex/       tokens, INDENT/DEDENT, paths, colors vs comments
 internal/parse/     structure tree: File → Line → Sentence → Item, Block
@@ -80,24 +82,47 @@ testdata/           golden tests
 
 - Native: `synod` for darwin (arm64 and amd64, shipped as one universal
   binary) and linux.
-- WebAssembly: `GOOS=js GOARCH=wasm go build -o synod.wasm ./cmd/synod-wasm`,
-  shipped with `wasm_exec.js`. It exposes a global `synod` with three
-  functions:
-  - `check(files)` returns the `check.json` object.
-  - `run(files, {program, seed})` returns `{check, trace}`, where `trace`
-    is the `trace.jsonl` text.
-  - `scene(files, trace, {program, pace, mode})` returns the `scene.json`
-    object.
+- WebAssembly: `GOOS=js GOARCH=wasm` build of `cmd/synod-wasm`, shipped as
+  `synod-<tag>.wasm` with `synod-<tag>-wasm_exec.js` from the same Go
+  toolchain. It sets a global `synod` with synchronous functions; the site
+  runs the module in a Web Worker. Each returns a plain object and never
+  throws (a Go panic or a JS exception through Go frames would kill the
+  instance): `error` is null or `{code: "usage" | "internal", message}`;
+  when set, `exitCode` is 2 and every other field is null.
+  - `check(files, {paths?, tokens?, style?})` returns `{exitCode, error,
+    check, text}`: `check` is the text of `synod check --json [--tokens]`,
+    `text` that of `synod check --style S --color never`.
+  - `run(files, {program, seed?, pace?, mode?, style?, summary?})` returns
+    `{exitCode, error, check, status, summary, trace, scene, failure}`:
+    `status` is the stdout of `synod run` with the default destinations
+    (so it names `out/trace.jsonl` and `out/scene.json`), `summary` the
+    `--summary` stdout or null, `trace` and `scene` the document texts
+    (null when diagnostics stopped the run), `check` the `check.json` of
+    those diagnostics or the ok document, `failure` null or `{kind: "run" |
+    "look", line, diagnostic}`. Re-pacing is another call of `run`.
+  - `format(files, {paths?, style?})` returns `{exitCode, error, files,
+    changed, check, text}`: the canonical text of every selected file and
+    the paths whose text differs.
+  - `version()` returns `{api, language, compiler, formats, go, text}`.
 
-  `files` maps paths to sources and includes `synod.mod`. std is embedded
-  with `embed`. There is no network or `vendor/`, so remote modules
-  must be passed in `files`.
+  `files` maps relative slash paths to source text (no empty, absolute,
+  `\`, `.` or `..` segments); the compiler reads only `synod.mod` and
+  `*.synod` among them. Diagnostics show the paths as keyed, as if run from
+  the tree root. std is embedded with `embed`; every other module is passed
+  in `files` under `vendor/<module>@<version>/`, as `synod get` lays it
+  out, with a `require` line in `synod.mod`, so memory and disk share one
+  loader. Options are checked strictly: an unknown option, a bad `seed`
+  or `pace` and a missing `program` are usage errors with the CLI's rules.
+  Documents and texts are byte-identical to the CLI's. A size budget is
+  enforced by the build tool and CI.
 
 ## Determinism across targets
 
 Force float64 rounding with explicit conversions so that no fused
-multiply-add happens on any `GOARCH`. CI compares native and wasm traces
-and scenes byte for byte.
+multiply-add happens on any `GOARCH`. CI runs the `runtest` and `driver` goldens
+compiled to wasm under Node, diffs the trace hashes against Linux, and runs
+a test that compares the JS API with the native results (trace, scene,
+check, status and summary text) byte for byte.
 
 ## Fixes that need the package loaded
 

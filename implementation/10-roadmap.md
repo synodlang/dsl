@@ -87,10 +87,10 @@ render; the scheduling rules of `spec/09` §9.6 are covered by tests.
 ## M6 — WebAssembly build (`compiler`)
 
 - `GOOS=js GOARCH=wasm` build of `cmd/synod-wasm` with the JS API
-  `check` / `run` / `scene` (`01-compiler.md`).
+  `check` / `run` / `format` / `version` (`01-compiler.md`).
 
-**Accept:** `synod.wasm` produces traces and scenes byte-identical to
-native for every example.
+**Accept:** `synod.wasm` produces traces, scenes, `check.json` and status
+text byte-identical to native for every example; release assets published.
 
 ## M7 — Player (`player`)
 

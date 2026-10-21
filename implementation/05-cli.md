@@ -12,6 +12,11 @@
 | `synod explain <code>` | Explain a diagnostic code with an example |
 | `synod version` | Language, compiler and format versions |
 
+Folders: `synod fmt` and `synod check` walk a folder argument for `.synod`
+files and skip folders whose names start with `.` or `_` and folders named
+`testdata` or `vendor`; a file or folder named on the command line is always
+processed.
+
 Diagnostic output (`fmt`, `check`, `run`):
 
 - `--style rich|short` and `--color auto|always|never`, as `--style rich` or
@@ -98,7 +103,9 @@ publishes to GitHub Releases:
 
 - `synod-<tag>-<os>-<arch>.tar.gz` (Windows: `.zip` with `synod.exe`),
 - `synod-<tag>-darwin-universal.tar.gz`,
-- `SHA256SUMS`,
+- `synod-<tag>.wasm` and `synod-<tag>-wasm_exec.js` (the WebAssembly build
+  and its loader, `01-compiler.md`),
+- `SHA256SUMS` (lists every archive and both wasm files),
 
 and updates the `homebrew-tap` and `scoop-bucket` repositories.
 

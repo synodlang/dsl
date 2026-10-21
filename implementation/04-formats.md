@@ -171,3 +171,4 @@ tokens sorted by position, for editor highlighting and go-to-definition:
   `comment`.
 - `def` points to the declaration; it is omitted for std and language words.
 - Without `--tokens` the output has no `files` key.
+- The WebAssembly API returns these documents as text, identical to the CLI's (`01-compiler.md`).
