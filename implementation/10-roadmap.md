@@ -15,8 +15,9 @@ passing in CI. Do not start a milestone before the previous one passes.
 
 - `synod fmt` and the `syntax`, `indent`, `non-canonical`, `bad-header` checks.
 
-- Release: `compiler` v0.2.0 ships `synod fmt`, `synod check` and
-  `synod version` (distribution in `05-cli.md`). Later milestones release
+- Release: `compiler` v0.1.0 shipped `synod fmt`, `synod check` and
+  `synod version` (distribution in `05-cli.md`), before the versioning rule;
+  v0.2.0 (M2, full `synod check`) is the first release under it. Later milestones release
   new patch versions of the same language version (`run` arrives with M3);
   see "Versioning" in `00-architecture.md`.
 
