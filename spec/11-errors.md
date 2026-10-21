@@ -14,6 +14,11 @@ gossip/gossip.synod:14:3: error[unknown-phrase]: no phrase matches "net.Sned dig
 Messages must be short and specific, because they are fed back to agents
 verbatim.
 
+The terminal rendering for humans (source line, underline, labelled
+spans, `help:` diff; `implementation/10-roadmap.md`, "Rich diagnostics")
+shows these same diagnostics: its first line is exactly the line above,
+and run-time errors render the same way.
+
 ## 11.2 Compile-time codes
 
 | Code | Meaning |
@@ -46,6 +51,17 @@ verbatim.
 
 ## 11.3 Run-time errors
 
-Recorded as `sim.Failed` (see `spec/07`): `missing-key`, `index-range`,
-`disk-type` (a `disk.Read` value whose type differs from its
-default), `division-by-zero`, `nobody`, `time-limit`.
+Recorded as `sim.Failed` (see `spec/07`) with the code, a message and the
+source position (none for `time-limit`):
+
+| Code | Meaning |
+| --- | --- |
+| `missing-key` | `item k of m` with a key not in the map |
+| `index-range` | a list index that is not a whole number in `0 ≤ i < size`, in `item` or `set item`; `random.Pick` of an empty list |
+| `disk-type` | a `disk.Read` value whose type is not accepted as the type of its default (`spec/04` §4.7) |
+| `division-by-zero` | `divided by` 0 or `0s`; `math.Remainder` by 0 |
+| `nobody` | `sim.Nobody` where a node is needed: `net.Send` to it, `deliver` to it, `sim.Crash`, `sim.Restart`, `sim.Remove`, `net.Partition` or `net.DropNext` naming it, a node field of it |
+| `time-limit` | the next event is later than 10 minutes of simulated time |
+| `bad-argument` | an argument outside a phrase's domain: a negative `after` delay, `sim.Seed` not a whole number in 0..2^53, a negative `sim.StopAt`, `net.Latency` unless `0 ≤ a ≤ b`, `net.Loss` outside 0..1, a negative or fractional count, `random.Between` or `random.TimeBetween` with `b` below `a`, `lists.Take` or `lists.Range` with a non-whole argument |
+| `number-range` | a non-finite number, or a time too large for 64 bits |
+| `run-limit` | more than 100000 steps at one instant, call depth over 10000, or a list or text over 1000000 items |

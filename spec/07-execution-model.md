@@ -22,8 +22,21 @@ scheduled. One **step** is:
 3. Append the trace events it produced.
 4. Evaluate every active `always`.
 
-The run ends when the queue is empty, when `sim.StopAt` is reached, or
-after 10 minutes of simulated time (an error is reported).
+The run ends when the queue is empty (`sim.Ended` reason `"empty"`, at the
+time of the last step) or when the next event is later than `sim.StopAt`
+(reason `"stop"`, at `sim.StopAt`). Events at exactly `sim.StopAt` run. An
+event later than 10 minutes of simulated time (and than `sim.StopAt`, if
+set) fails the run with `time-limit` at 10 minutes.
+
+- Events whose node is down, removed or in an older incarnation (timers,
+  starts, deliveries to a crashed node) are discarded without a step.
+  A message arriving at a crashed node is a step: `net.Dropped`, reason
+  `"crashed"`.
+- More than 100000 steps at one instant is a `run-limit` error, as are
+  call depth over 10000 and a collection or text over 1000000 items.
+- `sim.StopAt` is a time of at least 0; the last call wins, and a time in
+  the past ends the run after the current step.
+- A run-time error in `define main`, a step or an `always` ends the run.
 
 ### Order at time 0
 
@@ -52,7 +65,10 @@ after 10 minutes of simulated time (an error is reported).
 ## 7.4 Timers
 
 `after d` schedules its block at `now + d` in the same context: on the
-receiver's node in node context, or in main. The block captures the
+receiver's node in node context, or in main. In a phrase without a
+receiver that several contexts share (`time.Every`), it schedules on the
+node of the running event, or in main. A negative delay is a
+`bad-argument` error. The block captures the
 **values** of locals and bound names, the receiver included, at
 scheduling time. Fields read through the receiver (`n.Heartbeat`) are
 read live when it runs. Because the block holds copies, setting a local
@@ -66,7 +82,9 @@ cancellation: check a condition when the timer fires instead.
   arriving while it is down are dropped (`net.Dropped`, reason `"crashed"`).
   Messages it already sent are still delivered.
 - `sim.Restart n`: every node field returns to its initial value,
-  `std/disk` contents survive, and each package's `start` runs again. Timers
+  including fields `define main` changed (main's adjustments are not
+  reapplied), `std/disk` contents survive, and each package's `start` runs
+  again. Timers
   from before the crash never fire (each node has an incarnation number).
 
 ## 7.6 The network
@@ -82,16 +100,30 @@ Configured from `main` with `std/net` (see `std/README.md`):
 
 ## 7.7 Determinism
 
-- One PRNG, **PCG32**, seeded by `sim.Seed n` (default seed 1). Every
-  random decision (`random.*`, latency, loss) draws from it in step order.
+- One PRNG, **PCG32**, seeded with the run's seed: `--seed` if given,
+  otherwise `sim.Seed n`, otherwise 1. `n` is a whole number from 0 to
+  2^53. The trace header records the seed in force when `define main`
+  returns. Every random decision draws from the PRNG in step order, and
+  each consumes exactly one draw whatever its arguments: every `random.*`
+  call (except `random.Pick` of an empty list, an error) and the latency of
+  every `net.Send`, drop or not, even with a fixed latency; the loss test
+  only when loss is above 0. Partition and targeted drops draw nothing.
+- Evaluation order is left to right: a phrase's receiver, then its items
+  in the order written, then its blocks; operands left to right (`and` and
+  `or` stop early); record settings in the record's field order.
 - Numbers are IEEE-754 float64; implementations must not use fused
   multiply-add or other non-reproducible math.
-- Map iteration is in ascending key order.
+- Map iteration is in ascending key order. Keys order by type (text by
+  byte, number, time, node by creation), lists and maps item-wise.
+- Time `×` or `÷` a number rounds down to a whole microsecond. `-0` is
+  `0`; a result that is not finite, or a time that overflows, is a
+  `number-range` error.
 - The same program, seed and Synod version must produce a byte-identical trace.
 
 ## 7.8 Run-time errors
 
 A run-time error (missing key, type mismatch, division by zero, sending
 to `sim.Nobody`…) stops the run and is recorded as the last trace event
-`sim.Failed` with the error and source location. Everything up to it can
-still be played.
+`sim.Failed` with the error code, message and source location. There is
+no `sim.Ended` after it. Everything up to it can still be played. Codes:
+`spec/11` §11.3.

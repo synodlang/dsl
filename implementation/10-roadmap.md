@@ -15,9 +15,10 @@ passing in CI. Do not start a milestone before the previous one passes.
 
 - `synod fmt` and the `syntax`, `indent`, `non-canonical`, `bad-header` checks.
 
-- Release: `compiler` v0.1.0 ships `synod fmt`, `synod check` and
+- Release: `compiler` v0.2.0 ships `synod fmt`, `synod check` and
   `synod version` (distribution in `05-cli.md`). Later milestones release
-  new versions (`run` arrives with M3).
+  new patch versions of the same language version (`run` arrives with M3);
+  see "Versioning" in `00-architecture.md`.
 
 **Accept:** every example file round-trips through `fmt` unchanged; a
 fuzz run of 10 minutes finds no crash; deliberately mis-formatted copies
@@ -42,7 +43,22 @@ traces (the new examples); running twice gives byte-identical traces; Paxos's in
 holds across seeds 1–200; breaking Paxos (removing the highest-prior
 rule in `paxos.synod`) makes `sim.Broken` appear for some seed.
 
-## M4 — Scene builder and looks
+## M4 — Rich diagnostics
+
+- Human rendering of diagnostics and run-time errors, Rust-style: the
+  source line, `^^^` under the exact span, labelled secondary spans
+  (`defined here`), and a `help:` with the fix shown as a diff. Color only
+  on terminals, and never when `NO_COLOR` is set.
+- The first line stays the exact one-line message (`spec/11` §11.1) that
+  agents read. `--json` gains span ends and labels. Run-time errors
+  (`sim.Failed`) render the same way.
+
+**Accept:** a golden rendering per diagnostic code and per run-time code;
+the first line of each equals the one-line form; no escape codes with
+`NO_COLOR` or when output is not a terminal; `--json` spans and labels
+match the rendering.
+
+## M5 — Scene builder and looks
 
 - `std/look`, `std/theme`, `std/look/basic`, observers, reactive draws,
   presentation clock, `scene.json`.
@@ -52,7 +68,7 @@ rule in `paxos.synod`) makes `sim.Broken` appear for some seed.
 **Accept:** golden scenes for all examples; `raftlook` and `ringlook`
 render; the scheduling rules of `spec/09` §9.6 are covered by tests.
 
-## M5 — WebAssembly build (`compiler`)
+## M6 — WebAssembly build (`compiler`)
 
 - `GOOS=js GOARCH=wasm` build of `cmd/synod-wasm` with the JS API
   `check` / `run` / `scene` (`01-compiler.md`).
@@ -60,7 +76,7 @@ render; the scheduling rules of `spec/09` §9.6 are covered by tests.
 **Accept:** `synod.wasm` produces traces and scenes byte-identical to
 native for every example.
 
-## M6 — Player (`player`)
+## M7 — Player (`player`)
 
 - TypeScript canvas library that plays `scene.json`: keyframes,
   smootherstep, OKLab colors, markers, `renderFrame(at)` for export.
@@ -68,7 +84,7 @@ native for every example.
 **Accept:** every golden scene plays at 120fps in Safari/WKWebView on
 Apple silicon; frame-render golden images match.
 
-## M7 — Mac app
+## M8 — Mac app
 
 - Open a workspace, run, play scenes with `player` in a WKWebView,
   timeline, inspector, video export.
@@ -76,14 +92,14 @@ Apple silicon; frame-render golden images match.
 **Accept:** every example plays; exported 1080p video of Raft matches
 the player frame for frame at the same pace.
 
-## M8 — Editor and learning modes
+## M9 — Editor and learning modes
 
 - Editor with tokens and diagnostics, Predict, Break it, Compare.
 
 **Accept:** Break it can reproduce the Cassandra hinted-handoff story by
 clicks alone; Predict stops at each `lesson.Ask`.
 
-## M9 — Claude integration and agent skills
+## M10 — Claude integration and agent skills
 
 - `agent-skills` with the generated catalog; the prompt bar.
 
@@ -91,7 +107,7 @@ clicks alone; Predict stops at each `lesson.Ask`.
 a checked program in one request, using the `twopc` package without
 rewriting it.
 
-## M10 — Remaining examples, site, documentation, `.github`
+## M11 — Remaining examples, site, documentation, `.github`
 
 - The site and its documentation as in `09-site-and-org.md` and
   `11-documentation.md`: tutorial, reference, library, guides, errors.

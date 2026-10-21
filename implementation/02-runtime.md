@@ -10,7 +10,7 @@ type Sim struct {
     Now      Micros            // simulated clock, int64 microseconds
     Queue    EventHeap         // ordered by (At, Seq)
     Seq      uint64
-    RNG      *PCG32            // seeded by sim.Seed, default 1
+    RNG      *PCG32            // --seed, else sim.Seed, else 1
     Nodes    []*Node           // creation order; index+1 = sim.Id
     Net      NetConfig         // latency, loss, partitions, targeted drops
     Trace    *TraceWriter
@@ -53,7 +53,10 @@ Map (sorted keys), Node (pointer), Record (type + field array), Shape
    Receive on a down node, record `net.Dropped … because "crashed"`); set
    `Now`; run; then evaluate invariants; record `sim.Broken` on
    true→false.
-4. Stop on empty queue, `sim.StopAt`, or 10 minutes; record `sim.Ended`.
+4. Stop on empty queue or when the next event is later than `sim.StopAt`
+   (events at exactly `sim.StopAt` run); record `sim.Ended`. An event
+   later than 10 minutes is a `time-limit` error instead. A run-time error
+   records `sim.Failed` as the last event, with no `sim.Ended`.
 
 ## Executing a step
 
@@ -66,7 +69,12 @@ Map (sorted keys), Node (pointer), Record (type + field array), Shape
   (dependency order, file order, line order); bind the receiver and
   names; run each.
 - **Timer:** run the captured block with its captured bindings, which
-  include the receiver.
+  include the receiver. The interpreter tracks the node of the running
+  event, so `after` in shared code (`time.Every`) schedules on that node.
+  Passing a block argument that only runs another block passes that block
+  itself, so the nesting of `time.Every` does not grow with its ticks.
+- **Restart** also resets fields `define main` set; the demo's setup is
+  not reapplied.
 - **set** on an exported node field records `sim.Changed` with old and new
   values, but only when the value actually changes.
 - **net.Send** (`net.Send m from a to b`; `a` is always the receiver in
@@ -83,8 +91,10 @@ Map (sorted keys), Node (pointer), Record (type + field array), Shape
 PCG32 (XSH RR) as in the reference implementation, seeded with
 `seed` and stream 54. `random.Between a and b` = `a + (b−a) × u` with
 `u = next() / 2³²`. `TimeBetween` rounds down to whole microseconds.
-Latency uses `TimeBetween`. Every draw happens in step order; no other
-source of randomness exists.
+Latency uses `TimeBetween`. Every draw happens in step order and each
+random decision consumes exactly one draw (`spec/07` §7.7); no other
+source of randomness exists. `math.Hash` is not random: FNV-1a 64 over
+the UTF-8 text, then `(h >> 11) / 2^53`.
 
 ## Context enforcement at run time
 

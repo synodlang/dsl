@@ -6,6 +6,18 @@ GitHub release page.
 
 ## Unreleased
 
+- M3 simulator rules stated: seed precedence (`--seed`, then `sim.Seed`, then
+  1), step and time-limit rules, `sim.StopAt` boundary, evaluation order, RNG
+  consumption, restart, `after` in shared code, node key per trace event,
+  `sim.Failed` last with no `sim.Ended`, module-relative trace paths, run-time
+  codes `bad-argument`, `number-range`, `run-limit` (decision 62).
+- Time `×` and `÷` a number round down; `-0` is `0`.
+- Downloads: shared store `~/.synod/cache`, `vendor/` stays the only place the
+  compiler reads (decision 60, refined).
+- Versioning: every repository shares MAJOR.MINOR with the language version
+  (decision 61).
+- Roadmap: new milestone M4 "Rich diagnostics"; later milestones renumbered.
+
 ## v0.2.1 — 2026-10-21
 
 Clarifications and tightened rules found while building the compiler's

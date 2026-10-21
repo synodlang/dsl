@@ -35,8 +35,12 @@ Synod follows Go.
 - Downloaded modules live in a `vendor/` folder at the root of the module
   that needs them, one folder per module and version,
   `vendor/<module path>@<version>/` (e.g.
-  `vendor/github.com/someone/raft@v1.2.0/`). This is the only place: there
-  is no global cache and no override. `vendor/` is ignored by git
+  `vendor/github.com/someone/raft@v1.2.0/`). This is the only place the
+  compiler reads: there is no override. `synod get` fills it from a shared
+  download store, `~/.synod/cache/<module>@<version>/`, which holds each
+  downloaded module once for all projects, verified against `synod.sum`
+  and never edited; `synod get` copies from it (or hard-links where
+  possible) and downloads only what the store lacks. `vendor/` is ignored by git
   (`synod new` writes a `.gitignore` containing `vendor/`); `synod.sum`
   keeps builds reproducible after a fresh `synod get`, and everything
   works offline once fetched. Only the main module's `vendor/` is read; a

@@ -21,8 +21,17 @@ Everything belonging to the language lives in the
 
 Rules:
 
-- `dsl` is versioned (`v0.2.1`, …). `compiler`, `std` and `agent-skills`
-  each declare which `dsl` version they implement.
+- **Versioning** (decision 61). Every repository shares MAJOR.MINOR with
+  the language version (`synod 0.2` in `synod.mod`): language 0.2 means
+  every repository releases `v0.2.x`. PATCH is each repository's own. A
+  `dsl` patch is a clarification or spec bug fix; a `compiler`, `std`,
+  `player`… patch is a bug fix or a feature that implements more of the
+  same language version. A new language feature raises MINOR: the spec
+  changes first (`dsl` `v0.3.0`), and each repository moves to `v0.3.x`
+  when it implements it. READMEs say "implements Synod 0.2".
+- **Release notes.** Each release's notes (and `CHANGELOG.md`) state the
+  Synod version implemented and what changed; a `dsl` release lists spec
+  changes, other repositories list fixes and newly implemented features.
 - The **trace format** and **scene format** (`04-formats.md`) are
   contracts between `compiler` and `player`, versioned in `dsl`.
 - `agent-skills` must be regenerated whenever `dsl` or `std` changes; CI in

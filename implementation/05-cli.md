@@ -7,17 +7,39 @@
 | `synod check [paths…] [--json] [--tokens]` | Load, resolve and check; print diagnostics |
 | `synod run <folder> [--seed n] [--trace file] [--scene file] [--pace x] [--mode ordered\|proportional]` | Check and run the folder's main file: simulate and build the scene; default outputs `out/trace.jsonl` and `out/scene.json` |
 | `synod run <folder> --summary` | Print a compact, human-readable summary of the run: facts grouped per step, invariant results (used by agents) |
-| `synod get [module@version]` | Fetch dependencies into `vendor/` and update `synod.mod`/`synod.sum` |
+| `synod get [module@version]` | Fill `vendor/` from the shared download store (downloading what is missing) and update `synod.mod`/`synod.sum` |
 | `synod doc [package] [--catalog]` | Print a package's exported phrases; `--catalog` prints the std catalog as Markdown for `agent-skills` |
 | `synod explain <code>` | Explain a diagnostic code with an example |
 | `synod version` | Language, compiler and format versions |
+
+`synod run <folder>` details:
+
+- Flags may come before or after the folder; `--seed 7` and `--seed=7`
+  (decimal, 0 to 2^53; it wins over `sim.Seed`, `spec/07` §7.7).
+  `--trace` defaults to `out/trace.jsonl` relative to the working
+  directory (parents are created); `--trace -` writes the trace to stdout
+  and the status line to stderr.
+- Diagnostics print as in `synod check`; any one stops the run (exit 1, no
+  trace). A folder with no main file is `missing-main`, exit 1.
+- Stdout carries no wall-clock time: `ok seed 7: stop at 2s, 3 nodes, 212
+  events -> out/trace.jsonl`, plus one line per broken `always`; a failed
+  run prints `failed at 2s: <pos>: error[<code>]: <message>` (the trace is
+  still written; exit 1). A broken `always` alone is exit 0.
+- `--summary` prints the compact summary instead of the status line and
+  still writes the trace.
+- Until their milestones, `--scene`, `--pace`, `--mode`, `--watch` and
+  `--json-events` exit 2 with `synod run: --scene is not implemented yet`.
 
 Modules: `synod check` and `synod run` read remote modules from the main
 module's `vendor/` only, at `vendor/<module path>@<version>/`; `synod new`
 writes a `.gitignore` containing `vendor/`;
 a missing one is `unknown-import` with the hint `run "synod get <m>@<v>"`.
-`synod get`, network access and `synod.sum` verification are not
-implemented in M2. `synod fmt` applies the fixes that need declarations
+`synod get` fills `vendor/` from the shared download store
+`~/.synod/cache/<module>@<version>/` (copying, or hard-linking where
+possible) and downloads only the modules the store lacks; downloads are
+verified against `synod.sum`, and store entries are never edited. The
+compiler reads `vendor/` only, never the store. `synod get`, network
+access and `synod.sum` verification are not implemented in M2. `synod fmt` applies the fixes that need declarations
 (`spec/10`) when the package loads, and leaves them alone otherwise.
 
 Exit codes: 0 success, 1 diagnostics or a `sim.Failed` run, 2 usage or I/O error.

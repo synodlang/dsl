@@ -18,21 +18,27 @@ once; newer than the compiler's is a `syntax` error), `require` (zero or
 more, sorted; unsorted is `non-canonical`). `synod.sum` holds one line per
 dependency: `<module> <version> <commit sha> <tree hash>`.
 
-Downloaded modules are not part of any format: `synod get` fetches them into `vendor/`, which `.gitignore` excludes; `synod.sum` is what makes a fresh download reproducible.
+Downloaded modules are not part of any format: `synod get` fills `vendor/` (which `.gitignore` excludes) from the shared download store `~/.synod/cache/<module>@<version>/`, downloading only what is missing and verifying it against `synod.sum`; `synod.sum` is what makes a fresh download reproducible.
 
 ## trace.jsonl
 
 One JSON object per line. Line 1 is the header:
 
 ```json
-{"format":"synod-trace/1","synod":"0.2","seed":7,"program":"examples/paxos","packages":["paxos","std/net","std/sim"]}
+{"format":"synod-trace/1","synod":"0.2","seed":7,"program":"github.com/synodlang/examples/paxos","packages":["github.com/synodlang/examples/paxos","std/net","std/sim"]}
 ```
+
+`synod` is the language version. `seed` is the seed in force when `define main` returns (`spec/07` §7.7). `program` is the import path of the main file's folder; `packages` are the import paths of all other packages of the program, `std/` ones included, sorted by byte order.
+
+Qualifiers in the trace (`paxos.Prepare`, `"paxos.Promised"`) are the package name; when two packages of the program share a name, the first in import-path order keeps `<name>` and the others get `<name>2`, `<name>3`. Numbers are written as ECMAScript `Number::toString` (`1e21` and above, and below `1e-6`, use an exponent without leading zeros; never `NaN`, `Infinity` or `-0`).
+
+Positions (`pos`, and the path inside a `rule` text) are slash paths relative to the module, so a trace does not depend on the working directory: the main module's files from its root (`paxos/paxos.synod:40:5`), std files as `std/<package>/<file>`, vendored files as `<module path>@<version>/<path>`. Without a `synod.mod` the base name of the folder replaces the module root.
 
 Then one line per trace event:
 
 ```json
-{"seq":12,"t":20431,"ev":"net.Sent","node":"n1","msg":{"id":5,"type":"paxos.Prepare","fields":{"number":101}},"from":"n1","to":"n3"}
-{"seq":13,"t":31877,"ev":"net.Arrived","node":"n3","msg":{"id":5,"type":"paxos.Prepare","fields":{"number":101}},"from":"n1","to":"n3"}
+{"seq":12,"t":20431,"ev":"net.Sent","node":"n1","msg":{"id":5,"type":"paxos.Prepare","fields":{"number":"…"}},"from":"n1","to":"n3"}
+{"seq":13,"t":31877,"ev":"net.Arrived","node":"n3","msg":{"id":5,"type":"paxos.Prepare","fields":{"number":"…"}},"from":"n1","to":"n3"}
 {"seq":14,"t":31877,"ev":"sim.Changed","node":"n3","field":"paxos.Promised","old":0,"new":101}
 {"seq":20,"t":52010,"ev":"sim.Emitted","node":"n2","record":{"type":"paxos.Learned","fields":{"Value":"x"}}}
 {"seq":31,"t":90000,"ev":"sim.Broken","rule":"paxos/paxos.synod:109: always ((lists.Size ChosenValues) at most 1)"}
@@ -41,17 +47,17 @@ Then one line per trace event:
 | `ev` | Extra keys |
 | --- | --- |
 | `sim.Started` | none |
-| `sim.Ended` | `reason`: `"empty"`, `"stop"`, `"limit"` |
-| `sim.Added`, `sim.Restarted` | `node`, `runs` (packages), `state` (full exported state, `{ "pkg.Field": value }`) |
+| `sim.Ended` | `reason`: `"empty"`, `"stop"`; a failed run has no `sim.Ended` |
+| `sim.Added`, `sim.Restarted` | `node`, `runs` (import paths), `state` (full exported state, `{ "pkg.Field": value }`) |
 | `sim.Removed`, `sim.Crashed` | `node` |
 | `sim.Changed` | `node`, `field`, `old`, `new` |
 | `sim.Injected` | `node`, `record` |
 | `sim.Fired` | `node` |
 | `sim.Broken` | `rule` |
 | `sim.Emitted` | `node` (`null` when emitted by `sim.Nobody` from main), `record` |
-| `sim.Failed` | `code`, `message`, `pos` |
-| `net.Sent`, `net.Arrived` | `node`, `msg`, `from`, `to` |
-| `net.Dropped` | `node`, `msg`, `from`, `to`, `reason` |
+| `sim.Failed` | `code`, `message`, `pos` (`null` for `time-limit`) |
+| `net.Sent`, `net.Arrived` | `node` (sender for `net.Sent`, receiver for `net.Arrived`), `msg`, `from`, `to` |
+| `net.Dropped` | `node` (the receiver), `msg`, `from`, `to`, `reason` |
 | `net.Partitioned` | `a`, `b` (lists of node names) |
 | `net.Healed` | none |
 | `disk.Written` | `node`, `key` |

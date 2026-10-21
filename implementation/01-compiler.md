@@ -12,7 +12,7 @@ internal/source/    files, positions, diagnostics
 internal/lex/       tokens, INDENT/DEDENT, paths, colors vs comments
 internal/parse/     structure tree: File → Line → Sentence → Item, Block
 internal/format/    canonical printer; fmt = parse → print
-internal/load/      synod.mod, synod.sum, vendor/ lookup, package graph
+internal/load/      synod.mod, synod.sum, vendor/ lookup, package graph (`synod get` also manages the download store ~/.synod/cache)
 internal/resolve/   phrase tables, pattern matching, name binding
 internal/check/     types, inference, contexts, exports, unused names
 internal/ir/        resolved program: phrases, handlers, records, state
@@ -40,7 +40,7 @@ testdata/           golden tests
    pointing at the first differing line. `synod fmt` writes the printed
    form instead. Negation rewriting (`spec/10`) happens in the printer.
 4. **Load.** Read `synod.mod`, resolve imports to package folders (module
-   the main module's `vendor/` for remote ones, `std/` to the bundled std, which is authored in
+   the main module's `vendor/` for remote ones, which is the only place the compiler reads; `synod get` fills it from the download store `~/.synod/cache/<module>@<version>/`, verified against `synod.sum`, `std/` to the bundled std, which is authored in
    the std repo and vendored into the compiler with `embed`). Split each folder
    by header into the library package and at most one main file
    (`bad-header`, `extra-main`). Imports resolve to library packages

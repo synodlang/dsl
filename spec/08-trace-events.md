@@ -34,6 +34,12 @@ Each row shows the event phrase an observer writes after `when`.
 `value` is the "any value" hole type, available to native patterns only.
 `r` in `net.Dropped` is one of `"loss"`, `"partition"`, `"crashed"`, `"targeted"`.
 
+Every event with a node records one `node` key: the sender for
+`net.Sent`, the receiver for `net.Arrived` and `net.Dropped`, the node
+itself for the rest (`null` for `sim.Emitted` by `sim.Nobody`).
+`sim.Failed` is always the last event of a run and `sim.Ended` is then
+absent; `sim.Ended` has the reason `"empty"` or `"stop"`.
+
 `net.Sent` and `net.Arrived` of the same message share a message id in the
 trace, so the scene builder can draw one flight from send to arrival.
 

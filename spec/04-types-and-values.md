@@ -102,6 +102,8 @@ Maps iterate in ascending key order (nodes order by creation), so runs are deter
 | `and`, `or` | bool, bool → bool |
 | `not` | bool → bool |
 
+`time times number`, `number times time` and `time divided by number` round down to a whole microsecond. `-0` is `0`: no operator yields a negative zero. A non-finite result is a `number-range` run-time error.
+
 Comparing two values whose types are not accepted as one another (§4.7) is a `type-mismatch` compile error. Division by zero is a run-time error.
 
 ## 4.6 Type inference
