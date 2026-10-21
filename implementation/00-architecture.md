@@ -55,10 +55,6 @@ Rules:
 - Everything is deterministic: same sources, seed and version produce
   byte-identical trace and scene files.
 
-## Follow-ups outside `dsl`
-
-- Update the `.github` profile README to list `player` and the site.
-
 ## Why Go for the compiler
 
 A single static binary for macOS (arm64, amd64) and Linux; fast enough to
