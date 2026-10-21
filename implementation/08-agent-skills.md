@@ -50,6 +50,9 @@ description: Read, write, check and run Synod (.synod) programs that model
 6. Looks are optional: `std/look/basic` animates everything by default.
 7. Run `synod fmt`, then `synod check` until clean, then `synod run` and
    confirm the trace shows what was asked. Never hand back unchecked code.
+8. Piped output is the one-line form with a hint, which is what you read.
+   Use `synod check --json` for spans, edits and quick fixes, or
+   `--style rich` to see the source line.
 
 Reference files: grammar.md, phrases.md, contexts.md, canonical.md,
 std-catalog.md, trace-events.md, errors.md, examples/.

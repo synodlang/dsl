@@ -52,7 +52,12 @@ rule in `paxos.synod`) makes `sim.Broken` appear for some seed.
   on terminals, and never when `NO_COLOR` is set.
 - The first line stays the exact one-line message (`spec/11` §11.1) that
   agents read. `--json` gains span ends and labels. Run-time errors
-  (`sim.Failed`) render the same way.
+  (`sim.Failed`) render the same way. Rich output is the default only on a
+  terminal (`--style rich|short`, `--color auto|always|never`; see
+  `implementation/05-cli.md`).
+- Golden policy: each `testdata/check` case has `expect.txt` (short form,
+  unchanged), `expect-rich.txt` (rich, no color) and `expect.json`; each
+  `testdata/run/errors` case has `expect-rich.txt`.
 
 **Accept:** a golden rendering per diagnostic code and per run-time code;
 the first line of each equals the one-line form; no escape codes with

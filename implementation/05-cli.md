@@ -3,14 +3,32 @@
 | Command | What it does |
 | --- | --- |
 | `synod new <dir> [--lib]` | Create a module: `synod.mod`, a package folder with a library file and a `demo.synod` main file (`--lib`: no main file), `.gitignore` |
-| `synod fmt [paths…]` | Rewrite files into canonical form; `--check` exits 1 if anything would change |
-| `synod check [paths…] [--json] [--tokens]` | Load, resolve and check; print diagnostics |
+| `synod fmt [paths…] [--check] [--style rich\|short] [--color auto\|always\|never]` | Rewrite files into canonical form; `--check` exits 1 if anything would change |
+| `synod check [paths…] [--json] [--tokens] [--style rich\|short] [--color auto\|always\|never]` | Load, resolve and check; print diagnostics |
 | `synod run <folder> [--seed n] [--trace file] [--scene file] [--pace x] [--mode ordered\|proportional]` | Check and run the folder's main file: simulate and build the scene; default outputs `out/trace.jsonl` and `out/scene.json` |
 | `synod run <folder> --summary` | Print a compact, human-readable summary of the run: facts grouped per step, invariant results (used by agents) |
 | `synod get [module@version]` | Fill `vendor/` from the shared download store (downloading what is missing) and update `synod.mod`/`synod.sum` |
 | `synod doc [package] [--catalog]` | Print a package's exported phrases; `--catalog` prints the std catalog as Markdown for `agent-skills` |
 | `synod explain <code>` | Explain a diagnostic code with an example |
 | `synod version` | Language, compiler and format versions |
+
+Diagnostic output (`fmt`, `check`, `run`):
+
+- `--style rich|short` and `--color auto|always|never`, as `--style rich` or
+  `--style=rich`; another value exits 2. The short form is the one line of
+  `spec/11` §11.1 (the same bytes as before M4); the rich form adds the
+  source line, markers, labels, notes and help under the same first line.
+- By default the style is rich when the destination is a terminal, short
+  otherwise (a pipe or a file). The destination is stdout for `check` and for
+  `run`, and stderr for `fmt` diagnostics and for the status of `run --trace -`,
+  so detection is on that stream. A terminal is a character device; a pipe from
+  MSYS or mintty counts as a pipe.
+- `--color auto` (the default) colors rich output when the destination is a
+  terminal, `NO_COLOR` is unset or empty and `TERM` is not `dumb`. `always`
+  and `never` beat the environment, `NO_COLOR` included. `--color` only
+  matters for rich output. On Windows color switches the console to ANSI
+  processing and is off if that fails.
+- `--json` ignores both flags.
 
 `synod run <folder>` details:
 
@@ -19,11 +37,12 @@
   `--trace` defaults to `out/trace.jsonl` relative to the working
   directory (parents are created); `--trace -` writes the trace to stdout
   and the status line to stderr.
-- Diagnostics print as in `synod check`; any one stops the run (exit 1, no
+- Diagnostics print as in `synod check` (same styles); any one stops the run (exit 1, no
   trace). A folder with no main file is `missing-main`, exit 1.
 - Stdout carries no wall-clock time: `ok seed 7: stop at 2s, 3 nodes, 212
   events -> out/trace.jsonl`, plus one line per broken `always`; a failed
-  run prints `failed at 2s: <pos>: error[<code>]: <message>` (the trace is
+  run prints `failed at 2s: <pos>: error[<code>]: <message>` and, in rich
+  style, the source line of the failure under it (the trace is
   still written; exit 1). A broken `always` alone is exit 0.
 - `--summary` prints the compact summary instead of the status line and
   still writes the trace.

@@ -2,22 +2,66 @@
 
 ## 11.1 Format
 
-Every diagnostic has a stable code, a location and one sentence, plus an
-optional hint:
+A diagnostic has a stable code, a location and one sentence, plus an
+optional hint. It is written in two forms.
+
+**Short form.** The form agents read, and what `synod check` prints when its
+output is not a terminal:
 
 ```
 gossip/gossip.synod:14:3: error[unknown-phrase]: no phrase matches "net.Sned digest from n to peer"
   hint: did you mean "net.Send [m: msg] from [a: node] to [b: node]"?
 ```
 
+A diagnostic with no position (a folder without a main file, a run that
+reaches the time limit) is `path: error[code]: message`, without `:line:col`.
+
 `synod check --json` emits the same as JSON (`implementation/04-formats.md`).
 Messages must be short and specific, because they are fed back to agents
 verbatim.
 
-The terminal rendering for humans (source line, underline, labelled
-spans, `help:` diff; `implementation/10-roadmap.md`, "Rich diagnostics")
-shows these same diagnostics: its first line is exactly the line above,
-and run-time errors render the same way.
+**Rich form.** The form for people at a terminal (`synod check --style rich`):
+the source line with markers under the exact span, labelled secondary spans,
+notes, and the fix shown as a diff.
+
+```
+p/p.synod:13:5: error[unknown-phrase]: no phrase matches "if n.Role is "leader""
+   |
+13 |     if n.Role is "leader"
+   |     ^^^^^^^^^^^^^^^^^^^^^ no phrase takes these items
+   |        ------------------ 3 items here; "if" takes one condition
+   |
+help: parenthesize the condition
+   |
+13 |     if (n.Role is "leader")
+   |        +                  +
+```
+
+The invariants of the rich form:
+
+- Line 1 is exactly the first line of the short form. There is no `-->` line.
+- The position `line:col` in line 1 is the start of the primary span, so the
+  two forms cannot drift apart.
+- The primary span is marked `^`, secondary spans `-`. A fix with edits shows
+  the edited lines with `+` under inserted text, `~` under replaced text, or
+  `-` and `+` rows when a whole line changes.
+- No escape sequences unless color is on (`implementation/05-cli.md`). Output
+  always ends lines with `\n`, on every system.
+- A diagnostic without a position, or in a file the renderer cannot read, is
+  its first line plus any notes and help, without a source line.
+
+The hint drives the short form. Labels, help and notes drive the rich form. A
+diagnostic that has a hint and no help shows the hint as `= help:` in the rich
+form, so a producer can add structure one code at a time.
+
+Text style of labels, help and notes: a label is at most about 50
+characters, starts lower-case and has no final period; quoted words use
+double quotes (`"if"`), never backticks; help is an imperative (`parenthesize
+the condition`); a note is a statement. None repeats the message.
+
+Run-time errors render the same way. `synod run` prints the `failed at
+<time>: <pos>: error[<code>]: <message>` line first, unchanged, and under it
+the source line of the failure.
 
 ## 11.2 Compile-time codes
 
@@ -52,7 +96,10 @@ and run-time errors render the same way.
 ## 11.3 Run-time errors
 
 Recorded as `sim.Failed` (see `spec/07`) with the code, a message and the
-source position (none for `time-limit`):
+source position (none for `time-limit`). The position in the trace stays the
+start only (`synod-trace/1`); the span a failure underlines in the rich form
+is not part of the trace. A diagnostic's position is a span (start and end)
+internally, and `check.json` carries both.
 
 | Code | Meaning |
 | --- | --- |

@@ -23,7 +23,8 @@ Claude" works without a network.
 ## Components
 
 - **Editor.** TextKit 2 with syntax highlighting from
-  `synod check --json --tokens`, inline diagnostics, format on save,
+  `synod check --json --tokens`, inline diagnostics (underline from `line:col`
+  to `end`, secondary `labels`, quick fixes from `help[].edits`), format on save,
   go-to-definition across packages, phrase completion from `synod doc`.
 - **Runner.** On save (debounced 300ms) runs
   `synod run --scene … --trace …`; on success swaps the scene, keeping

@@ -3,7 +3,8 @@
 All JSON is UTF-8 with keys in the order shown. Times are integers:
 `t` in microseconds of simulated time, `at` in milliseconds of
 presentation time. Every file starts with a `format` version; readers
-reject unknown major versions.
+reject unknown major versions. Within a major version keys are only added,
+never removed or renamed, and readers ignore keys they do not know.
 
 ## synod.mod
 
@@ -107,10 +108,29 @@ Read by the `player` library (the Mac app and the site both use it).
 
 ```json
 {"format":"synod-check/1","ok":false,"diagnostics":[
-  {"file":"gossip/gossip.synod","line":14,"col":3,"severity":"error","code":"unknown-phrase",
-   "message":"no phrase matches \"net.Sned digest from n to peer\"","hint":"did you mean \"net.Send [m: msg] from [a: node] to [b: node]\"?"}
+  {"file":"gossip/gossip.synod","line":14,"col":3,"end":{"line":14,"col":34},"severity":"error","code":"unknown-phrase",
+   "message":"no phrase matches \"net.Sned digest from n to peer\"","hint":"did you mean \"net.Send [m: msg] from [a: node] to [b: node]\"?",
+   "label":"no phrase takes these items",
+   "help":[{"text":"write \"net.Send\"","edits":[{"line":14,"col":3,"end":{"line":14,"col":11},"new":"net.Send"}]}]}
 ]}
 ```
+
+- `line`, `col` and `end` form the primary span of the diagnostic. `line` and
+  `col` are its start, as always; `end` (`{"line","col"}`) is the position
+  just after it, so `end` equals the start for an empty span. `end` is always
+  present. Columns count code points and `end` is exclusive.
+- `hint` is the one-line hint of the short form, unchanged.
+- `label` is the text under the primary span.
+- `labels` are the secondary spans: `{"file","line","col","end","text"}`; the
+  file may be another file.
+- `help` lists fixes: `{"text", "edits"}`. An edit
+  `{"line","col","end","new"}` replaces the span in the diagnostic's own file
+  with `new`; an empty span inserts. Edits of one help do not overlap. An
+  edit that adds whole lines inserts at column 1 with a `new` that ends in
+  `\n`. A fix across files has text only. No tool applies an edit in M4;
+  `synod fmt` applies only the canonical fixes.
+- `notes` are statements.
+- `label`, `labels`, `help` and `notes` are omitted when empty.
 
 `synod check --json --tokens` adds `files`, sorted by path, each with its
 tokens sorted by position, for editor highlighting and go-to-definition:

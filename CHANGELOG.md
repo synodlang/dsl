@@ -6,6 +6,10 @@ GitHub release page.
 
 ## Unreleased
 
+### Changed
+
+- Rich diagnostics (M4): `spec/11` §11.1 defines the rich form beside the short form, the no-position form `path: error[code]: message`, and the text style of labels, help and notes. `check.json` gains `end`, and `label`, `labels`, `help` (with edits) and `notes`; `implementation/04-formats.md` states that within a major version keys are only added and readers ignore unknown keys. `implementation/05-cli.md` documents `--style` and `--color` and the terminal and `NO_COLOR` rules. The agent and Mac app guides and the M4 roadmap entry follow.
+
 ## v0.2.2 — 2026-10-21
 
 The simulator's rules, written down while building `synod run`, and a better
