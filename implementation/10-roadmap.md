@@ -85,7 +85,14 @@ clicks alone; Predict stops at each `lesson.Ask`.
 a checked program in one request, using the `twopc` package without
 rewriting it.
 
-## M10 — Remaining examples, site, `.github`
+## M10 — Remaining examples, site, documentation, `.github`
 
-**Accept:** synodlang.github.io live; every example page is editable and
-re-runs in the browser; no recordings.
+- The site and its documentation as in `09-site-and-org.md` and
+  `11-documentation.md`: tutorial, reference, library, guides, errors.
+- Tutorial chapters may be drafted from M2 on, since their code is
+  checked by `synod check` from then; this milestone finishes them.
+
+**Accept:** synodlang.github.io live; every example page and every
+tutorial step is editable and re-runs in the browser; the tutorial
+coverage check passes; every diagnostic code has an Errors page; no
+recordings.

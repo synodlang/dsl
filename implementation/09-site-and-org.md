@@ -1,17 +1,17 @@
-# Homepage and organization
+# Site and organization
 
 ## `synodlang.github.io`
 
-The organization site. The repository is currently named `homepage`; the
-rename to `synodlang.github.io` is a follow-up. It is a static site
+The organization site. It is a static site
 (Astro or plain HTML; no server), deployed with GitHub Pages for the
 organization at https://synodlang.github.io until a domain exists.
 
 - **Home:** the icon, one sentence ("A small language for watching
   distributed systems think"), a looping Raft election played live by
-  `player` (no recording), three buttons: Get the app · Read the spec · See examples.
-- **Docs:** rendered from `dsl` at build time (spec, std catalog), with
-  each `synod` block highlighted.
+  `player` (no recording), three buttons: Start the tutorial · Get the app · See examples.
+- **Docs:** the tutorial, the language reference, the library, guides
+  and error pages, built from `dsl` and `std` at build time. Structure,
+  sources and the tutorial plan are in `11-documentation.md`.
 - **Examples:** one page per example with editable source and a Run
   button. It calls `synod.wasm` (check, run, scene) and plays the result
   with `player`; diagnostics are shown inline. No recordings.

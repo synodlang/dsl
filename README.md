@@ -33,7 +33,7 @@ uses what is written here.
 | --- | --- |
 | `spec/` | The language specification, normative |
 | `std/README.md` | The standard library catalog, normative |
-| `implementation/` | How each repository is built: architecture, compiler, runtime, scene builder, file formats, CLI, Mac app, Claude integration, agent skills, roadmap |
+| `implementation/` | How each repository is built: architecture, compiler, runtime, scene builder, file formats, CLI, Mac app, Claude integration, agent skills, site, roadmap, documentation |
 | `examples/` | Sample packages, each with a `demo.synod` main file, in canonical Synod, to be moved to the `examples` repo |
 | `assets/icon.svg` | The language icon |
 
