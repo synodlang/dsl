@@ -37,6 +37,7 @@ A change to this catalog is not done until `agent-skills` is regenerated
 | `Nodes` | `list of node` | main, check, look | N | All nodes not removed, in creation order |
 | `NodesRunning [p: package]` | `list of p.Node` | main, check, look | N | Nodes running `p` |
 | `IsUp [n: node]` | bool | main, check, look | N | Not crashed and not removed |
+| `StateRows [n: node]` | `list of text` | look | N | One line per exported field of `n`: name and value as text |
 
 **Node event:** `Delivered [r: msg]`, a record injected with `deliver` (used as
 `when [n: Node] (sim.Delivered Open)`).
@@ -58,6 +59,8 @@ A change to this catalog is not done until `agent-skills` is regenerated
 | `Partition [a: list of node] from [b: list of node]` | — | main | N | Cut every link between the two groups |
 | `Heal` | — | main | N | Remove all partitions |
 | `DropNext [type: text] from [a: node] to [b: node]` | — | main | N | Drop the next message of that record type (unqualified name) on that link |
+| `Id [m: msg]` | number | look | N | The message id of the net fact that bound `m` |
+| `Type [m: msg]` | text | look | N | The unqualified record type name of `m` |
 
 **Node event:** `Received [m: msg] from [a: node]` (used as
 `when [n: Node] (net.Received m from a)`).
@@ -193,7 +196,7 @@ one-word color phrases, look context. Default values (the Synod brand):
 | `Card for [n: node]` | shape | S | The standard node card: rounded rect, name label |
 | `Fill [s: shape] with [c: color]` | — | N | Fill color (morphs) |
 | `Stroke [s: shape] with [c: color]` | — | N | Outline color (morphs) |
-| `Tween [p: text] of [s: shape] to [v: value] over [d: time]` | — | N | The only motion primitive (`spec/09`) |
+| `Tween [p: text] of [s: shape] to [v: value] over [d: time]` | — | N | The only motion primitive (`spec/09`); of `"x"` or `"y"` it also takes a shape: that shape's position |
 | `Effect [e: text] on [s: shape]` | — | N | `"glow"`, `"blur"` or `"trail"`, for 600ms |
 | `Layout [kind: text]` | — | N | `"ring"`, `"row"` or `"grid"` for node cards |
 | `Place [s: shape] above [t: shape]` | — | N | Position relative to another shape; likewise `below`, `beside` |
@@ -201,6 +204,8 @@ one-word color phrases, look context. Default values (the Synod brand):
 | `Place [s: shape] beside [t: shape]` | — | N | |
 | `Center` | shape | N | An invisible point at the scene centre |
 | `Orbit [s: shape] around [c: shape] at [f: number]` | — | N | Place on a circle of radius 300 around `c`, at fraction `f` of a turn (0 is 12 o'clock, clockwise) |
+| `Flight [s: shape] from [a: shape] to [b: shape] for [m: msg]` | — | N | Move `s` from `a` to `b`, landing when `m` arrives (halfway when dropped) |
+| `delete [s: shape]` | — | N | Unexported: delete the shape now (used by `Remove`) |
 | `Fade [s: shape] to [o: number]` | — | S | Opacity over 300ms |
 | `Pulse [s: shape]` | — | S | Scale to 1.15 and back over 300ms |
 | `Travel [s: shape] from [a: shape] to [b: shape] over [d: time]` | — | S | Move along a straight path |
