@@ -72,7 +72,7 @@ each p in n.peers
 each i, p in n.peers
   set item i of n.Last to p
 each k in n.Known
-  lists.Append k to n.Seen
+  set n.Seen to (lists.Append k to n.Seen)
 each k, v in n.Known
   set item k of n.Copy to v
 ```
