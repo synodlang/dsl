@@ -8,9 +8,14 @@ whether it is a native (N) or written in Synod (S).
 
 In native patterns `value` stands for any type. The Gives column states
 result types in terms of the holes ("same as `l`", "item type of `l`").
+An item, key or default argument must be accepted as the list's item type, the map's key type or the field it is assigned to; `{}` arguments take their type from it.
 
 Context abbreviations: **node**, **main**, **check**, **look** (`spec/05`).
 "any" means every context.
+
+Each code block headed `# package` is a whole file of std and equals that
+file byte for byte (`time/every.synod`, `lesson/lesson.synod`,
+`look/motion.synod`).
 
 A change to this catalog is not done until `agent-skills` is regenerated
 (`synod doc --catalog`, see `implementation/08-agent-skills.md`).
