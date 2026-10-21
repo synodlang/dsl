@@ -6,8 +6,10 @@ GitHub release page.
 
 ## Unreleased
 
-Completes Synod 0.2 (gap G14 closed); the release will be `dsl` v0.2.3, with
-std and compiler patches.
+## v0.2.3 — 2026-10-22
+
+Completes Synod 0.2: the visual layer is fully specified and every look in
+the standard library is written in Synod (gap G14 closed).
 
 ### Changed
 
