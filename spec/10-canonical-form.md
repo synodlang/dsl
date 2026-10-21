@@ -13,7 +13,7 @@ practice nobody formats by hand. Code across all repositories looks alike.
 | Header and body | with imports: one blank line after the last import; without imports: the first declaration follows the header directly |
 | Indentation | 2 spaces per level |
 | Blank lines | exactly one between top-level declarations (none between imports); none inside blocks, none between a block and its continuation line |
-| Comments | `# ` with one space, then the text verbatim; a bare `#` stays bare; a trailing comment has one space before `#`; a comment line takes the indentation of the line it precedes; a comment between a block and its continuation stays and precedes the continuation line; top-level comments detached by a blank line stay detached |
+| Comments | `# ` with one space, then the text verbatim; a bare `#` stays bare; a trailing comment has one space before `#`; a comment line takes the indentation of the line it precedes, and a comment after the last line of a block takes that block's indentation; a comment between a block and its continuation stays and precedes the continuation line; top-level comments detached by a blank line stay detached |
 | Parentheses | around every multi-item argument; never around a single item. The formatter removes parentheses but never inserts them |
 | Holes | always typed, element types included: `[n: node]`, `[ns: list of Node]` |
 | Receivers | `define [n: Node] Learn [k: node] at [v: number]`, `when [n: Node] (net.Received digest from sender)`: one space after the receiver |
@@ -25,7 +25,7 @@ practice nobody formats by hand. Code across all repositories looks alike.
 | Records | `message T with a 1, b 2`: settings in declaration order of the fields |
 | Colors | upper-case hex: `#F4A340` |
 | Continuation lines | `else`, `otherwise`: own line at the statement's indentation, directly after its block |
-| Negation | `not (a is b)` becomes `(a is not b)` and `not (a is not b)` becomes `(a is b)`; likewise `less than`/`at least`, `more than`/`at most`, `is in`/`is not in`; `not (a and b)` is unchanged |
+| Negation | `not (a is b)` becomes `(a is not b)` and `not (a is not b)` becomes `(a is b)`; likewise `less than`/`at least`, `more than`/`at most`, `is in`/`is not in`; the rewrite applies only when the parenthesized sentence is a single comparison, so `not (a and b)` is unchanged |
 | Names | exported names start upper-case, nothing else does; no underscores |
 
 The negation row is how Synod keeps one spelling per meaning while still

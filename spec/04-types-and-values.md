@@ -69,15 +69,18 @@ message Promise with number n.Promised, prior n.AcceptedBallot, priorValue n.Acc
 ```synod
 each p in n.peers
   net.Send ping from n to p
+
 each i, p in n.peers
   set item i of n.Last to p
+
 each k in n.Known
   set n.Seen to (lists.Append k to n.Seen)
+
 each k, v in n.Known
   set item k of n.Copy to v
 ```
 
-Over a list, `p` is the item and `i` the index; over a map, `k` is the key and `v` the value. (These four lines are a fragment, not a complete file.)
+Over a list, `p` is the item and `i` the index; over a map, `k` is the key and `v` the value. (These four loops are a fragment, not a complete file.)
 
 Unused locals and `each` names are compile errors (as in Go), so only the
 form you need compiles. Names bound by a `when` pattern and hole
