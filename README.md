@@ -64,3 +64,5 @@ the design changes; no principle is traded against another.
 
 Specification v0.2, October 2026 (v0.1.0 was the first draft, before review). The earlier design document in Claude
 Docs is superseded by this repository.
+
+Licensed under [CC BY 4.0](LICENSE).
