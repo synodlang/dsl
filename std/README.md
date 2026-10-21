@@ -122,7 +122,7 @@ define Every [d: time] [b: block]
 | `Min of [a: number] and [b: number]` | number | any | N | Smaller |
 | `Max of [a: number] and [b: number]` | number | any | N | Larger |
 | `Remainder of [a: number] by [b: number]` | number | any | N | `a − b × floor(a / b)` |
-| `Hash [t: text]` | number | any | N | A fixed number in [0, 1) from the text: FNV-1a 64-bit over its UTF-8 bytes (offset 14695981039346656037, prime 1099511628211), then `(h >> 11) / 2^53`. Not random: it does not touch the PRNG and does not depend on the seed. |
+| `Hash [t: text]` | number | any | N | A fixed number in [0, 1) from the text: FNV-1a 64-bit over its UTF-8 bytes, mixed with the MurmurHash3 64-bit finalizer, then `(h >> 11) / 2^53`. Not random: it never touches the PRNG. |
 
 ## std/text
 

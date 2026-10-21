@@ -94,7 +94,8 @@ PCG32 (XSH RR) as in the reference implementation, seeded with
 Latency uses `TimeBetween`. Every draw happens in step order and each
 random decision consumes exactly one draw (`spec/07` §7.7); no other
 source of randomness exists. `math.Hash` is not random: FNV-1a 64 over
-the UTF-8 text, then `(h >> 11) / 2^53`.
+the UTF-8 text, mixed with the MurmurHash3 64-bit finalizer, then
+`(h >> 11) / 2^53`.
 
 ## Context enforcement at run time
 

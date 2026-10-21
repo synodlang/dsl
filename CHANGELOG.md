@@ -11,6 +11,9 @@ GitHub release page.
   consumption, restart, `after` in shared code, node key per trace event,
   `sim.Failed` last with no `sim.Ended`, module-relative trace paths, run-time
   codes `bad-argument`, `number-range`, `run-limit` (decision 62).
+- `math.Hash` is FNV-1a 64 mixed with the MurmurHash3 64-bit finalizer, then
+  `(h >> 11) / 2^53`, so that similar texts (`user1`, `user2`) spread over
+  [0, 1) (gap G11 refined).
 - Time `×` and `÷` a number round down; `-0` is `0`.
 - Downloads: shared store `~/.synod/cache`, `vendor/` stays the only place the
   compiler reads (decision 60, refined).
