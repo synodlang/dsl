@@ -17,16 +17,16 @@ practice nobody formats by hand. Code across all repositories looks alike.
 | Parentheses | around every multi-item argument; never around a single item. The formatter removes parentheses but never inserts them |
 | Holes | always typed, element types included: `[n: node]`, `[ns: list of Node]` |
 | Receivers | `define [n: Node] Learn [k: node] at [v: number]`, `when [n: Node] (net.Received digest from sender)`: one space after the receiver |
-| Members | `n.Known`, `Vote.term`: never parenthesized; a space around `.` is a `syntax` error |
+| Members | `n.Known`, `Vote.term`: never parenthesized; a space around `.` is a `syntax` error; a package's own qualifier inside it (`n.raft.Role` in `raft`) is `non-canonical`, and `synod fmt` drops it when the package loads (the own name alone as a `package` value stays) |
 | Numbers | `0.5`, `-1`, `2`; no leading zeros, no trailing zeros. `.5`, `+1` and `x-1` are never written: they are `syntax` errors, not formatting |
 | Durations | the largest unit giving a whole number: `1500ms`, `2s` |
 | Text | double quotes; escapes only `\"`, `\\`, `\n`; no control characters (`syntax`) |
 | Commas | `{a, b}`, `message T with a 1, b 2`, `each k, v in m`: one space after each comma, none before, none inside braces |
-| Records | `message T with a 1, b 2`: settings in declaration order of the fields |
+| Records | `message T with a 1, b 2`: settings in declaration order of the fields; out of order is `non-canonical`, and `synod fmt` reorders it when the package loads |
 | Colors | upper-case hex: `#F4A340` |
 | Continuation lines | `else`, `otherwise`: own line at the statement's indentation, directly after its block |
 | Negation | `not (a is b)` becomes `(a is not b)` and `not (a is not b)` becomes `(a is b)`; likewise `less than`/`at least`, `more than`/`at most`, `is in`/`is not in`; the rewrite applies only when the parenthesized sentence is a single comparison, so `not (a and b)` is unchanged |
-| Names | exported names start upper-case, nothing else does; no underscores |
+| Names | exported names start upper-case, nothing else does; no underscores; locals, `each` names, hole names (receivers included), new `when` bindings, draw names, attachment words and import aliases start lower-case (`non-canonical`; `synod fmt` renames them when the package loads and the new name is free) |
 
 The negation row is how Synod keeps one spelling per meaning while still
 offering `is not`, `at least` and friends: the formatter rewrites a negated

@@ -30,8 +30,14 @@ Synod follows Go.
 - The standard library is the module `github.com/synodlang/std`, imported
   with the short prefix `std/` (`use std/net`). It is versioned with the
   language.
-- Downloaded modules are cached in `~/.synod/cache`, so everything works
-  offline after the first fetch.
+- Downloaded modules are cached in `~/.synod/cache` (or `$SYNOD_CACHE`),
+  one folder per module and version, `<cache>/<module>@<version>/`, so
+  everything works offline after the first fetch. The versions used are
+  chosen by minimal version selection over every `require` line of the
+  main module and its dependencies. A folder with no `synod.mod` above it
+  is a module with no path: only `std/` imports resolve in it.
+- `github.com/synodlang/std/…` is never imported directly; `std/<package>`
+  is the only spelling, and `@version` on a `std/` path is an error.
 
 ## 6.3 Imports
 
@@ -41,12 +47,15 @@ use std/net
 ```
 
 - The qualifier is always the last path segment: `net.Send`, `gossip.Join`.
-- `use … as` is legal **only** when two imports share a last segment, to
-  rename one of them. Anywhere else it is an `unneeded-alias` error.
+- `use … as` is legal **only** on a collision of last segments: when two
+  imports of the file share one, or when an import's last segment is the
+  importing package's own name (a package `raft` importing another
+  `raft`), to rename one of them. Anywhere else it is an `unneeded-alias` error.
   ```synod
   use github.com/a/raft
   use github.com/b/raft as braft
   ```
+  An `@version` on a `use` path must equal the version the build selects.
 - An import is used when the file refers to the package, or when the
   package contains observers or invariants: importing it activates them
   (`use github.com/synodlang/examples/raftlook`). Unused imports and

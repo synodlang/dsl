@@ -23,8 +23,10 @@ drawing    = "draw" arg "as" word [ "for" arg ] [ block ] ;
 attachment = word "of" arg ;     (* look context: a shape attached with draw … for *)
 ```
 
-- `draw (look.Circle 8) as dot` creates a shape named `dot`, visible for
-  the rest of the observer block. A new shape starts at the scene centre
+- `draw (look.Circle 8) as dot` creates a shape named `dot`, a local
+  visible for the rest of the enclosing block. A draw name need not be
+  used (drawing is itself the effect), and drawing the same name again in
+  the same scope rebinds it; that is not shadowing. A new shape starts at the scene centre
   (`look.Center`) until it is placed.
 - `for v` **attaches** the shape to `v`, a node or a text or number key,
   under that name, for the whole run: any observer can then use
@@ -35,8 +37,12 @@ attachment = word "of" arg ;     (* look context: a shape attached with draw …
   to the new one. This gives the 3Blue1Brown transform feel without
   writing animation code.
 
-- `card of n` is the **attachment** form (look context only). It reads
-  the shape attached to `n` under `card`. It is not a field: attachments
+- `card of n` is the **attachment** form (look context only; elsewhere a
+  `context` error). The word is a literal, not a name, so a shape local
+  named `card` does not interfere, and a phrase head `card` in the current
+  package takes the sentence instead (`spec/03` §3.3). It reads
+  the shape attached to `n` under `card`; a missing attachment is the
+  run-time error `missing-key`. It is not a field: attachments
   belong to the scene, and their keys may also be text or numbers
   (`tag of "user:1"`).
 

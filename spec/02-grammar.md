@@ -131,5 +131,11 @@ arithmetic = arg ( "plus" | "minus" | "times" | "divided by" ) arg ;
   the block (`spec/05` §5.6).
 - **Locals.** `set x to …` with a bare word `x` creates a local for the
   rest of the enclosing block, nested blocks included, or updates it.
+  Locals are **block scoped**: one created inside an `if` branch, an
+  `else` branch, an `each` body or another block is not visible after
+  that block, so a value needed afterwards is set before the block.
   Hole parameters, `when` bindings and `each` names cannot be set
-  (`bad-place`).
+  (`bad-place`), nor can a local from outside an `after` block or a block
+  argument be set inside it (`bad-place`; the block holds a copy, `spec/07` §7.4).
+  A local is **used** when it is read, or is the base of `set item … of x`;
+  setting it again does not use it (`unused-name`).

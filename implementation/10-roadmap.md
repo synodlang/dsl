@@ -47,6 +47,8 @@ rule in `paxos.synod`) makes `sim.Broken` appear for some seed.
 - `std/look`, `std/theme`, `std/look/basic`, observers, reactive draws,
   presentation clock, `scene.json`.
 
+- Open item (G14): decide the natives `std/look` still needs (shape position, removal, state rows, message flights); M2 ships interim `Travel`, `Remove` and `look/basic`.
+
 **Accept:** golden scenes for all examples; `raftlook` and `ringlook`
 render; the scheduling rules of `spec/09` §9.6 are covered by tests.
 

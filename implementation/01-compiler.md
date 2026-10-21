@@ -40,7 +40,8 @@ testdata/           golden tests
    pointing at the first differing line. `synod fmt` writes the printed
    form instead. Negation rewriting (`spec/10`) happens in the printer.
 4. **Load.** Read `synod.mod`, resolve imports to package folders (module
-   cache for remote ones, `std/` to the bundled std). Split each folder
+   cache for remote ones, `std/` to the bundled std, which is authored in
+   the std repo and vendored into the compiler with `embed`). Split each folder
    by header into the library package and at most one main file
    (`bad-header`, `extra-main`). Imports resolve to library packages
    (`unknown-import`); reject cycles. This replaces `import-main`.
@@ -97,6 +98,15 @@ testdata/           golden tests
 Force float64 rounding with explicit conversions so that no fused
 multiply-add happens on any `GOARCH`. CI compares native and wasm traces
 and scenes byte for byte.
+
+## Fixes that need the package loaded
+
+Settings order, the Names row and an own-package qualifier are
+`non-canonical` errors that only the resolver can find. It records
+`format.Fix` entries (renames, qualifier drops, setting reorders) that
+`synod fmt` and the canonical check apply when the package loads;
+otherwise `fmt` leaves them alone. There is still at most one
+`non-canonical` diagnostic per file, with the canonical line as the hint.
 
 ## Diagnostics
 

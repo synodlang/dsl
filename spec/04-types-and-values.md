@@ -7,7 +7,7 @@
 | `text` | `"leader"` | immutable |
 | `number` | `0`, `2.5`, `-1` | one numeric type, 64-bit float |
 | `bool` | `true`, `false` | |
-| `time` | `150ms`, `2s` | a duration; also the type of `time.Now` (time since the run started) |
+| `time` | `150ms`, `2s` | a duration, a whole number of microseconds (`0.0005ms` is a `syntax` error); also the type of `time.Now` (time since the run started) |
 
 ## 4.2 Structural types
 
@@ -47,7 +47,8 @@ A record value is built with `message … with`, naming fields (here in node cod
 message Promise with number n.Promised, prior n.AcceptedBallot, priorValue n.AcceptedValue
 ```
 
-- Fields not named keep their initial value. Naming a field with its initial value is allowed.
+- Fields not named keep their initial value. Naming a field with its initial value is allowed. A setting is a field word and one item (`a x plus 1` needs parentheses: `a (x plus 1)`; otherwise `unknown-phrase`); a word that is not a field of the record is `unknown-phrase`; a field named twice is `duplicate-name`.
+- Initial values in `has` are constants: literals, `{}`, list literals, `message … with` over constants, `sim.Nobody`, and operators over these (`context` otherwise).
 - Fields are read with `.`: `Promise.number`, `p.prior`. Record fields are never package-qualified: `api.Get.Key` reads `Key` of the record bound as `api.Get`, and `r.Key` reads it from a local `r` of type `api.Get`. A record field belongs to its record type, which already names the package.
 - A field is read from a value whose record type is known at compile time. A `msg` value has no readable fields.
 - Record values are **immutable**: `set` cannot target a record field (`bad-place`). Messages and events are both records.
@@ -83,7 +84,8 @@ each k, v in n.Known
 Over a list, `p` is the item and `i` the index; over a map, `k` is the key and `v` the value. (These four loops are a fragment, not a complete file.)
 
 Unused locals and `each` names are compile errors (as in Go), so only the
-form you need compiles. Names bound by a `when` pattern and hole
+form you need compiles. A name is used when it is read or is the base of
+`set item … of x`; setting it again is not a use. Names bound by a `when` pattern and hole
 parameters may go unused, like Go function parameters.
 Maps iterate in ascending key order (nodes order by creation), so runs are deterministic.
 
@@ -105,7 +107,10 @@ Comparing two values whose types are not accepted as one another (§4.7) is a `t
 ## 4.6 Type inference
 
 - Local, node-field and record-field types are inferred from their initial
-  value and every assignment; they never change.
+  value and every assignment; they never change. The type of a place is
+  the **join** of its initial value and every assignment (§4.7); if they
+  do not join, the later one is a `type-mismatch`. Two unrelated node types
+  do not join to `node`.
 - Hole types are declared, element types included. Value phrase result types are inferred.
 - There are no conversions except through phrases (`text.From`).
 
@@ -119,4 +124,4 @@ A value of type `S` is accepted where type `T` is expected when one of these hol
 - `S` is a record type and `T` is `msg`;
 - `S` is `list of A`, `T` is `list of B`, and `A` is accepted as `B`; `map of K1 to V1` is accepted as `map of K2 to V2` when `K1` is accepted as `K2` and `V1` as `V2`.
 
-`{}` is accepted as any list or map type. `is` and `is not` compare two values when the type of one is accepted as the type of the other.
+`{}` is accepted as any list or map type. The **join** of two types is the one that accepts both: if `S` is accepted as `T` it is `T`; lists and maps join item-wise; otherwise they do not join. `is` and `is not` compare two values when the type of one is accepted as the type of the other.

@@ -82,7 +82,7 @@ blocks, block arguments, and phrases without a receiver called from it.
 | **node** | `start`; `when [n: Node]` on node events; receiver phrases | the receiver's state; identity of any node | the receiver's state; locals | `net.Send`, `disk.*`, `after` (simulated), `emit … by n` |
 | **main** | `define main` | any node's state, through `Node` and `p.Node` values | any node's state (setup and faults); locals | `deliver`, `after` (simulated), `emit … by sim.Nobody`, `sim.*` setup and fault phrases, `net.*` configuration |
 | **check** | `always` | any node's state | locals only | nothing with effects |
-| **look** | `when` on trace events | exported state of any node, as it was at that trace event | locals and shapes only | `draw`, `std/look`, `after` (presentation) |
+| **look** | `when` on trace events | exported state of any node, as it was at that trace event; a lower-case field is not readable, even of the same package (`context`) | locals and shapes only | `draw`, `std/look`, `after` (presentation) |
 
 Rules that follow:
 
@@ -102,7 +102,7 @@ Rules that follow:
   receiver in scope; any other node is a `foreign-state` error, reported
   at compile time. These phrases are node-context only, except `emit`,
   which main also uses with `sim.Nobody` (main is not a node):
-  `emit (message X with Y 1) by sim.Nobody`. `after` schedules on the
+  `emit (message X with Y 1) by sim.Nobody`; in main any other node after `by` is a `context` error (`foreign-state` is defined for node code only). `after` schedules on the
   context it runs in: in node context, on the receiver's node.
   `lesson.Ask` and `lesson.Note` are main context only.
 - **Purity of looks.** Observers cannot `set` node state, `deliver`,
@@ -112,6 +112,13 @@ Rules that follow:
   context it has no receiver, so it reaches no node state. In main and
   check context it reaches nodes through its holes:
   `define Join [n: Node] to [seed: node]` sets `n.peers` from `define main`.
+  A context error inside a shared phrase is reported once, at the
+  statement in its body, and the hint names the context and the first
+  caller. A phrase reached from no entry is type-checked only.
+- **Std phrases.** The Context column of `std/README.md` is enforced at
+  the call site of every std phrase, whether native or written in Synod:
+  `time.Now` in look context is a `context` error, though `time.Every`'s
+  body would allow it.
 
 ## 5.5 Node events vs trace events
 
@@ -138,6 +145,11 @@ In `when [n: Node] (net.Received Prepare from proposer)`:
   the qualified name (`api.Get.Key`).
 - A **typed hole** `[x: p.Node]` in a `node` hole filters to nodes running
   `p` and binds `x` with that type: `when (sim.Added [n: raft.Node])`.
+- In a `field` hole (`sim.Changed`), a bare word that is a node field of
+  the current package, or an exported `p.F`, filters by that field, and
+  `old` and `new` bound later take its type; any other bare word binds a
+  value of type `field`, with `old` and `new` of type `value`. Filtering
+  by an unexported field of another package is `unexported`.
 - A **new bare word** in any other hole binds the value with the hole's
   type (`proposer`: `node`).
 - An **existing name or a literal** filters by equality.

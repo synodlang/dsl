@@ -44,8 +44,13 @@ define Send [m: msg] to [n: node]
    qualifier: `net.Send m to n`, `n.gossip.Learn k at v`,
    `look.Fill card with theme.Accent`.
 7. Reserved words (`spec/01`) are never heads and may appear as later
-   words: `Send [m: msg] to [n: node]`, `Majority of [n: number]`.
-8. **A head is never directly followed by a comparison operator** (`is`,
+   words: `Send [m: msg] to [n: node]`, `Majority of [n: number]`. Words
+   after the head start lower-case (`[n: node] to`, never `To`); only the
+   head carries the export capital.
+8. **Hole types name known types.** An unknown type, such as `[x: Foo]`
+   or `p.Node` where `p` is not an imported library package, is a
+   `bad-pattern` error.
+9. **A head is never directly followed by a comparison operator** (`is`,
    `is not`, `is in`, `is not in`, `less than`, `more than`, `at least`,
    `at most`): `Count is [n: number]` is a `bad-pattern` error, because
    its sentences read as comparisons and `not (…)` could not be
@@ -61,7 +66,9 @@ define Send [m: msg] to [n: node]
   record type.
 - `Node` is the node type's name in every package, so no phrase head,
   record type or field in any package may be named `Node`
-  (`duplicate-name`).
+  (`duplicate-name`). Likewise a record type may not be named like a
+  built-in type (`text`, `number`, `bool`, `time`, `node`, `msg`, `shape`,
+  `color`, `field`, `package`, `block`, `value`; `duplicate-name`).
 - A package must not define a phrase whose skeleton equals a language form's skeleton.
 
 ## 3.3 Resolution
@@ -75,17 +82,26 @@ Each sentence is resolved independently.
      phrases without a receiver whose head is `H`;
    - a member `x.H` or `x.p.H`, where `x` names a node value: the receiver
      phrases with head `H` of the current package, or the exported ones of `p`.
-2. **Match.** A pattern matches when the sentence has the same number of
-   items, literal words agree position by position, and each hole's item
-   has an accepted type (`spec/04` §4.7). For a receiver phrase the first
+2. **Match.** A pattern matches by **shape**: the sentence has the same
+   number of items, literal words agree position by position, and the
+   block structure agrees (a block hole is filled by a block, each
+   continuation word equal). Types never select between phrases. Once
+   exactly one pattern matches, each hole's item must have an accepted
+   type (`spec/04` §4.7); a failure is a `type-mismatch` error, not an
+   `unknown-phrase` error. For a receiver phrase the first
    item `x.H` (or `x.p.H`) stands for the receiver and the head together:
    `x` fills the receiver hole and the remaining items match the rest of
    the pattern. `n.Learn k at v` matches `[n: Node] Learn [k: node] at [v: number]`.
    Because a hole always takes exactly one item, there is no partial or
    longest match.
-3. **Result.** Exactly one candidate must match. Zero is an
+3. **Result.** Exactly one candidate must match by shape. Zero is an
    `unknown-phrase` error; two is an `ambiguous-phrase` error that names
-   both definitions.
+   both definitions, even if their hole types differ.
+4. **Event phrases** are candidates only after `when`, and a `when` takes
+   only event phrases; a miss either way is an `unknown-phrase` error.
+5. **The attachment** `w of x` (`spec/09` §9.2) is a candidate only when
+   `w` is a bare word that is not the head of a phrase of the current
+   package, so `Majority of n` calls the phrase.
 
 ### Names
 
@@ -99,7 +115,11 @@ of the pattern. A name is exactly one of:
 - a package name: an import, or the current package's own name as a `package` value.
 
 Two of these with the same spelling in scope is a `shadowing` error, so
-every name has one meaning. Inside a `when` event phrase, a bare word that
+every name has one meaning. This includes a local, binding, hole or
+`each` name spelled like a record type of the current package, and a
+node field or phrase head spelled like one of the file's import
+qualifiers (`n.gossip` would be ambiguous). Imports are scoped to their
+file; uses, running and cycles are per package. Inside a `when` event phrase, a bare word that
 is not yet a name binds a new one (`spec/05` §5.6). In a `field` hole, a
 bare word names a node field of the current package; it does not read it.
 
@@ -127,14 +147,15 @@ A phrase either performs actions or produces a value.
 
 - A **value phrase** gives its value with `result`. `result` ends the
   phrase. The compiler checks that every path through a value phrase
-  reaches a `result`, and that all results have the same type.
+  reaches a `result` (`missing-result`), and that all results have one
+  type: their join (`spec/04` §4.6).
 - An **action phrase** has no `result`.
 - A value phrase may also have effects (for example `NewRequest` in the
   Cassandra example updates a counter); the distinction is only about
   whether it gives a value.
 - A value phrase used as a statement, or an action phrase used as an
   argument, is an error.
-- `result` appears only in phrase definitions; inside a block argument (for example a `time.Every` block) it returns from the `define` that lexically contains it. `result` in `define main`, `start`, `when` or `always` is a `context` error.
+- `result` appears only directly in a phrase definition, where the phrase is still running. It is a `context` error in `define main`, `start`, `when` or `always`, and inside an `after` block or a block argument (for example a `time.Every` block), because that block runs after the phrase has returned. A value phrase is one whose body contains `result`.
 
 ```synod
 define Majority of [n: number]
@@ -145,7 +166,9 @@ define Majority of [n: number]
 
 Inside a `define`, the name of a block hole used alone as a statement
 **runs the block**. The block runs in the caller's context and sees the
-caller's names as they were when the phrase was called. In node code the
+caller's names as they were when the phrase was called. It holds a copy
+of the caller's locals, so setting one of them inside the block is a
+`bad-place` error. In node code the
 block sees the receiver: inside `define [n: Node] start`, a `time.Every 1s`
 block uses `n`.
 
@@ -167,6 +190,11 @@ a block that runs `b`.
 implemented by the runtime. Only packages under `std/` may declare native
 phrases. The id is namespaced: `"net.send"`, `"look.tween"`. Natives
 have the same pattern rules and the same resolution as ordinary phrases.
+
+A std phrase has the contexts listed in the Context column of
+`std/README.md` and is usable only there; the compiler enforces that
+column at every call site of a std phrase, native or written in
+Synod.
 
 Native **event phrases** (used after `when`) are declared the same way
 and are tagged by the runtime as either a *node event* or a *trace event*

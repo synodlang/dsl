@@ -12,7 +12,7 @@ something the spec did not.
 | 4 | An inline hole takes exactly one item and a block hole one block; nested sentences are parenthesized | Exact matching, no precedence, no ambiguity from free-form sentences |
 | 5 | Names from another package's namespace (its phrases, record types, `Node` and node fields) are always qualified; the current package's never are (Go) | You can always see where a name comes from |
 | 6 | Capitalization means exported, nothing else | One meaning per signal |
-| 7 | `use … as` only on a last-segment collision | No second spelling of a package |
+| 7 | `use … as` only on a last-segment collision: two imports of a file share one, or an import's last segment is the importing package's own name | No second spelling of a package; a package `raft` can still import another `raft` |
 | 8 | Node code names its node with a receiver, a node-typed hole before the head: `define [n: Node] Version`, `when [n: Node] (…)`, called `n.Version`; only node types are receivers | No implicit current node and no hidden state; every access shows whose state it is (Go receivers) |
 | 9 | `result` gives a phrase's value | Packages can define value helpers, not just natives |
 | 10 | Collections iterate like Go's `range`; unused locals and `each` names are errors | Familiar, and only one loop form compiles |
@@ -57,3 +57,11 @@ something the spec did not.
 | 49 | Blank and comment lines may sit between a block and its continuation line; the formatter drops the blanks and keeps the comments before the continuation | A comment never breaks `if … else` |
 | 50 | The formatter rewrites `not (c)` into the direct operator both ways, `is not` into `is` included; `not (a and b)` stays; a pattern whose head is directly followed by a comparison operator is a `bad-pattern` error | One spelling per meaning in both directions; such a pattern would read as a comparison |
 | 51 | The formatter removes parentheses but never inserts them; a missing pair is an `unknown-phrase` error | Wrapping would guess where an argument ends |
+| 52 | A sentence's phrase is chosen by its shape (item count, literal words, block structure); types never select between phrases, and a type failure is `type-mismatch` | One reading per sentence; no overloading by type, and errors name the phrase you meant |
+| 53 | `result` stands only where the phrase is still running: not in an `after` block or a block argument | Those blocks run after the phrase has returned, so there is nothing to return to |
+| 54 | A local from outside an `after` block or block argument cannot be set inside it | The block holds a copy, so the set would silently do nothing |
+| 55 | A local created in a block is visible only to the end of that block | Go's scoping; no value depends on which branch ran |
+| 56 | Look context reads only exported state, even of its own package | Looks see what other packages see, and the trace records only that |
+| 57 | The Context column of the std catalog is enforced at every call of a std phrase, written in Synod or native | `time.Every` cannot leak into look context just because its body would allow it |
+| 58 | `draw … as w` declares a shape local; drawing `w` again in the same scope rebinds it; a draw name may go unused | Drawing is itself the effect, like decision 30; redrawing is not shadowing |
+| 59 | A place's type is the join of its initial value and every assignment; unrelated node types do not join | One type per place, decided without guessing `node` |

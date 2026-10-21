@@ -55,7 +55,9 @@ after 10 minutes of simulated time (an error is reported).
 receiver's node in node context, or in main. The block captures the
 **values** of locals and bound names, the receiver included, at
 scheduling time. Fields read through the receiver (`n.Heartbeat`) are
-read live when it runs. There is no timer
+read live when it runs. Because the block holds copies, setting a local
+captured from outside it is a `bad-place` error, and `result` inside it is
+a `context` error. There is no timer
 cancellation: check a condition when the timer fires instead.
 
 ## 7.5 Crash and restart

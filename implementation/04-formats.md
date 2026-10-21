@@ -14,7 +14,8 @@ require github.com/someone/raft v1.2.0
 ```
 
 One directive per line: `module` (once), `synod` (language version,
-once), `require` (zero or more, sorted). `synod.sum` holds one line per
+once; newer than the compiler's is a `syntax` error), `require` (zero or
+more, sorted; unsorted is `non-canonical`). `synod.sum` holds one line per
 dependency: `<module> <version> <commit sha> <tree hash>`.
 
 ## trace.jsonl
@@ -103,7 +104,22 @@ Read by the `player` library (the Mac app and the site both use it).
 ]}
 ```
 
-`synod check --json --tokens` adds, per file, a list of tokens with their
-resolved role (`language`, `phrase`, `name`, `field`, `type`, `value`,
-`comment`) and the definition location, for editor highlighting and
-go-to-definition.
+`synod check --json --tokens` adds `files`, sorted by path, each with its
+tokens sorted by position, for editor highlighting and go-to-definition:
+
+```json
+{"format":"synod-check/1","ok":true,"diagnostics":[],"files":[{"file":"gossip/gossip.synod","tokens":[
+ {"line":1,"col":1,"len":16,"role":"comment"},
+ {"line":2,"col":1,"len":3,"role":"language"},
+ {"line":7,"col":1,"len":6,"role":"type","def":{"file":"gossip/gossip.synod","line":7,"col":1}}]}]}
+```
+
+- One token per word, per part of a member (with its own column), per
+  literal and per comment; punctuation is omitted. `len` is in code points.
+- `role`: `language` (reserved words), `phrase` (heads and literal words of
+  calls and patterns), `name` (locals, holes, bindings, packages, import
+  paths), `field` (node fields, record fields, setting words), `type`
+  (record types, `Node`, hole types), `value` (literals, `true`, `false`),
+  `comment`.
+- `def` points to the declaration; it is omitted for std and language words.
+- Without `--tokens` the output has no `files` key.

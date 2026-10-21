@@ -12,6 +12,13 @@
 | `synod explain <code>` | Explain a diagnostic code with an example |
 | `synod version` | Language, compiler and format versions |
 
+Modules: `synod check` and `synod run` read remote modules from the cache
+only, `$SYNOD_CACHE` or `~/.synod/cache`, at `<cache>/<module>@<version>/`;
+a missing one is `unknown-import` with the hint `run "synod get <m>@<v>"`.
+`synod get`, network access and `synod.sum` verification are not
+implemented in M2. `synod fmt` applies the fixes that need declarations
+(`spec/10`) when the package loads, and leaves them alone otherwise.
+
 Exit codes: 0 success, 1 diagnostics or a `sim.Failed` run, 2 usage or I/O error.
 
 `synod run` with `--watch` re-runs on every save and prints one line per
