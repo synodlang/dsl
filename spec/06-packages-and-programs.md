@@ -12,6 +12,8 @@ Synod follows Go.
   ```synod
   # package gossip
   ```
+- Package discovery skips folders named `vendor` or `testdata`, and
+  folders starting with `.` or `_`.
 - Inside a package, its own names are bare. Outside, they are always qualified.
 
 ## 6.2 Modules
@@ -30,11 +32,17 @@ Synod follows Go.
 - The standard library is the module `github.com/synodlang/std`, imported
   with the short prefix `std/` (`use std/net`). It is versioned with the
   language.
-- Downloaded modules are cached in `~/.synod/cache` (or `$SYNOD_CACHE`),
-  one folder per module and version, `<cache>/<module>@<version>/`, so
-  everything works offline after the first fetch. The versions used are
-  chosen by minimal version selection over every `require` line of the
-  main module and its dependencies. A folder with no `synod.mod` above it
+- Downloaded modules live in a `vendor/` folder at the root of the module
+  that needs them, one folder per module and version,
+  `vendor/<module path>@<version>/` (e.g.
+  `vendor/github.com/someone/raft@v1.2.0/`). This is the only place: there
+  is no global cache and no override. `vendor/` is ignored by git
+  (`synod new` writes a `.gitignore` containing `vendor/`); `synod.sum`
+  keeps builds reproducible after a fresh `synod get`, and everything
+  works offline once fetched. Only the main module's `vendor/` is read; a
+  dependency's own `vendor/` is never used. The versions used are chosen
+  by minimal version selection over every `require` line of the main
+  module and its dependencies, so one version per module. A folder with no `synod.mod` above it
   is a module with no path: only `std/` imports resolve in it.
 - `github.com/synodlang/std/…` is never imported directly; `std/<package>`
   is the only spelling, and `@version` on a `std/` path is an error.

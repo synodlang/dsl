@@ -7,13 +7,14 @@
 | `synod check [paths…] [--json] [--tokens]` | Load, resolve and check; print diagnostics |
 | `synod run <folder> [--seed n] [--trace file] [--scene file] [--pace x] [--mode ordered\|proportional]` | Check and run the folder's main file: simulate and build the scene; default outputs `out/trace.jsonl` and `out/scene.json` |
 | `synod run <folder> --summary` | Print a compact, human-readable summary of the run: facts grouped per step, invariant results (used by agents) |
-| `synod get [module@version]` | Fetch dependencies into the cache and update `synod.mod`/`synod.sum` |
+| `synod get [module@version]` | Fetch dependencies into `vendor/` and update `synod.mod`/`synod.sum` |
 | `synod doc [package] [--catalog]` | Print a package's exported phrases; `--catalog` prints the std catalog as Markdown for `agent-skills` |
 | `synod explain <code>` | Explain a diagnostic code with an example |
 | `synod version` | Language, compiler and format versions |
 
-Modules: `synod check` and `synod run` read remote modules from the cache
-only, `$SYNOD_CACHE` or `~/.synod/cache`, at `<cache>/<module>@<version>/`;
+Modules: `synod check` and `synod run` read remote modules from the main
+module's `vendor/` only, at `vendor/<module path>@<version>/`; `synod new`
+writes a `.gitignore` containing `vendor/`;
 a missing one is `unknown-import` with the hint `run "synod get <m>@<v>"`.
 `synod get`, network access and `synod.sum` verification are not
 implemented in M2. `synod fmt` applies the fixes that need declarations

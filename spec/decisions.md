@@ -65,3 +65,4 @@ something the spec did not.
 | 57 | The Context column of the std catalog is enforced at every call of a std phrase, written in Synod or native | `time.Every` cannot leak into look context just because its body would allow it |
 | 58 | `draw … as w` declares a shape local; drawing `w` again in the same scope rebinds it; a draw name may go unused | Drawing is itself the effect, like decision 30; redrawing is not shadowing |
 | 59 | A place's type is the join of its initial value and every assignment; unrelated node types do not join | One type per place, decided without guessing `node` |
+| 60 | Downloaded modules live in `vendor/<module path>@<version>/` at the root of the main module, ignored by git; no global cache, no override | Dependencies live with the project, are ignored by git, and have one location only; `synod.sum` keeps fresh downloads reproducible |

@@ -18,6 +18,8 @@ once; newer than the compiler's is a `syntax` error), `require` (zero or
 more, sorted; unsorted is `non-canonical`). `synod.sum` holds one line per
 dependency: `<module> <version> <commit sha> <tree hash>`.
 
+Downloaded modules are not part of any format: `synod get` fetches them into `vendor/`, which `.gitignore` excludes; `synod.sum` is what makes a fresh download reproducible.
+
 ## trace.jsonl
 
 One JSON object per line. Line 1 is the header:
