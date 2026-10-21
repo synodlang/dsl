@@ -1,99 +1,158 @@
 # 5. Nodes, state and contexts
 
-## 5.1 Running a package
+## 5.1 Node types and running
 
-A node **runs** packages. `sim.Node running raft` creates a node that runs
-`raft`; running a package also runs, transitively, every package it uses
-that declares node state, startup statements or node handlers. So a node
-running `cassandra` also runs `gossip` and `ring` if `cassandra` uses
-them. Each run package is started once per node, in dependency order
-(dependencies first).
+- Every library package has a **node type**, `Node` inside the package
+  and `gossip.Node` outside. A node of type `gossip.Node` runs `gossip`.
+- `sim.Spawn raft` creates a node of type `raft.Node`. Running a
+  package also runs, transitively, every package it uses: a node running
+  `cassandra` also runs `gossip` and `ring`, so a `cassandra.Node` is
+  accepted wherever a `gossip.Node` is expected (`spec/04` §4.7).
+- When a node starts, each package it runs is started once, in
+  dependency order (dependencies first).
+- `node` is the type of any node. It carries identity only: a `node`
+  can be compared, used as a map key, sent to, and named with `sim.Id n`
+  and `sim.Name n`, and it has no fields.
 
-## 5.2 Per-node state
+## 5.2 Node state
 
 ```synod
-node has
+Node has
   set Heartbeat to 0
   set Known to {}
   set peers to {}
 ```
 
-- Each package that declares `node has` gives every node running it its
-  own copy of these fields, namespaced by package.
-- Inside the package the current node's fields are bare names (`Heartbeat`).
-  Another node's fields use `of` (`Heartbeat of n`). From other packages the
-  field is qualified (`gossip.Heartbeat`, `gossip.Heartbeat of n`), and must
-  be exported.
-- There is no `self`: in node context the current node is implicit.
-  `sim.Here` gives the current node as a value when one is needed.
-- Every node also has identity fields from `std/sim`: `sim.Id` (a
-  number, 1, 2, 3… in creation order) and `sim.Name` (`"n1"`, `"n2"`…).
-  Identity is readable in every context.
-- Reading a field of a node that does not run the declaring package is a
-  run-time error.
+- `Node has` declares the fields of the package's node type. Every node
+  running the package has its own copy, initialized when the node is
+  created. A package without `Node has` has a node type with no fields.
+- Fields are reached through a node value with `.`: `n.Heartbeat` in
+  the declaring package, `n.gossip.Heartbeat` from another package
+  (exported fields only, and `n`'s type must run `gossip`). A field is
+  read or written only through a node value. A `field` hole names a
+  field without reading it: bare in its own package, `raft.Role`
+  elsewhere (`spec/03` §3.3).
+- Identity comes from `std/sim` phrases, readable in every context:
+  `sim.Id n` (1, 2, 3… in creation order) and `sim.Name n` (`"n1"`, `"n2"`…).
 
-## 5.3 Top-level statements
+## 5.3 Receivers and start
 
-Top-level lines in a package are either declarations (`use`, `has`,
-`define`, `when`, `always`) or **startup statements**. Startup statements
-run on every node running the package, in file order (files in name
-order), when the node starts and again on every restart:
+Node code names its node with a **receiver**: a hole of a node type
+before the head of a definition, or after `when`.
 
 ```synod
-time.Every 1s
-  set Heartbeat to (Heartbeat plus 1)
+define [n: Node] Version
+  result ((n.Generation times 1000000) plus n.Heartbeat)
+
+when [n: Node] (net.Received digest from sender)
+  if (sender is not in n.peers)
+    set n.peers to (lists.Append sender to n.peers)
 ```
+
+- The receiver of a phrase has type `Node` or `p.Node`. The receiver of
+  `start` and of a `when` has type `Node`.
+- `define [n: Node] start` is the node entry. It runs on every node
+  running the package when the node is created, and again on every
+  restart. A package has at most one `start`.
+- A file root holds only declarations: `use`, `has`, `define`, `when`,
+  `always`. No statement runs at file root.
+- Blocks inside node code (`after`, the block of `time.Every`) see the
+  receiver by ordinary lexical scope:
+
+```synod
+define [n: Node] start
+  set n.Generation to ((disk.Read "generation" on n or 0) plus 1)
+  disk.Write n.Generation at "generation" on n
+  time.Every 1s
+    set n.Heartbeat to (n.Heartbeat plus 1)
+```
+
+- Receivers, `start`, `when` on node events and `Node has` are declared
+  only in library packages: a main package never runs on nodes, so it has
+  no node type (`bad-receiver`).
 
 ## 5.4 The four contexts
 
-Every statement runs in exactly one context, and the compiler checks
-what each context may do.
+Every statement runs in exactly one context. A context starts at an
+entry, and everything that code runs keeps it: nested blocks, `after`
+blocks, block arguments, and phrases without a receiver called from it.
 
-| Context | Where | Reads | Writes | May use |
+| Context | Starts at | Reads | Writes | May use |
 | --- | --- | --- | --- | --- |
-| **node** | startup statements; `when` on node events; phrases called from them | own node's state; identity of any node | own node's state | `net.Send`, `after` (simulated), `emit`, `disk.*` |
-| **main** | the `main` block and its `after` blocks | any node's state | any node's state (setup and faults) | `deliver`, `after` (simulated), `emit`, `sim.*` setup and fault phrases |
-| **check** | `always` and phrases called from it | any node's state | locals only | nothing with effects |
-| **look** | `when` on trace events; phrases called from them | exported state of any node, as it was at that trace event | locals and shapes only | `draw`, `std/look`, `after` (presentation) |
+| **node** | `start`; `when [n: Node]` on node events; receiver phrases | the receiver's state; identity of any node | the receiver's state; locals | `net.Send`, `disk.*`, `after` (simulated), `emit … by n` |
+| **main** | `define main` | any node's state, through `Node` and `p.Node` values | any node's state (setup and faults); locals | `deliver`, `after` (simulated), `emit … by sim.Nobody`, `sim.*` setup and fault phrases, `net.*` configuration |
+| **check** | `always` | any node's state | locals only | nothing with effects |
+| **look** | `when` on trace events | exported state of any node, as it was at that trace event | locals and shapes only | `draw`, `std/look`, `after` (presentation) |
 
 Rules that follow:
 
-- **Realism.** A node handler cannot read or change another node's state;
-  it must send a message. Violations that the compiler can prove are
-  compile errors (`foreign-state`); others are run-time errors.
+- **Receiver phrases are node code.** A receiver phrase is called only in
+  node context, on the receiver in scope. A call from main, check or look
+  context is a `context` error.
+- **Realism.** In node context, node state is reached only through the
+  receiver of the `define` or `when` that lexically contains the code:
+  `n.Known`, `n.gossip.Known`, `n.Version`. Any other node value (a peer,
+  a hole, a list item) gives identity only, and other nodes learn through
+  `net.Send`. Anything else is a `foreign-state` error, reported at
+  compile time.
+- **Explicit naming.** In node context, `net.Send`, `disk.*` and `emit`
+  name their node with the words of the trace fact they record:
+  `net.Send m from n to p`, `disk.Write v at k on n`,
+  `disk.Read k on n or d`, `emit e by n`. The named node must be the
+  receiver in scope; any other node is a `foreign-state` error, reported
+  at compile time. These phrases are node-context only, except `emit`,
+  which main also uses with `sim.Nobody` (main is not a node):
+  `emit (message X with Y 1) by sim.Nobody`. `after` schedules on the
+  context it runs in: in node context, on the receiver's node.
+  `lesson.Ask` and `lesson.Note` are main context only.
 - **Purity of looks.** Observers cannot `set` node state, `deliver`,
   `emit`, or send. A look can never change what happens, only how it looks.
-- **Phrases are context-polymorphic.** A phrase is checked for each
-  context it is called from. A phrase reading bare state fields can only
-  be called where there is a current node.
+- **Shared phrases.** A phrase without a receiver takes the context of
+  its caller and is checked once per context it is reached from. In node
+  context it has no receiver, so it reaches no node state. In main and
+  check context it reaches nodes through its holes:
+  `define Join [n: Node] to [seed: node]` sets `n.peers` from `define main`.
 
 ## 5.5 Node events vs trace events
 
 `when` takes an event phrase. Event phrases are native and come in two kinds:
 
-- **Node events** are delivered to one node and run a handler in node context:
-  `net.Received`, `sim.Delivered`.
-- **Trace events** are facts recorded in the trace and run observers in look
-  context: `net.Sent`, `sim.Changed`, `sim.Emitted`… (full list in `spec/08`).
+- **Node events** are delivered to one node: `net.Received`,
+  `sim.Delivered`. A `when` on a node event has a receiver,
+  `when [n: Node] (…)`. It runs on every node running the package that
+  contains it, with `n` bound to that node, in node context.
+- **Trace events** are facts recorded in the trace: `net.Sent`,
+  `sim.Changed`, `sim.Emitted`… (full list in `spec/08`). A `when` on a
+  trace event has no receiver. It runs once per occurrence, in look
+  context, for every package in the program that contains it.
 
-A `when` on a node event runs only on nodes running the package that
-contains the `when`. A `when` on a trace event runs once per occurrence,
-for every package in the program that contains it.
+A receiver on a trace-event `when`, or a node-event `when` without one,
+is a `bad-receiver` error.
 
-## 5.6 Matching node events
+## 5.6 Matching events
 
-In `when (net.Received Prepare from proposer)`:
+In `when [n: Node] (net.Received Prepare from proposer)`:
 
 - A **record type name** in a `msg` hole filters by type and binds the
-  record under that name (`number of Prepare`). Qualified types bind under
-  the qualified name (`Key of api.Get`).
-- A **new bare word** in any other hole binds the value (`proposer`).
+  record under that name (`Prepare.number`). A qualified type binds under
+  the qualified name (`api.Get.Key`).
+- A **typed hole** `[x: p.Node]` in a `node` hole filters to nodes running
+  `p` and binds `x` with that type: `when (sim.Added [n: raft.Node])`.
+- A **new bare word** in any other hole binds the value with the hole's
+  type (`proposer`: `node`).
 - An **existing name or a literal** filters by equality.
 
 ## 5.7 Invariants
 
 ```synod
-always ((lists.Size ChosenValues) at most 1)
+define Decisions [ns: list of Node]
+  set values to {}
+  each n in ns
+    if (n.Decided is not in values)
+      set values to (lists.Append n.Decided to values)
+  result values
+
+always ((lists.Size (Decisions (sim.NodesRunning paxos))) at most 1)
 ```
 
 `always` takes a `bool`. It is evaluated after every simulation step (see

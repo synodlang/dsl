@@ -19,7 +19,8 @@ when (sim.Crashed n)
 ## 9.2 Drawing
 
 ```ebnf
-drawing = "draw" arg "as" word [ "for" arg ] [ block ] ;
+drawing    = "draw" arg "as" word [ "for" arg ] [ block ] ;
+attachment = word "of" arg ;     (* look context: a shape attached with draw … for *)
 ```
 
 - `draw (look.Circle 8) as dot` creates a shape named `dot`, visible for
@@ -34,11 +35,19 @@ drawing = "draw" arg "as" word [ "for" arg ] [ block ] ;
   to the new one. This gives the 3Blue1Brown transform feel without
   writing animation code.
 
+- `card of n` is the **attachment** form (look context only). It reads
+  the shape attached to `n` under `card`. It is not a field: attachments
+  belong to the scene, and their keys may also be text or numbers
+  (`tag of "user:1"`).
+
 ```synod
-when (sim.Added n)
+when (sim.Added [n: raft.Node])
   draw (look.Card for n) as card for n
-    card look.Fill (RoleColor (raft.Role of n))
+    look.Fill card with (RoleColor n.raft.Role)
 ```
+
+The typed binding `[n: raft.Node]` (`spec/05` §5.6) gives `n` the fields
+of `raft`.
 
 ## 9.3 Motion
 
@@ -48,7 +57,7 @@ when (sim.Added n)
 - **One motion curve.** Easing is the speed curve of a movement. Tween takes
   none: every animation uses the house curve, smootherstep
   `6t⁵ − 15t⁴ + 10t³`, so all packages move alike.
-- Everything else (`look.Fade`, `look.Pulse`, `look.Move`, `look.Travel`,
+- Everything else (`look.Fade`, `look.Pulse`, `look.Travel`,
   `look.Remove`) is defined in Synod on top of `look.Tween` and `after`.
 
 ## 9.4 Layout
@@ -57,7 +66,7 @@ Node cards are placed by layout, never by coordinates in behaviour code.
 `look.Layout "ring"` (also `"row"`, `"grid"`) arranges every shape
 attached to a node under the name `card`; when nodes are added or removed,
 the layout re-flows with a morph. Other shapes are positioned relative to
-cards (`look.Above`, `look.Below`, `look.Beside`).
+cards (`look.Place … above`, `below`, `beside`).
 
 ## 9.5 Colors and type
 
@@ -98,7 +107,7 @@ its observer starts.
 ## 9.7 The default look
 
 `std/look/basic` is used when a program uses no look: nodes are cards on
-a ring labelled with `sim.Name`, each card lists the node's exported
+a ring labelled with the node's name (`sim.Name n`), each card lists the node's exported
 state fields as `name value` rows that morph on `sim.Changed`, messages
 are dots that fly between cards and are labelled with their record type,
 dropped messages fade midway, crashed nodes grey out, `sim.Broken`

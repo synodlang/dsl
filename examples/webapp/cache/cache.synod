@@ -2,15 +2,15 @@
 use github.com/synodlang/examples/webapp/api
 use std/net
 
-node has
+Node has
   set Entries to {}
 
-when (net.Received api.Lookup from asker)
-  set k to (Key of api.Lookup)
-  if (k is in Entries)
-    net.Send (message api.CacheReply with Key k, Id (Id of api.Lookup), Value (item k of Entries), Found true) to asker
+when [n: Node] (net.Received api.Lookup from asker)
+  set k to api.Lookup.Key
+  if (k is in n.Entries)
+    net.Send (message api.CacheReply with Key k, Id api.Lookup.Id, Value (item k of n.Entries), Found true) from n to asker
   else
-    net.Send (message api.CacheReply with Key k, Id (Id of api.Lookup)) to asker
+    net.Send (message api.CacheReply with Key k, Id api.Lookup.Id) from n to asker
 
-when (net.Received api.Fill from filler)
-  set item (Key of api.Fill) of Entries to (Value of api.Fill)
+when [n: Node] (net.Received api.Fill from filler)
+  set item api.Fill.Key of n.Entries to api.Fill.Value

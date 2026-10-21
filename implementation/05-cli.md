@@ -2,11 +2,11 @@
 
 | Command | What it does |
 | --- | --- |
-| `synod new <dir> [--lib]` | Create a module: `synod.mod`, a `main` (or library) package, `.gitignore` |
+| `synod new <dir> [--lib]` | Create a module: `synod.mod`, a package folder with a library file and a `demo.synod` main file (`--lib`: no main file), `.gitignore` |
 | `synod fmt [paths…]` | Rewrite files into canonical form; `--check` exits 1 if anything would change |
 | `synod check [paths…] [--json] [--tokens]` | Load, resolve and check; print diagnostics |
-| `synod run <program> [--seed n] [--trace file] [--scene file] [--pace x] [--mode ordered\|proportional]` | Check, simulate, build the scene; default outputs `out/trace.jsonl` and `out/scene.json` |
-| `synod run <program> --summary` | Print a compact, human-readable summary of the run: facts grouped per step, invariant results (used by agents) |
+| `synod run <folder> [--seed n] [--trace file] [--scene file] [--pace x] [--mode ordered\|proportional]` | Check and run the folder's main file: simulate and build the scene; default outputs `out/trace.jsonl` and `out/scene.json` |
+| `synod run <folder> --summary` | Print a compact, human-readable summary of the run: facts grouped per step, invariant results (used by agents) |
 | `synod get [module@version]` | Fetch dependencies into the cache and update `synod.mod`/`synod.sum` |
 | `synod doc [package] [--catalog]` | Print a package's exported phrases; `--catalog` prints the std catalog as Markdown for `agent-skills` |
 | `synod explain <code>` | Explain a diagnostic code with an example |

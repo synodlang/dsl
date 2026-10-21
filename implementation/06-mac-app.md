@@ -28,17 +28,20 @@ Claude" works without a network.
 - **Runner.** On save (debounced 300ms) runs
   `synod run --scene … --trace …`; on success swaps the scene, keeping
   the current presentation time when possible.
-- **Player.** Renders `scene.json` with SwiftUI `Canvas` inside a
-  `TimelineView`, or Metal if profiling demands it. Interpolates keyframes
-  with smootherstep; colors in OKLab; shapes have soft shadows off,
-  rounded corners on, 3Blue1Brown-style dark ground from the theme.
+- **Player.** A `WKWebView` hosting the bundled `player` library
+  (offline), fed `scene.json` through a JS bridge; the same renderer as
+  the site. The library interpolates keyframes with smootherstep; colors
+  in OKLab; shapes have soft shadows off, rounded corners on,
+  3Blue1Brown-style dark ground from the theme.
 - **Timeline.** Play, pause, step to previous/next fact, scrub, pace
-  (0.25× to 4×), ordered/proportional toggle, markers for `pause`,
-  `caption`, `broken`.
+  (0.25× to 4×), ordered/proportional toggle, markers for `pause`
+  (from `lesson.Ask`), `caption`, `broken` (the scene `markers` in
+  `implementation/04-formats.md`).
 - **Inspector.** The selected node's exported state at the current time;
   the trace list around the current time; clicking a fact jumps there.
 - **Export.** Video via `AVAssetWriter` (H.264/HEVC, 1080p/4K, 60fps),
-  rendering frames offscreen at fixed timesteps; and GIF.
+  rendering `player` frames offscreen at fixed timesteps
+  (`renderFrame(at)`); and GIF.
 
 ## Learning modes
 
@@ -48,7 +51,7 @@ Claude" works without a network.
   program.
 - **Break it.** Click a node: Crash, Restart. Click a message dot: Drop
   this message. Drag a box around nodes: Partition. Each action inserts
-  a line into the program's `main` at the current simulated time (for
+  a line into the program's `define main` at the current simulated time (for
   example `after 4200ms` → `sim.Crash (item 2 of nodes)` or
   `net.DropNext "Accept" from …`), formats, and re-runs. No LLM call.
   Invariants that break are highlighted where they broke.

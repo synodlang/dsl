@@ -34,15 +34,21 @@ description: Read, write, check and run Synod (.synod) programs that model
 # Writing Synod
 
 1. Look before writing: `synod doc` for std, search the workspace and
-   examples for an existing package. Prefer writing only a `main`.
+   examples for an existing package. Prefer writing only a main file
+   (`define main`).
 2. Every argument is one item: parenthesize every nested phrase and every
-   multi-item condition. `if (Role is "leader")`, `set x to (x plus 1)`.
-3. Qualify every imported phrase and field (`net.Send`, `gossip.Known`);
-   never qualify your own package's names.
-4. Node handlers touch only their own node's state; talk to others with
-   `net.Send`. `deliver` and faults live in `main`.
-5. Looks are optional: `std/look/basic` animates everything by default.
-6. Run `synod fmt`, then `synod check` until clean, then `synod run` and
+   multi-item condition. `if (n.Role is "leader")`, `set n.x to (n.x plus 1)`.
+3. Qualify every imported name (`net.Send`, `gossip.Join`,
+   `n.gossip.Known`); never qualify your own package's names (`n.Known`,
+   `Quorum`).
+4. Node code names its node with a receiver: `define [n: Node] Version`,
+   `when [n: Node] (net.Received …)`, `define [n: Node] start`. It touches
+   only `n`'s state and talks to other nodes with `net.Send m from n to p`.
+   `deliver` and faults live in `define main`.
+5. Types are explicit: `[ns: list of Node]`, `[m: map of node to number]`.
+   A `node` has no fields; `Node` or `pkg.Node` does.
+6. Looks are optional: `std/look/basic` animates everything by default.
+7. Run `synod fmt`, then `synod check` until clean, then `synod run` and
    confirm the trace shows what was asked. Never hand back unchecked code.
 
 Reference files: grammar.md, phrases.md, contexts.md, canonical.md,

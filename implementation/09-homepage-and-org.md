@@ -1,17 +1,20 @@
 # Homepage and organization
 
-## `homepage`
+## `synodlang.github.io`
 
-A static site (Astro or plain HTML; no server), deployed with GitHub Pages at
-`synodlang.github.io` until a domain exists.
+The organization site. The repository is currently named `homepage`; the
+rename to `synodlang.github.io` is a follow-up. It is a static site
+(Astro or plain HTML; no server), deployed with GitHub Pages for the
+organization at https://synodlang.github.io until a domain exists.
 
 - **Home:** the icon, one sentence ("A small language for watching
-  distributed systems think"), a looping recording of Raft electing a
-  leader, three buttons: Get the app · Read the spec · See examples.
+  distributed systems think"), a looping Raft election played live by
+  `player` (no recording), three buttons: Get the app · Read the spec · See examples.
 - **Docs:** rendered from `dsl` at build time (spec, std catalog), with
   each `synod` block highlighted.
-- **Examples:** one page per example with its recording (exported from
-  the Mac app) and source.
+- **Examples:** one page per example with editable source and a Run
+  button. It calls `synod.wasm` (check, run, scene) and plays the result
+  with `player`; diagnostics are shown inline. No recordings.
 - **Tribute:** a short page on Leslie Lamport's "The Part-Time Parliament"
   and why the language is named after the Synod protocol.
 
@@ -20,7 +23,7 @@ Design: the brand from `assets/icon.svg`: navy ground `#151A2E`, pale
 
 ## `.github`
 
-- `profile/README.md`: what Synod is, links to every repository.
+- `profile/README.md`: what Synod is, links to every repository. It lists `player` and the site (follow-up in that repo).
 - Shared workflows: `go.yml` (vet, test, golden tests), `synod.yml`
   (install `synod`, run `synod fmt --check` and `synod check ./...`),
   `skills-sync.yml`.

@@ -8,7 +8,7 @@ clock. It runs the observers of every active look package (`spec/06`
 
 - In: the IR (for observers and look phrases), `trace.jsonl`, options
   `pace` (default 1), `mode` (`"ordered"` default, or `"proportional"`).
-- Out: `scene.json` (`04-formats.md`).
+- Out: `scene.json` (`04-formats.md`), consumed by the `player` library.
 
 ## Algorithm
 
@@ -19,7 +19,9 @@ cursor := 0ms                      // presentation time
 for each trace event e in order:
     apply e to state               // Added/Restarted snapshots, Changed deltas
     slot := schedule(e, cursor)    // presentation start time for e
-    for each observer matching e:  // package dependency order, file order
+    for each observer matching e:  // package dependency order, file order;
+                                   // a typed binding [n: p.Node] matches only
+                                   // nodes whose `runs` list contains p
         run observer at time slot  // draw / tween / after on presentation clock
     re-run reactive draw blocks whose read-set changed in e
     cursor := slot
@@ -62,7 +64,7 @@ from sender to receiver between the two slots. The builder therefore keeps
 ### Lesson pauses
 
 `sim.Emitted lesson.Asked` becomes a `pause` marker in the scene with the
-question; the player stops there in Predict mode.
+question; the player (in the app or on the site) stops there in Predict mode.
 
 ## Output size
 

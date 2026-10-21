@@ -3,7 +3,7 @@ use github.com/synodlang/examples/gossip
 use std/lesson
 use std/sim
 
-main
+define main
   sim.Seed 4
   set nodes to (sim.Cluster of 6 running gossip)
   each i, n in nodes

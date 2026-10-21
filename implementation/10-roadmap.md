@@ -5,8 +5,8 @@ passing in CI. Do not start a milestone before the previous one passes.
 
 ## M0 — Organization skeleton
 
-- Create the repositories listed in `00-architecture.md` under
-  `github.com/synodlang`, each with a README, licence and CI stub.
+- Create the repositories listed in `00-architecture.md` (including
+  `player` and the site) under `github.com/synodlang`, each with a README, licence and CI stub.
 - Push this `dsl` repository as `v0.1.0`.
 
 **Accept:** every repository exists; `dsl` README renders.
@@ -34,7 +34,7 @@ error code reproduces it with the expected message.
   `text`, `disk`, `lesson`.
 
 **Accept:** `tcp`, `gossip`, `paxos`, `raft`, `twopc` run with golden
-traces; running twice gives byte-identical traces; Paxos's invariant
+traces (the new examples); running twice gives byte-identical traces; Paxos's invariant
 holds across seeds 1–200; breaking Paxos (removing the highest-prior
 rule in `paxos.synod`) makes `sim.Broken` appear for some seed.
 
@@ -46,21 +46,38 @@ rule in `paxos.synod`) makes `sim.Broken` appear for some seed.
 **Accept:** golden scenes for all examples; `raftlook` and `ringlook`
 render; the scheduling rules of `spec/09` §9.6 are covered by tests.
 
-## M5 — Mac app player
+## M5 — WebAssembly build (`compiler`)
 
-- Open a workspace, run, play scenes, timeline, inspector, video export.
+- `GOOS=js GOARCH=wasm` build of `cmd/synod-wasm` with the JS API
+  `check` / `run` / `scene` (`01-compiler.md`).
 
-**Accept:** every example plays at 120fps; exported 1080p video of Raft
-matches the player frame for frame at the same pace.
+**Accept:** `synod.wasm` produces traces and scenes byte-identical to
+native for every example.
 
-## M6 — Editor and learning modes
+## M6 — Player (`player`)
+
+- TypeScript canvas library that plays `scene.json`: keyframes,
+  smootherstep, OKLab colors, markers, `renderFrame(at)` for export.
+
+**Accept:** every golden scene plays at 120fps in Safari/WKWebView on
+Apple silicon; frame-render golden images match.
+
+## M7 — Mac app
+
+- Open a workspace, run, play scenes with `player` in a WKWebView,
+  timeline, inspector, video export.
+
+**Accept:** every example plays; exported 1080p video of Raft matches
+the player frame for frame at the same pace.
+
+## M8 — Editor and learning modes
 
 - Editor with tokens and diagnostics, Predict, Break it, Compare.
 
 **Accept:** Break it can reproduce the Cassandra hinted-handoff story by
 clicks alone; Predict stops at each `lesson.Ask`.
 
-## M7 — Claude integration and agent skills
+## M9 — Claude integration and agent skills
 
 - `agent-skills` with the generated catalog; the prompt bar.
 
@@ -68,6 +85,7 @@ clicks alone; Predict stops at each `lesson.Ask`.
 a checked program in one request, using the `twopc` package without
 rewriting it.
 
-## M8 — Remaining examples, homepage, `.github`
+## M10 — Remaining examples, site, `.github`
 
-**Accept:** homepage live with recordings of every example.
+**Accept:** synodlang.github.io live; every example page is editable and
+re-runs in the browser; no recordings.

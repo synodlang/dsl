@@ -10,15 +10,15 @@ an animation.
 Three kinds of source live in Synod packages:
 
 - **Behaviour**: node state, handlers, phrases. Example: the gossip protocol.
-- **Programs**: a `main` block that builds a cluster, injects requests and faults, and stops. Example: "6 Cassandra nodes, crash one replica at 6s".
+- **Programs**: a main file (`# package main`) whose `define main` builds a cluster, injects requests and faults, and stops. Example: "6 Cassandra nodes, crash one replica at 6s".
 - **Looks**: observers that draw and animate. Example: a ring view that colours the Raft leader.
 
 ## 0.2 The pipeline
 
 ```
 .synod sources ──► compiler ──► simulator ──► trace ──► scene builder ──► scene ──► player
-                   (check)     (sim clock)   (facts)   (observers,         (shapes &   (Mac app,
-                                                        presentation clock) keyframes)  video)
+                   (check)     (sim clock)   (facts)   (observers,         (shapes &   (JS canvas:
+                                                        presentation clock) keyframes)  Mac app, site)
 ```
 
 - The **simulator** runs on a deterministic simulated clock and writes a
@@ -27,7 +27,7 @@ Three kinds of source live in Synod packages:
 - The **scene builder** replays the trace, runs the observers of look
   packages on a **presentation clock**, and produces a **scene**: shapes
   with keyframes.
-- The **player** (the Mac app) only draws scenes. It never interprets Synod.
+- The **player**, a JavaScript canvas library used by the Mac app and the website, only draws scenes. It never interprets Synod.
 
 An LLM (Claude through its CLI, or any agent) only ever writes Synod source.
 
@@ -39,10 +39,10 @@ use github.com/synodlang/examples/tcp
 use std/lesson
 use std/sim
 
-main
-  set client to (sim.Node running tcp)
-  set server to (sim.Node running tcp)
-  set tcp.State of server to "LISTEN"
+define main
+  set client to (sim.Spawn tcp)
+  set server to (sim.Spawn tcp)
+  set server.tcp.State to "LISTEN"
   lesson.Note "A connection needs three messages before data can flow."
   deliver (message tcp.Open with Server server) to client
 ```
@@ -58,4 +58,4 @@ main
 "Must", "must not" and "may" are normative. Code blocks marked `synod`
 are canonical Synod. Blocks that start with `# package` are complete
 files and must pass `synod check` together with the other files of the
-same package; shorter blocks are fragments.
+same package (a main file is a package of its own); shorter blocks are fragments.

@@ -15,32 +15,32 @@ SynAck has
 Ack has
   set AckNo to 0
 
-node has
+Node has
   set State to "CLOSED"
   set seq to 0
   set peerSeq to 0
 
 # Client: the application asks to open a connection
-when (sim.Delivered Open)
-  set seq to 100
-  set State to "SYN-SENT"
-  net.Send (message Syn with Seq seq) to (Server of Open)
+when [n: Node] (sim.Delivered Open)
+  set n.seq to 100
+  set n.State to "SYN-SENT"
+  net.Send (message Syn with Seq n.seq) from n to Open.Server
 
 # Server: answer a SYN with SYN-ACK
-when (net.Received Syn from client)
-  set peerSeq to (Seq of Syn)
-  set seq to 300
-  set State to "SYN-RECEIVED"
-  net.Send (message SynAck with Seq seq, AckNo (peerSeq plus 1)) to client
+when [n: Node] (net.Received Syn from client)
+  set n.peerSeq to Syn.Seq
+  set n.seq to 300
+  set n.State to "SYN-RECEIVED"
+  net.Send (message SynAck with Seq n.seq, AckNo (n.peerSeq plus 1)) from n to client
 
 # Client: a SYN-ACK that acknowledges our SYN completes our side
-when (net.Received SynAck from server)
-  if ((AckNo of SynAck) is (seq plus 1))
-    set peerSeq to (Seq of SynAck)
-    set State to "ESTABLISHED"
-    net.Send (message Ack with AckNo (peerSeq plus 1)) to server
+when [n: Node] (net.Received SynAck from server)
+  if (SynAck.AckNo is (n.seq plus 1))
+    set n.peerSeq to SynAck.Seq
+    set n.State to "ESTABLISHED"
+    net.Send (message Ack with AckNo (n.peerSeq plus 1)) from n to server
 
 # Server: the final ACK completes the handshake
-when (net.Received Ack from client)
-  if ((AckNo of Ack) is (seq plus 1))
-    set State to "ESTABLISHED"
+when [n: Node] (net.Received Ack from client)
+  if (Ack.AckNo is (n.seq plus 1))
+    set n.State to "ESTABLISHED"

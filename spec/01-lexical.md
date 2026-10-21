@@ -9,7 +9,7 @@
 
 - Indentation is exactly **2 spaces** per level. Tabs are an error.
 - Indentation opens and closes blocks (INDENT / DEDENT tokens, as in Python).
-- One statement per line. There is no line continuation.
+- One sentence per line; a sentence never continues on the next line. A statement's blocks and continuation lines (`else`, see `spec/02` §2.1) follow it on their own lines.
 - Blank lines are allowed between statements; the formatter normalizes them (see `spec/10`).
 
 ## 1.3 Comments
@@ -22,13 +22,14 @@ color literal, see 1.7.)
 ## 1.4 Words
 
 ```
-word  = letter { letter | digit } ;
-qword = word "." word ;            (* a qualified word: package.Name *)
+word   = letter { letter | digit } ;
+member = word "." word { "." word } ;   (* one token, no spaces around "." *)
 ```
 
 - Letters are ASCII `a-z` and `A-Z`; digits are `0-9`. No underscores or hyphens.
 - A word starting with an upper-case letter is **exported** (see `spec/06`). Capitalization has no other meaning.
-- `.` appears only in qualified words and in import paths.
+- `.` joins the words of a member, which names a named member (`spec/03` §3.3). `.` also appears in numbers (`0.5`) and in import paths.
+- Every word starts with a letter, so field names never start with a digit and `nodes.0` is not a member. Elements are written `item 0 of nodes`.
 
 ## 1.5 Numbers and durations
 
@@ -66,12 +67,12 @@ else colors are named: `theme.Accent`.
 
 | Token | Only use |
 | --- | --- |
-| `[` `]` | holes, inside `define` patterns |
+| `[` `]` | holes: in `define` patterns (receivers included) and in `when` (receivers and typed event bindings) |
 | `:` | inside a hole, between name and type |
-| `(` `)` | a nested phrase |
+| `(` `)` | a nested sentence |
 | `{` `}` | a list literal, or the empty list/map `{}` |
-| `,` | between list items, and between field settings after `message … with` |
-| `.` | qualification, and inside import paths |
+| `,` | between list items, between settings after `message … with`, and between the two names after `each` |
+| `.` | members: `net.Send`, `n.Known`, `Vote.term`; also inside numbers and import paths |
 
 ## 1.9 Paths
 
@@ -90,11 +91,13 @@ version = "v" digits "." digits "." digits ;
 The following words are language words and cannot be used as names:
 
 ```
-use as define native main has set to when after deliver emit
-if else each in result always draw for message with of item
+use as define native main start has set to when after deliver emit
+if else each in result always draw for message with of item list map
 is not at least most less more than and or plus minus times divided by
 true false
 ```
 
 (`at least`, `at most`, `less than`, `more than`, `divided by`, `is in`,
 `is not`, `is not in` are multi-word operators built from these words.)
+
+`main` and `start` appear only in the entry definitions `define main` and `define [n: Node] start`. `list` and `map` appear only in types (`list of node`, `map of text to number`).

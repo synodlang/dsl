@@ -5,8 +5,8 @@ use std/lists
 use std/sim
 use std/text
 
-main
-  set db to (sim.Node running wal)
+define main
+  set db to (sim.Spawn wal)
   each i in (lists.Range 1 to 12)
     after (i times 300ms)
       deliver (message wal.Put with Key (text.Join {"k", (text.From i)}), Value (text.From i)) to db

@@ -22,7 +22,7 @@ dependency: `<module> <version> <commit sha> <tree hash>`.
 One JSON object per line. Line 1 is the header:
 
 ```json
-{"format":"synod-trace/1","synod":"0.1","seed":7,"program":"examples/paxos/demo","packages":["paxos","std/net","std/sim"]}
+{"format":"synod-trace/1","synod":"0.1","seed":7,"program":"examples/paxos","packages":["paxos","std/net","std/sim"]}
 ```
 
 Then one line per trace event:
@@ -32,7 +32,7 @@ Then one line per trace event:
 {"seq":13,"t":31877,"ev":"net.Arrived","node":"n3","msg":{"id":5,"type":"paxos.Prepare","fields":{"number":101}},"from":"n1","to":"n3"}
 {"seq":14,"t":31877,"ev":"sim.Changed","node":"n3","field":"paxos.Promised","old":0,"new":101}
 {"seq":20,"t":52010,"ev":"sim.Emitted","node":"n2","record":{"type":"paxos.Learned","fields":{"Value":"x"}}}
-{"seq":31,"t":90000,"ev":"sim.Broken","rule":"paxos/paxos.synod:61: always ((lists.Size ChosenValues) at most 1)"}
+{"seq":31,"t":90000,"ev":"sim.Broken","rule":"paxos/paxos.synod:109: always ((lists.Size ChosenValues) at most 1)"}
 ```
 
 | `ev` | Extra keys |
@@ -45,7 +45,7 @@ Then one line per trace event:
 | `sim.Injected` | `node`, `record` |
 | `sim.Fired` | `node` |
 | `sim.Broken` | `rule` |
-| `sim.Emitted` | `node` (`null` from main), `record` |
+| `sim.Emitted` | `node` (`null` when emitted by `sim.Nobody` from main), `record` |
 | `sim.Failed` | `code`, `message`, `pos` |
 | `net.Sent`, `net.Arrived` | `node`, `msg`, `from`, `to` |
 | `net.Dropped` | `node`, `msg`, `from`, `to`, `reason` |
@@ -60,6 +60,8 @@ Only exported fields are written for records and state; a record's
 unexported fields appear as `"…"` so looks cannot depend on them.
 
 ## scene.json
+
+Read by the `player` library (the Mac app and the site both use it).
 
 ```json
 {
@@ -97,7 +99,7 @@ unexported fields appear as `"…"` so looks cannot depend on them.
 ```json
 {"format":"synod-check/1","ok":false,"diagnostics":[
   {"file":"gossip/gossip.synod","line":14,"col":3,"severity":"error","code":"unknown-phrase",
-   "message":"no phrase matches \"net.Sned digest to peer\"","hint":"did you mean \"net.Send [m: msg] to [n: node]\"?"}
+   "message":"no phrase matches \"net.Sned digest from n to peer\"","hint":"did you mean \"net.Send [m: msg] from [a: node] to [b: node]\"?"}
 ]}
 ```
 

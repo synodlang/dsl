@@ -10,12 +10,12 @@ use std/random
 use std/sim
 use std/time
 
-main
+define main
   sim.Seed 9
-  set balancer to (sim.Node running lb)
+  set balancer to (sim.Spawn lb)
   set servers to (sim.Cluster of 3 running app)
-  set store to (sim.Node running cache)
-  set database to (sim.Node running db)
+  set store to (sim.Spawn cache)
+  set database to (sim.Spawn db)
   lb.Balance servers on balancer
   each s in servers
     app.Wire s to store and database

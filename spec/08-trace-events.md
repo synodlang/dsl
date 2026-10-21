@@ -18,18 +18,18 @@ Each row shows the event phrase an observer writes after `when`.
 | `sim.Removed [n: node]` | `sim.Remove` | node card leaves |
 | `sim.Crashed [n: node]` | `sim.Crash` | card greys out |
 | `sim.Restarted [n: node]` | `sim.Restart` | card returns, state resets |
-| `sim.Changed [f: field] of [n: node] from [old: value] to [new: value]` | `set` changes an exported state field | value morphs |
+| `sim.Changed [f: field] of [n: node] from [old: value] to [new: value]` | `set` changes an exported node field | value morphs |
 | `sim.Injected [r: msg] into [n: node]` | `deliver` from main | request arrives from outside |
 | `sim.Fired on [n: node]` | an `after` timer fires on a node | timer tick |
 | `sim.Broken [rule: text]` | an `always` turns false | highlight, pulse |
-| `sim.Emitted [e: msg] by [n: node]` | `emit`; `n` is `sim.Nobody` when main emits | defined by the look |
+| `sim.Emitted [e: msg] by [n: node]` | `emit e by n`; `n` is `sim.Nobody` when main emits | defined by the look |
 | `sim.Failed [error: text]` | a run-time error stops the run | error banner |
-| `net.Sent [m: msg] from [a: node] to [b: node]` | `net.Send` | dot leaves `a` |
+| `net.Sent [m: msg] from [a: node] to [b: node]` | `net.Send m from a to b` | dot leaves `a` |
 | `net.Arrived [m: msg] from [a: node] to [b: node]` | the message is received | dot reaches `b` |
 | `net.Dropped [m: msg] from [a: node] to [b: node] because [r: text]` | loss, partition, crash or `net.DropNext` | dot fades midway |
-| `net.Partitioned [a: list] from [b: list]` | `net.Partition` | groups split |
+| `net.Partitioned [a: list of node] from [b: list of node]` | `net.Partition` | groups split |
 | `net.Healed` | `net.Heal` | groups rejoin |
-| `disk.Written [k: text] on [n: node]` | `disk.Write` | disk icon blinks |
+| `disk.Written [k: text] on [n: node]` | `disk.Write v at k on n` | disk icon blinks |
 
 `value` is the "any value" hole type, available to native patterns only.
 `r` in `net.Dropped` is one of `"loss"`, `"partition"`, `"crashed"`, `"targeted"`.
@@ -48,11 +48,12 @@ Elected has
 ```
 
 ```synod
-emit (message Elected with Term Term)
+emit (message Elected with Term n.Term) by n
 ```
 
-The trace records it as `sim.Emitted`, with the emitting node. Looks
-observe it like any other event:
+This line sits inside a node-context block such as `when [n: Node] (…)`.
+The trace records it as `sim.Emitted`, with the node named after `by`.
+Looks observe it like any other event:
 
 ```synod
 when (sim.Emitted raft.Elected by n)
@@ -61,9 +62,12 @@ when (sim.Emitted raft.Elected by n)
 
 - Exported (capitalized) event types are observable from other packages;
   lower-case ones only inside their own package.
-- `emit` is allowed in node and main context, never in look or check context.
+- `emit e by n` is the only form of `emit`. In node context `n` must be
+  the receiver in scope; in main context `n` must be `sim.Nobody`, because
+  main is not a node. `emit` is never allowed in look or check context.
 - `std/lesson` is written this way: `lesson.Ask` emits `lesson.Asked`
-  (Predict mode pauses on it) and `lesson.Note` emits `lesson.Noted` (a caption).
+  (Predict mode pauses on it) and `lesson.Note` emits `lesson.Noted` (a
+  caption), both by `sim.Nobody`, because both are main-context phrases.
 
 ## 8.3 Coverage
 

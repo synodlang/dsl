@@ -1,39 +1,50 @@
 # Design decisions
 
-Why Synod is the way it is. Add an entry whenever an implementation has
-to decide something the spec did not.
+Why Synod is the way it is. Every decision holds on its own scope; none
+overrides another. Add an entry whenever an implementation has to decide
+something the spec did not.
 
 | # | Decision | Why |
 | --- | --- | --- |
-| 1 | Consistency beats readability | A language people and agents write by imitation must look the same everywhere |
+| 1 | The design principles hold together; a design that cannot satisfy all of them is changed | No principle is traded against another, so rules never contradict |
 | 2 | One spelling per meaning; the formatter enforces it | Repos stay uniform; LLM output needs no style review |
-| 3 | Everything is a phrase, including the standard library | A tiny kernel; the language grows by packages, not by keywords |
-| 4 | A hole takes exactly one item; nested phrases are parenthesized | Exact matching, no precedence, no ambiguity from free-form sentences |
-| 5 | Always-qualified imports, bare names inside a package (Go) | You can always see where a phrase comes from |
+| 3 | The language is a fixed set of words and forms; everything else, the standard library included, is phrases | A tiny kernel; the language grows by packages, not by keywords |
+| 4 | An inline hole takes exactly one item and a block hole one block; nested sentences are parenthesized | Exact matching, no precedence, no ambiguity from free-form sentences |
+| 5 | Names from another package's namespace (its phrases, record types, `Node` and node fields) are always qualified; the current package's never are (Go) | You can always see where a name comes from |
 | 6 | Capitalization means exported, nothing else | One meaning per signal |
 | 7 | `use … as` only on a last-segment collision | No second spelling of a package |
-| 8 | No `self`; the current node is implicit; `sim.Here` when a value is needed | Less noise; identity stays available |
+| 8 | Node code names its node with a receiver, a node-typed hole before the head: `define [n: Node] Version`, `when [n: Node] (…)`, called `n.Version`; only node types are receivers | No implicit current node and no hidden state; every access shows whose state it is (Go receivers) |
 | 9 | `result` gives a phrase's value | Packages can define value helpers, not just natives |
-| 10 | Collections iterate like Go's `range`; unused names are errors | Familiar, and only one loop form compiles |
+| 10 | Collections iterate like Go's `range`; unused locals and `each` names are errors | Familiar, and only one loop form compiles |
 | 11 | One number type, plus `time` with units | Fewer primitives; units stop `after 5` being ambiguous |
-| 12 | Messages and events are immutable records declared with `has` | One declaration form for node state, messages and events |
-| 13 | `{}` is an empty list or map, inferred from use | Accepted trade-off; unresolved cases are an error |
+| 12 | Node state, messages and events are declared with `has`; messages and events are immutable records | One declaration form for all three |
+| 13 | `{}` is the one empty literal for lists and maps; its type comes from its use, and a `{}` whose type cannot be found is an `ambiguous-empty` error | One empty literal, never a guess |
 | 14 | `emit` lets packages add trace facts | Package concepts (leader elected) can animate richly |
 | 15 | Behaviour is simulated, never narrated by an LLM | Faithful learning; Break it and Compare need real models |
 | 16 | Two clocks: simulated and presentation | A 1ms hop can still animate over 400ms |
 | 17 | Observers are pure | A look can never change what happens |
-| 18 | Node handlers cannot touch other nodes' state | Realism: nodes only learn through messages |
-| 19 | One motion curve, no easing parameter | Every package moves alike |
-| 20 | Packages from Git URLs only, no registry | Go's model; nothing central to run |
-| 21 | A package with `main` cannot be imported | Libraries and programs never mix |
-| 22 | Behaviour runs on nodes by "running" a package; running is transitive over `use` | Roles (client, cache, db) and composition (Cassandra = gossip + ring + …) with no extra keyword |
-| 23 | `deliver` is main-only; it injects outside requests | Clean boundary between the world and the cluster |
-| 24 | `is not`, `at least` etc. exist, and the formatter rewrites `not (…)` into them | Readable operators without two spellings |
-| 25 | Compiler, simulator and scene builder in Go; the Mac app only renders scenes | One portable implementation; a thin, fast native player |
-| 26 | Records' fields are scoped per type; node fields share the package namespace | Several messages can all have a `term` field |
-| 27 | `sim.Nobody` is the only "no value" | No general null; the one case that needs it (nodes) is explicit |
-| 28 | Zero-hole one-word phrases are written bare | `time.Now`, `theme.Accent` read like names |
-| 29 | `when` bindings and hole parameters may go unused; locals may not | Like Go parameters; no `_` placeholder needed |
-| 30 | Importing a look or check package activates it without a reference | Looks are added by import, like Go's side-effect imports, without a `_` form |
-| 31 | Node state is initialized at creation; startup statements run as the first event | `main` can adjust state (a server in LISTEN) before the node starts |
-| 32 | Record fields are never qualified | The record's type already names the package |
+| 18 | Node code reads and writes only its receiver's state; it reaches other nodes with `net.Send` | Realism: nodes only learn through messages |
+| 19 | Node effects name their node: `net.Send m from n to p`, `disk.Write v at k on n`, `emit e by n`, spelled like the trace facts they record | Nothing acts for a node it does not name |
+| 20 | One motion curve, no easing parameter | Every package moves alike |
+| 21 | Packages from Git URLs only, no registry | Go's model; nothing central to run |
+| 22 | A folder holds one library package and at most one main file (`# package main`, with `define main`); importing the folder never includes the main file | A library ships its demo next to it; libraries and programs never mix in one package |
+| 23 | Behaviour runs on nodes by "running" a package; running is transitive over `use` | Roles (client, cache, db) and composition (Cassandra = gossip + ring + …) with no extra keyword |
+| 24 | `deliver` is main-only; it injects outside requests | Clean boundary between the world and the cluster |
+| 25 | `is not`, `at least` etc. exist, and the formatter rewrites `not (…)` into them | Readable operators without two spellings |
+| 26 | Compiler, simulator and scene builder are written in Go and built natively and to WebAssembly; one JavaScript canvas library, `player`, draws scenes in the Mac app and on the site | One implementation of each stage, everywhere; the app stays a thin host |
+| 27 | Node fields, phrases, record types and `Node` share one namespace per package; record fields belong to their record type, so they are never package-qualified | `n.Known` and `n.Version` never collide; several messages can all have a `term` field; a record's type already names its package |
+| 28 | `sim.Nobody` is the only "no value" | No general null; the one case that needs it (nodes) is explicit |
+| 29 | A zero-hole phrase is one item, written bare: `time.Now`, `theme.Accent`, `n.Version` | They read like names |
+| 30 | `when` bindings and hole parameters, receivers included, may go unused | Like Go parameters; no `_` placeholder needed |
+| 31 | Importing a package that has observers or invariants uses it | Looks are added by import, like Go's side-effect imports, without a `_` form |
+| 32 | Node state is initialized when the node is created; `start` runs as the node's first event and again on every restart | `main` can adjust state (a server in LISTEN) before the node starts |
+| 33 | Entry points are definitions: `define main` and `define [n: Node] start`; `main` and `start` are reserved for them; a file root holds only declarations | One definition form; nothing runs implicitly at file root |
+| 34 | `.` reaches named members only: package members, record fields, node fields, receiver phrases; elements are `item … of`, attached shapes `name of v` | One meaning for `.`, one element form |
+| 35 | Collection types name their element types, `list of T` and `map of K to V`, and are checked at compile time | Holes say exactly what they take; no run-time element errors |
+| 36 | `node` is any node, identity only; every library package has a node type `Node` (`p.Node` outside) with its fields; a `p.Node` is accepted as `q.Node` when running `p` runs `q`, and as `node` | Fields are reachable only where the type proves they exist |
+| 37 | A `when` event phrase may bind a node with a type, `[n: raft.Node]`, and then matches only such nodes | Observers read the fields of the nodes they draw |
+| 38 | `lists.Append` adds one item; `lists.Extend` joins two lists | Two meanings, two phrases; no overloading |
+| 39 | Commas stand only between list items, between `message … with` settings and between the two `each` names; a comma anywhere else is a `syntax` error | Every comma has one job, so a stray comma is caught at parse time |
+| 40 | A continuation line (one word with a block, at its statement's indentation, directly after the statement's block) continues that statement; `else` is one | One rule builds `if … else` and every multi-block phrase |
+| 41 | `net.DropNext` names the record type as text: `net.DropNext "Accept" from a to b` | One spelling in the catalog, the spec and Break it |
+| 42 | The organization site is `synodlang.github.io`: static, with examples edited and re-run in the browser by `synod.wasm` | GitHub Pages for the organization; no server; interactive examples replace recordings |

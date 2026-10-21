@@ -31,7 +31,7 @@ type Event struct {
     Seq         uint64
     Node        *Node          // nil for main timers
     Incarnation int
-    Kind        Startup | Deliver | Receive | Timer
+    Kind        Start | Deliver | Receive | Timer
     Payload     ...
 }
 ```
@@ -46,9 +46,9 @@ Map (sorted keys), Node (pointer), Record (type + field array), Shape
 ## Run
 
 1. Create the trace; record `sim.Started`.
-2. Execute `main` (main context): sim setup phrases mutate `Sim`;
-   `sim.Node`/`sim.Cluster` create nodes, record `sim.Added`, and enqueue
-   a Startup event per node at the current time.
+2. Execute `define main` (main context): sim setup phrases mutate `Sim`;
+   `sim.Node`/`sim.Cluster` create nodes, record `sim.Added`, and queue
+   a Start event per node at the current time.
 3. Loop: pop; skip if the node is down or the incarnation is stale (for
    Receive on a down node, record `net.Dropped … because "crashed"`); set
    `Now`; run; then evaluate invariants; record `sim.Broken` on
@@ -58,22 +58,25 @@ Map (sorted keys), Node (pointer), Record (type + field array), Shape
 ## Executing a step
 
 - **Creation** (`sim.Node`, `sim.Cluster`) and **restart** initialize every
-  run package's `node has` fields in declaration order, then queue a
-  Startup event.
-- **Startup:** for each package the node runs, in dependency order, run
-  its startup statements.
+  run package's `Node has` fields in declaration order, then queue a
+  Start event.
+- **Start:** for each package the node runs, in dependency order, run its
+  `start` (if any) with the receiver bound to the node.
 - **Deliver/Receive:** find matching handlers in the node's run packages
-  (dependency order, file order, line order); bind names; run each.
-- **Timer:** run the captured block with its captured bindings.
+  (dependency order, file order, line order); bind the receiver and
+  names; run each.
+- **Timer:** run the captured block with its captured bindings, which
+  include the receiver.
 - **set** on an exported node field records `sim.Changed` with old and new
   values, but only when the value actually changes.
-- **net.Send:** record `net.Sent` with a fresh message id; decide drop
+- **net.Send** (`net.Send m from a to b`; `a` is always the receiver in
+  scope): record `net.Sent` with a fresh message id; decide drop
   (partition → targeted → loss, in that order); draw the delay from the
   RNG; enqueue Receive at `Now + delay` (or record `net.Dropped` at that
   time via a dropped-arrival event, so dots fade where they would have
   arrived).
 - **Receive** records `net.Arrived` before running handlers.
-- **emit** records `sim.Emitted` with the record and the node.
+- **emit** (`emit e by n`) records `sim.Emitted` with the record and the node `n`; in main context `n` is `sim.Nobody`.
 
 ## RNG
 
@@ -85,11 +88,11 @@ source of randomness exists.
 
 ## Context enforcement at run time
 
-The checker proves most context rules. The runtime still checks:
-writes and reads of node state only on the current node in node context
-(`foreign-state`), field reads on nodes that do not run the package
-(`not-running`), and sending to `sim.Nobody` (`nobody`). Errors record
-`sim.Failed` and stop the run.
+The checker proves the context rules, including `foreign-state`, at compile time. The runtime checks only sending to
+`sim.Nobody` (`nobody`); it may assert that the named node of each effect
+(`from`, `on`, `by`) equals the node of the running event as an internal
+invariant, and a failure there is a compiler bug, not `sim.Failed`.
+Errors record `sim.Failed` and stop the run.
 
 ## State snapshots for looks
 

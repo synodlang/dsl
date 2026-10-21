@@ -16,7 +16,7 @@ define Vnodes
 define TokensOf [n: node]
   set tokens to {}
   each i in (lists.Range 1 to Vnodes)
-    set tokens to (lists.Append (math.Hash (text.Join {(sim.Name of n), "#", (text.From i)})) to tokens)
+    set tokens to (lists.Append (math.Hash (text.Join {(sim.Name n), "#", (text.From i)})) to tokens)
   result tokens
 
 # Clockwise distance from a key's point to the nearest point of a node
@@ -29,7 +29,7 @@ define Distance from [h: number] to [n: node]
   result best
 
 # The first r nodes clockwise from the key own it
-define Owners of [k: text] among [ns: list] count [r: number]
+define Owners of [k: text] among [ns: list of node] count [r: number]
   set h to (math.Hash k)
   set distances to {}
   each n in ns

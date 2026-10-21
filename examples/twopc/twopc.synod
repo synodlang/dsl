@@ -18,66 +18,66 @@ Decision has
   set tx to 0
   set commit to false
 
-node has
+Node has
   set State to "idle"
   set Participants to {}
   set tx to 0
   set yesVotes to 0
 
-define Coordinate [ps: list] from [c: node]
-  set Participants of c to ps
+define Coordinate [ps: list of Node] from [c: Node]
+  set c.Participants to ps
 
-define Decide [commit: bool]
+define [n: Node] Decide [commit: bool]
   if commit
-    set State to "committed"
+    set n.State to "committed"
   else
-    set State to "aborted"
-  each p in Participants
-    net.Send (message Decision with tx tx, commit commit) to p
+    set n.State to "aborted"
+  each p in n.Participants
+    net.Send (message Decision with tx n.tx, commit commit) from n to p
 
 # Coordinator, phase 1: ask every participant to prepare
-when (sim.Delivered Begin)
-  set tx to (Tx of Begin)
-  set State to "waiting"
-  set yesVotes to 0
-  each p in Participants
-    net.Send (message Prepare with tx tx) to p
+when [n: Node] (sim.Delivered Begin)
+  set n.tx to Begin.Tx
+  set n.State to "waiting"
+  set n.yesVotes to 0
+  each p in n.Participants
+    net.Send (message Prepare with tx n.tx) from n to p
   after 500ms
-    if (State is "waiting")
-      Decide false
+    if (n.State is "waiting")
+      n.Decide false
 
 # Participant: vote, and once prepared, wait for the decision
-when (net.Received Prepare from coordinator)
+when [n: Node] (net.Received Prepare from coordinator)
   set yes to (random.Chance 0.9)
   if yes
-    set State to "prepared"
+    set n.State to "prepared"
   else
-    set State to "aborted"
-  net.Send (message Vote with tx (tx of Prepare), yes yes) to coordinator
+    set n.State to "aborted"
+  net.Send (message Vote with tx Prepare.tx, yes yes) from n to coordinator
 
 # Coordinator, phase 2: commit only if everyone voted yes
-when (net.Received Vote from participant)
-  if (State is "waiting")
-    if (yes of Vote)
-      set yesVotes to (yesVotes plus 1)
-      if (yesVotes is (lists.Size Participants))
-        Decide true
+when [n: Node] (net.Received Vote from participant)
+  if (n.State is "waiting")
+    if Vote.yes
+      set n.yesVotes to (n.yesVotes plus 1)
+      if (n.yesVotes is (lists.Size n.Participants))
+        n.Decide true
     else
-      Decide false
+      n.Decide false
 
-when (net.Received Decision from coordinator)
-  if (commit of Decision)
-    set State to "committed"
+when [n: Node] (net.Received Decision from coordinator)
+  if Decision.commit
+    set n.State to "committed"
   else
-    set State to "aborted"
+    set n.State to "aborted"
 
 define Atomic
   set committed to false
   set aborted to false
   each n in (sim.NodesRunning twopc)
-    if ((State of n) is "committed")
+    if (n.State is "committed")
       set committed to true
-    if ((State of n) is "aborted")
+    if (n.State is "aborted")
       set aborted to true
   result (not (committed and aborted))
 

@@ -6,8 +6,8 @@ use std/theme
 
 when sim.Started
   draw (look.Circle 300) as wheel
-    wheel look.Fill theme.Paper
-    wheel look.Stroke theme.Line
+    look.Fill wheel with theme.Paper
+    look.Stroke wheel with theme.Line
 
 # A node sits at its first token; small marks show all its tokens
 when (sim.Added n)
@@ -15,10 +15,10 @@ when (sim.Added n)
   look.Orbit card around look.Center at (item 0 of (ring.TokensOf n))
   each t in (ring.TokensOf n)
     draw (look.Circle 4) as mark
-      mark look.Fill theme.Quiet
+      look.Fill mark with theme.Quiet
     look.Orbit mark around look.Center at t
 
 # A key label sits beside its owner and morphs when the owner changes
 when (sim.Emitted ring.Placed by origin)
-  draw (look.Label (Key of ring.Placed)) as tag for (Key of ring.Placed)
-  look.Place tag beside (card of (Owner of ring.Placed))
+  draw (look.Label ring.Placed.Key) as tag for ring.Placed.Key
+  look.Place tag beside (card of ring.Placed.Owner)

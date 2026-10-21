@@ -27,7 +27,7 @@ Accepted has
   set number to 0
   set value to ""
 
-node has
+Node has
   set Peers to {}
   set Promised to 0
   set AcceptedBallot to 0
@@ -39,68 +39,68 @@ node has
   set promises to {}
   set votes to {}
 
-define Meet [ns: list]
+define Meet [ns: list of Node]
   each n in ns
-    set Peers of n to ns
+    set n.Peers to ns
 
 define Majority of [n: number]
   result ((math.Floor (n divided by 2)) plus 1)
 
 # Proposer, phase 1: ask every acceptor to promise a fresh, unique ballot
-define Propose [v: text]
-  set round to (round plus 1)
-  set ballot to ((round times 100) plus sim.Id)
-  set proposal to v
-  set promises to {}
-  each p in Peers
-    net.Send (message Prepare with number ballot) to p
+define [n: Node] Propose [v: text]
+  set n.round to (n.round plus 1)
+  set n.ballot to ((n.round times 100) plus (sim.Id n))
+  set n.proposal to v
+  set n.promises to {}
+  each p in n.Peers
+    net.Send (message Prepare with number n.ballot) from n to p
 
-when (sim.Delivered Start)
-  Propose (Value of Start)
+when [n: Node] (sim.Delivered Start)
+  n.Propose Start.Value
 
 # Acceptor: promise to ignore every lower ballot
-when (net.Received Prepare from proposer)
-  if ((number of Prepare) more than Promised)
-    set Promised to (number of Prepare)
-    net.Send (message Promise with number Promised, prior AcceptedBallot, priorValue AcceptedValue) to proposer
+when [n: Node] (net.Received Prepare from proposer)
+  if (Prepare.number more than n.Promised)
+    set n.Promised to Prepare.number
+    net.Send (message Promise with number n.Promised, prior n.AcceptedBallot, priorValue n.AcceptedValue) from n to proposer
 
 # Proposer, phase 2: with a majority of promises, adopt the highest prior value
-when (net.Received Promise from acceptor)
-  if ((number of Promise) is ballot)
-    set promises to (lists.Append Promise to promises)
-    if ((lists.Size promises) is (Majority of (lists.Size Peers)))
+when [n: Node] (net.Received Promise from acceptor)
+  if (Promise.number is n.ballot)
+    set n.promises to (lists.Append Promise to n.promises)
+    if ((lists.Size n.promises) is (Majority of (lists.Size n.Peers)))
       set best to 0
-      each p in promises
-        if ((prior of p) more than best)
-          set best to (prior of p)
-          set proposal to (priorValue of p)
-      each a in Peers
-        net.Send (message Accept with number ballot, value proposal) to a
+      each p in n.promises
+        if (p.prior more than best)
+          set best to p.prior
+          set n.proposal to p.priorValue
+      each a in n.Peers
+        net.Send (message Accept with number n.ballot, value n.proposal) from n to a
 
 # Acceptor: accept unless it promised a higher ballot
-when (net.Received Accept from proposer)
-  if ((number of Accept) at least Promised)
-    set Promised to (number of Accept)
-    set AcceptedBallot to (number of Accept)
-    set AcceptedValue to (value of Accept)
-    each p in Peers
-      net.Send (message Accepted with number (number of Accept), value (value of Accept)) to p
+when [n: Node] (net.Received Accept from proposer)
+  if (Accept.number at least n.Promised)
+    set n.Promised to Accept.number
+    set n.AcceptedBallot to Accept.number
+    set n.AcceptedValue to Accept.value
+    each p in n.Peers
+      net.Send (message Accepted with number Accept.number, value Accept.value) from n to p
 
 # Learner: a value is chosen once a majority accepted the same ballot
-when (net.Received Accepted from acceptor)
-  set n to (text.From (number of Accepted))
-  if (n is in votes)
-    set item n of votes to ((item n of votes) plus 1)
+when [n: Node] (net.Received Accepted from acceptor)
+  set key to (text.From Accepted.number)
+  if (key is in n.votes)
+    set item key of n.votes to ((item key of n.votes) plus 1)
   else
-    set item n of votes to 1
-  if ((item n of votes) is (Majority of (lists.Size Peers)))
-    set Chosen to (value of Accepted)
-    emit (message Learned with Value Chosen)
+    set item key of n.votes to 1
+  if ((item key of n.votes) is (Majority of (lists.Size n.Peers)))
+    set n.Chosen to Accepted.value
+    emit (message Learned with Value n.Chosen) by n
 
 define ChosenValues
   set values to {}
   each n in (sim.NodesRunning paxos)
-    set c to (Chosen of n)
+    set c to n.Chosen
     if ((c is not "") and (c is not in values))
       set values to (lists.Append c to values)
   result values

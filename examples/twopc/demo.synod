@@ -4,10 +4,10 @@ use std/lesson
 use std/net
 use std/sim
 
-main
+define main
   sim.Seed 11
   net.Latency between 10ms and 30ms
-  set coordinator to (sim.Node running twopc)
+  set coordinator to (sim.Spawn twopc)
   set participants to (sim.Cluster of 3 running twopc)
   twopc.Coordinate participants from coordinator
   deliver (message twopc.Begin with Tx 1) to coordinator

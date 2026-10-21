@@ -2,20 +2,21 @@
 
 Canonical sample programs. They form one module,
 `github.com/synodlang/examples`, and move to the `examples` repository
-once the organization exists. Each behaviour package has a `demo/`
-program next to it.
+once the organization exists. Each behaviour package folder holds a
+`demo.synod` main file (`# package main`) next to the library;
+`webapp/demo.synod` is a pure program in a folder of sub-packages.
 
 | Folder | Topic | What to watch | Run |
 | --- | --- | --- | --- |
-| `tcp` | TCP three-way handshake | SYN, SYN-ACK, ACK and the state changes on both ends | `synod run ./tcp/demo` |
-| `gossip` | Gossip membership and failure detection | Heartbeats spreading; a crashed node marked down after 4s; generations after restart | `synod run ./gossip/demo` |
-| `paxos` | Single-decree Paxos (the Synod protocol) | Two racing proposers; the higher ballot adopts any accepted value; the invariant "at most one chosen value" | `synod run ./paxos/demo` |
-| `raft` + `raftlook` | Raft leader election | Randomized timeouts, votes, a leader crash, a new term; "never two leaders in a term" | `synod run ./raft/demo` |
-| `twopc` | Two-phase commit | The blocking problem when the coordinator crashes between phases; the atomicity invariant | `synod run ./twopc/demo` |
-| `ring` + `ringlook` | Consistent hashing with virtual nodes | Which keys move when a fifth node joins | `synod run ./ring/demo` |
-| `cassandra` | A Cassandra-style cluster: gossip + ring + replication factor 3 + QUORUM + hinted handoff | A write succeeding with a replica down, and the hint replayed after restart | `synod run ./cassandra/demo` |
-| `webapp` | Cache-aside behind a load balancer (`api`, `lb`, `app`, `cache`, `db`) | Hit rate warming up; what happens when the cache crashes and there is no timeout | `synod run ./webapp/demo` |
-| `wal` | Write-ahead log and checkpoint recovery | Which writes survive a crash between checkpoints | `synod run ./wal/demo` |
+| `tcp` | TCP three-way handshake | SYN, SYN-ACK, ACK and the state changes on both ends | `synod run ./tcp` |
+| `gossip` | Gossip membership and failure detection | Heartbeats spreading; a crashed node marked down after 4s; generations after restart | `synod run ./gossip` |
+| `paxos` | Single-decree Paxos (the Synod protocol) | Two racing proposers; the higher ballot adopts any accepted value; the invariant "at most one chosen value" | `synod run ./paxos` |
+| `raft` + `raftlook` | Raft leader election | Randomized timeouts, votes, a leader crash, a new term; "never two leaders in a term" | `synod run ./raft` |
+| `twopc` | Two-phase commit | The blocking problem when the coordinator crashes between phases; the atomicity invariant | `synod run ./twopc` |
+| `ring` + `ringlook` | Consistent hashing with virtual nodes | Which keys move when a fifth node joins | `synod run ./ring` |
+| `cassandra` | A Cassandra-style cluster: gossip + ring + replication factor 3 + QUORUM + hinted handoff | A write succeeding with a replica down, and the hint replayed after restart | `synod run ./cassandra` |
+| `webapp` | Cache-aside behind a load balancer (`api`, `lb`, `app`, `cache`, `db`) | Hit rate warming up; what happens when the cache crashes and there is no timeout | `synod run ./webapp` |
+| `wal` | Write-ahead log and checkpoint recovery | Which writes survive a crash between checkpoints | `synod run ./wal` |
 
 ## Things to try (Break it)
 
@@ -36,3 +37,6 @@ program next to it.
   chosen to land between protocol phases with typical latencies. If the
   golden trace for a seed does not show the intended story, adjust the
   timing or the seed, never the protocol, and record it here.
+- tcp: the closing note at 100ms lands after both ends are ESTABLISHED
+  (at most 90ms with the default 10-30ms latency).
+- cassandra's record timestamps are named `stamp` (`at` is reserved).

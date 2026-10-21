@@ -7,6 +7,7 @@ standard library plus `golang.org/x/...` where needed.
 
 ```
 cmd/synod/          CLI entry (05-cli.md)
+cmd/synod-wasm/     WebAssembly entry: JS API over syscall/js (see Targets)
 internal/source/    files, positions, diagnostics
 internal/lex/       tokens, INDENT/DEDENT, paths, colors vs comments
 internal/parse/     structure tree: File → Line → Sentence → Item, Block
@@ -28,38 +29,74 @@ testdata/           golden tests
 1. **Lex.** Track indentation with a stack; emit INDENT/DEDENT. A `#` is a
    comment when followed by a space or end of line, a color when followed
    by six hex digits, otherwise a `syntax` error. Paths are lexed only
-   right after `use`.
+   right after `use`. Members are one token, `word("."word)*`.
 2. **Parse** the structure grammar (`spec/02` §2.1) into a tree that keeps
-   every token and comment with positions. The parser knows no phrases.
+   every token and comment with positions. Commas split `items`;
+   continuation lines are attached to the preceding statement (`spec/02`
+   §2.1); holes are accepted in `define` and `when`. The parser knows no
+   phrases.
 3. **Canonical check.** Print the tree with the canonical printer and
    compare to the source. Any difference is a `non-canonical` error
    pointing at the first differing line. `synod fmt` writes the printed
    form instead. Negation rewriting (`spec/10`) happens in the printer.
 4. **Load.** Read `synod.mod`, resolve imports to package folders (module
-   cache for remote ones, `std/` to the bundled std), build the import
-   graph, reject cycles and `import-main`.
-5. **Declare.** For each package collect: record types (`X has`), node
-   state (`node has`), phrases (`define`), handlers (`when`), invariants
-   (`always`), startup statements, and `main`. Check names, uniqueness,
-   reserved words and pattern rules.
-6. **Resolve.** For each sentence build candidates (`spec/03` §3.3) and
-   match. Represent a pattern as a slice of `Literal(word)` and
-   `Hole(name, type)`; matching is a position-by-position comparison of
-   equal-length slices. Hole items that are words are resolved as names
-   in the order of §3.3. Inside `when`, unknown bare words and record type
-   names in event holes become bindings.
+   cache for remote ones, `std/` to the bundled std). Split each folder
+   by header into the library package and at most one main file
+   (`bad-header`, `extra-main`). Imports resolve to library packages
+   (`unknown-import`); reject cycles. This replaces `import-main`.
+5. **Declare.** For each package collect: record types (`X has`), the
+   node type (every library package gets `Node`; `Node has` gives its
+   fields), phrases with and without receivers (`define`), the `start`
+   entry, `define main`, handlers (`when`; receiver versus event kind,
+   `bad-receiver`) and invariants (`always`). Check names, uniqueness
+   (one namespace per package, `spec/03` §3.2), reserved words and
+   pattern rules.
+6. **Resolve.** Resolve types (`list of`, `map of … to`, `p.Node`). For
+   each sentence build candidates (`spec/03` §3.3) and match; members
+   are resolved left to right, candidates come from the first item, and
+   the receiver item fills the receiver hole. Represent a pattern as a
+   slice of `Literal(word)` and `Hole(name, type)`; matching is a
+   position-by-position comparison of equal-length slices. Hole items
+   that are words are resolved as names in the order of §3.3. Inside
+   `when`, unknown bare words, record type names and typed bindings
+   (`[n: p.Node]`) in event holes become bindings.
 7. **Check.**
    - Types: unify local/state/record-field types from initial values and
-     assignments; infer `{}` as list or map from usage across the package;
-     check operators per `spec/04` §4.5; value vs action phrases; results
-     on every path.
-   - Contexts: compute the context of each handler, startup statement,
-     `main`, `always` and observer; check every phrase body once per
-     context it is reachable from (`spec/05` §5.4); report `context` and
-     provable `foreign-state` errors.
+     assignments; check element types and node-type acceptance from the
+     running relation (`spec/04` §4.7); infer `{}` from usage and the
+     expected type; check operators per `spec/04` §4.5; value vs action
+     phrases; results on every path; `bad-place`.
+   - Contexts: contexts start at entries (`start`, `when`, `define main`,
+     `always`, observers); check every phrase body once per context it is
+     reachable from (`spec/05` §5.4); receiver phrases only in node
+     context; report `context` errors. `foreign-state` is the lexical
+     receiver rule and is always reported at compile time.
    - Exports, unused names and imports, aliases.
 8. **Lower to IR.** A tree of typed nodes with resolved phrase targets,
    ready to interpret.
+
+## Targets
+
+- Native: `synod` for darwin (arm64 and amd64, shipped as one universal
+  binary) and linux.
+- WebAssembly: `GOOS=js GOARCH=wasm go build -o synod.wasm ./cmd/synod-wasm`,
+  shipped with `wasm_exec.js`. It exposes a global `synod` with three
+  functions:
+  - `check(files)` returns the `check.json` object.
+  - `run(files, {program, seed})` returns `{check, trace}`, where `trace`
+    is the `trace.jsonl` text.
+  - `scene(files, trace, {program, pace, mode})` returns the `scene.json`
+    object.
+
+  `files` maps paths to sources and includes `synod.mod`. std is embedded
+  with `embed`. There is no network or module cache, so remote modules
+  must be passed in `files`.
+
+## Determinism across targets
+
+Force float64 rounding with explicit conversions so that no fused
+multiply-add happens on any `GOARCH`. CI compares native and wasm traces
+and scenes byte for byte.
 
 ## Diagnostics
 
@@ -76,5 +113,5 @@ suggest the closest pattern by edit distance over skeletons; for
 - **Fuzz** the lexer and parser (`go test -fuzz`).
 - **Spec snippets:** a test extracts every ```` ```synod ```` block from
   `dsl` that starts with `# package` and type-checks it together with its
-  siblings.
+  siblings; `# package main` blocks are grouped as standalone packages.
 - Every example in `examples` must check, run and match its golden trace.

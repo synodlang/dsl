@@ -2,7 +2,7 @@
 Get has
   set Key to ""
   set Id to 0
-  set Start to 0ms
+  set Start to 0s
 
 Lookup has
   set Key to ""
@@ -30,4 +30,4 @@ Fill has
 Served has
   set Id to 0
   set Hit to false
-  set Latency to 0ms
+  set Latency to 0s

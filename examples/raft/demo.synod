@@ -5,7 +5,7 @@ use std/lesson
 use std/net
 use std/sim
 
-main
+define main
   sim.Seed 3
   net.Latency between 5ms and 15ms
   set nodes to (sim.Cluster of 5 running raft)

@@ -27,30 +27,35 @@ after 10 minutes of simulated time (an error is reported).
 
 ### Order at time 0
 
-1. `main` runs to completion. Its `after` blocks are scheduled. A node
-   created in `main` (or later) gets its initial `node has` state
-   **immediately**, so `main` can adjust it (`set tcp.State of server to
-   "LISTEN"`), and a startup event is queued for it.
-2. Each node's startup event runs its packages' startup statements, in
-   dependency order (one step per node, in creation order).
+1. `define main` runs to completion and its `after` blocks are
+   scheduled. A node created in main (or later) gets the initial
+   `Node has` state of every package it runs **immediately**, so main can
+   adjust it (`set server.tcp.State to "LISTEN"`), and a start event is
+   queued for it.
+2. Each node's start event runs the `define [n: Node] start` of every
+   package the node runs that has one, in dependency order, with the
+   receiver bound to the node (one step per node, in creation order).
 
 ## 7.3 Node events
 
 - `deliver r to n` (main only) records `sim.Injected` and schedules
   `sim.Delivered r` on node `n` at the current time. A delivery to a
   crashed node is lost.
-- `net.Send m to n` records `net.Sent` and schedules `net.Received m` on
-  `n` after the network delay, unless the message is lost or the link is
+- `net.Send m from a to b` records `net.Sent` and schedules
+  `net.Received m from a` on `b` after the network delay, unless the message is lost or the link is
   partitioned, in which case `net.Dropped` is recorded instead (at the time
   it would have arrived).
 - A node event runs every matching `when` of every package the node runs,
-  in package dependency order, then file order.
+  in package dependency order, then file order, with the `when`'s
+  receiver bound to the node.
 
 ## 7.4 Timers
 
-`after d` schedules its block at `now + d` on the same node (or in main).
-The block captures the **values** of locals and bound names at scheduling
-time; state fields are read live when it runs. There is no timer
+`after d` schedules its block at `now + d` in the same context: on the
+receiver's node in node context, or in main. The block captures the
+**values** of locals and bound names, the receiver included, at
+scheduling time. Fields read through the receiver (`n.Heartbeat`) are
+read live when it runs. There is no timer
 cancellation: check a condition when the timer fires instead.
 
 ## 7.5 Crash and restart
@@ -58,8 +63,8 @@ cancellation: check a condition when the timer fires instead.
 - `sim.Crash n`: `n` stops. Its pending timers are discarded. Messages
   arriving while it is down are dropped (`net.Dropped`, reason `"crashed"`).
   Messages it already sent are still delivered.
-- `sim.Restart n`: every node state field returns to its initial value,
-  `std/disk` contents survive, and startup statements run again. Timers
+- `sim.Restart n`: every node field returns to its initial value,
+  `std/disk` contents survive, and each package's `start` runs again. Timers
   from before the crash never fire (each node has an incarnation number).
 
 ## 7.6 The network
@@ -70,7 +75,7 @@ Configured from `main` with `std/net` (see `std/README.md`):
   (default 10ms and 30ms). Random delays reorder messages naturally.
 - Loss probability `net.Loss p` (default 0).
 - Partitions: `net.Partition a from b`, `net.Heal`.
-- Targeted faults: `net.DropNext Accept from a to b`.
+- Targeted faults: `net.DropNext "Accept" from a to b`.
 - Sending to yourself goes through the network like any other message.
 
 ## 7.7 Determinism

@@ -22,9 +22,9 @@ the prompt bar.
 
 1. **Reuse first.** The skill tells Claude to search the workspace,
    `examples` and `synod doc` for existing packages. If a package already
-   models X, Claude only writes a `main` program (typically 10–30 lines).
+   models X, Claude only writes a main file (`define main`, typically 10–30 lines).
 2. **New behaviour only when missing.** Otherwise it writes a new
-   package plus a `main`.
+   package plus a main file.
 3. **Verify.** Claude runs `synod check` and fixes diagnostics. Errors are
    short by design (`spec/11`), so each fix costs few tokens.
 4. **Run.** Claude runs `synod run` and reads the last lines of the trace
@@ -42,7 +42,7 @@ changed lines are generated.
 
 "Explain this run" sends `synod run --summary`, a compact trace summary
 (facts grouped per step, under 2,000 tokens for typical runs), and asks
-for `lesson.Note` lines to insert into `main`. Facts come from the
+for `lesson.Note` lines to insert into `define main`. Facts come from the
 simulator, so captions cannot invent behaviour.
 
 ## Budget rules

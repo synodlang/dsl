@@ -4,9 +4,10 @@ Synod follows Go.
 
 ## 6.1 Packages
 
-- A package is a folder. All `.synod` files in it share one namespace.
-- Every file starts with a comment naming its package, which must equal
-  the folder name (or `main`):
+- A package is a folder. All `.synod` files in it share one namespace,
+  except a main file (§6.5), which is a package of its own.
+- Every file starts with a comment naming its package: the folder name,
+  or `main` for the folder's one main file (§6.5):
   ```synod
   # package gossip
   ```
@@ -45,32 +46,48 @@ use github.com/synodlang/examples/gossip
   use github.com/a/raft
   use github.com/b/raft as braft
   ```
-- Unused imports are errors, with one exception: importing a package
-  that contains observers or invariants activates them, so that import
-  counts as used (`use github.com/synodlang/examples/raftlook`).
-  Import cycles are errors.
+- An import is used when the file refers to the package, or when the
+  package contains observers or invariants: importing it activates them
+  (`use github.com/synodlang/examples/raftlook`). Unused imports and
+  import cycles are errors.
+- An import path must name a library package: a folder that holds a
+  library file. A missing folder, or a folder holding only a main file,
+  is an `unknown-import` error.
 - Imports come first in the file, one per line, sorted by path.
 
 ## 6.4 Exports
 
 - Capitalization has exactly one meaning: **exported**.
-- It applies to phrase heads, record types, record fields and node state fields.
+- It applies to phrase heads, record types, record fields, node fields,
+  and the node type `Node`, which is always exported (`gossip.Node`).
 - Only exported names are visible from other packages, including from look packages.
 
-## 6.5 Programs and `main`
+## 6.5 Programs and `define main`
 
-- A **library** is a package without `main`. A **program** is a package
-  named `main` with exactly one `main` block.
-- Importing a package that has `main` is an `import-main` error.
-- `synod run <folder>` runs a program: it executes `main` at simulated
-  time 0 in main context, then runs the event loop (`spec/07`).
+- A **main file** is a file whose header is `# package main`. It is a
+  package of its own, the folder's **program**. The folder's other files
+  form its library package, named after the folder. A folder holds at
+  most one main file.
+- A main file contains exactly one `define main`, and `define main`
+  appears only in main files.
+- The main file uses its folder's library like any other importer,
+  qualified (`use github.com/synodlang/examples/gossip`).
+- Importing a folder imports its library package; the main file is never
+  part of it. A folder holding only a main file (such as
+  `examples/webapp`) is a pure program and cannot be imported.
+- A main file declares no receivers, no `define [n: Node] start`, no
+  node-event `when` and no `Node has`, because a main package never runs
+  on nodes (`bad-receiver`).
+- `synod run <folder>` runs the folder's main file: it executes
+  `define main` at simulated time 0 in main context, then runs the event
+  loop (`spec/07`).
 
 ```synod
 # package main
 use github.com/synodlang/examples/gossip
 use std/sim
 
-main
+define main
   set nodes to (sim.Cluster of 6 running gossip)
   each i, n in nodes
     if (i more than 0)
