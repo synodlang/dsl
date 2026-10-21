@@ -69,7 +69,17 @@ match the rendering.
 - `std/look`, `std/theme`, `std/look/basic`, observers, reactive draws,
   presentation clock, `scene.json`.
 
-- Open item (G14): decide the natives `std/look` still needs (shape position, removal, state rows, message flights); M2 ships interim `Travel`, `Remove` and `look/basic`.
+- G14 (resolved, decisions 63 to 69): the natives `look.Flight … for m`,
+  `net.Id`, `net.Type`, `sim.StateRows` and the unexported `look.delete`,
+  and `look.Tween` of `"x"` and `"y"` accepting a shape. `Travel`, `Remove`
+  and `std/look/basic` are ordinary Synod. G14 completes Synod 0.2 (`dsl`,
+  std and compiler v0.2.3).
+- `synod run` always writes `out/trace.jsonl` and `out/scene.json`; a look
+  fault stops the scene, not the simulation (decision 68).
+- Scene builder rules and `scene.json` layout: `03-scene-builder.md`,
+  `04-formats.md`. Looks have golden scenes for all nine examples at their
+  own seeds (raft with `raftlook` over `basic`, ring with `ringlook` only,
+  the rest with `basic`) and scheduling tests per rule.
 
 **Accept:** golden scenes for all examples; `raftlook` and `ringlook`
 render; the scheduling rules of `spec/09` §9.6 are covered by tests.

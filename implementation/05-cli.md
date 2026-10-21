@@ -20,7 +20,8 @@ Diagnostic output (`fmt`, `check`, `run`):
   source line, markers, labels, notes and help under the same first line.
 - By default the style is rich when the destination is a terminal, short
   otherwise (a pipe or a file). The destination is stdout for `check` and for
-  `run`, and stderr for `fmt` diagnostics and for the status of `run --trace -`,
+  `run`, and stderr for `fmt` diagnostics and for the status of `run --trace -`
+  or `--scene -`,
   so detection is on that stream. A terminal is a character device; a pipe from
   MSYS or mintty counts as a pipe.
 - `--color auto` (the default) colors rich output when the destination is a
@@ -34,20 +35,35 @@ Diagnostic output (`fmt`, `check`, `run`):
 
 - Flags may come before or after the folder; `--seed 7` and `--seed=7`
   (decimal, 0 to 2^53; it wins over `sim.Seed`, `spec/07` §7.7).
-  `--trace` defaults to `out/trace.jsonl` relative to the working
-  directory (parents are created); `--trace -` writes the trace to stdout
-  and the status line to stderr.
+  `--trace` defaults to `out/trace.jsonl` and `--scene` to `out/scene.json`,
+  relative to the working directory (parents are created). `synod run`
+  always writes both, also after a failed run. `--trace -` writes the trace
+  to stdout and the status line to stderr; `--scene -` does the same for the
+  scene. Both `-` is exit 2: `--trace and --scene cannot both be "-"`. An
+  empty value is exit 2.
+- `--pace x`: a decimal with at most 3 fraction digits from 0.25 to 4
+  (stored as thousandths, `spec/09` §9.6); anything else is exit 2,
+  `--pace needs a number from 0.25 to 4, not "x"`. `--mode ordered|proportional`
+  (default `ordered`); another value is exit 2.
 - Diagnostics print as in `synod check` (same styles); any one stops the run (exit 1, no
   trace). A folder with no main file is `missing-main`, exit 1.
 - Stdout carries no wall-clock time: `ok seed 7: stop at 2s, 3 nodes, 212
   events -> out/trace.jsonl`, plus one line per broken `always`; a failed
   run prints `failed at 2s: <pos>: error[<code>]: <message>` and, in rich
-  style, the source line of the failure under it (the trace is
-  still written; exit 1). A broken `always` alone is exit 0.
-- `--summary` prints the compact summary instead of the status line and
-  still writes the trace.
-- Until their milestones, `--scene`, `--pace`, `--mode`, `--watch` and
-  `--json-events` exit 2 with `synod run: --scene is not implemented yet`.
+  style, the source line of the failure under it (the trace and the scene
+  are still written; exit 1). A broken `always` alone is exit 0.
+- After those lines the scene status: `scene 18.45s, 42 shapes ->
+  out/scene.json` (the duration as a time, `spec/04`; `-> stdout` for
+  `--scene -`).
+- A look fault (`spec/11` §11.3) replaces the scene line with `look failed at
+  <simulated time of the fact>: <pos>: error[<code>]: <message>`, followed in
+  rich style by the source line (as for `failed at`); the trace and the
+  partial scene are still written, with a `failed` marker; exit 1.
+- `--summary` prints the compact summary instead of the status lines and
+  still writes the trace and the scene silently; a look fault still prints
+  its `look failed at` line after the summary and exits 1.
+- Until their milestones, `--watch` and `--json-events` exit 2 with
+  `synod run: --watch is not implemented yet`.
 
 Modules: `synod check` and `synod run` read remote modules from the main
 module's `vendor/` only, at `vendor/<module path>@<version>/`; `synod new`

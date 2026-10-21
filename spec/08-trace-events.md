@@ -42,6 +42,12 @@ absent; `sim.Ended` has the reason `"empty"` or `"stop"`.
 
 `net.Sent` and `net.Arrived` of the same message share a message id in the
 trace, so the scene builder can draw one flight from send to arrival.
+In look context `net.Id m` (look only) gives that id for a message bound by
+a `net.Sent`, `net.Arrived` or `net.Dropped` observer, and `net.Type m` its
+unqualified record type name (`"Prepare"`, as `net.DropNext` spells it).
+`look.Flight … for m` keys a flight by the id (decision 63). A record not
+bound by a net fact has no id: `net.Id` of it is `bad-argument`. Equality of
+records ignores the id.
 
 ## 8.2 Package events with `emit`
 

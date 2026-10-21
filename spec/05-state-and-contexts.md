@@ -82,7 +82,7 @@ blocks, block arguments, and phrases without a receiver called from it.
 | **node** | `start`; `when [n: Node]` on node events; receiver phrases | the receiver's state; identity of any node | the receiver's state; locals | `net.Send`, `disk.*`, `after` (simulated), `emit … by n` |
 | **main** | `define main` | any node's state, through `Node` and `p.Node` values | any node's state (setup and faults); locals | `deliver`, `after` (simulated), `emit … by sim.Nobody`, `sim.*` setup and fault phrases, `net.*` configuration |
 | **check** | `always` | any node's state | locals only | nothing with effects |
-| **look** | `when` on trace events | exported state of any node, as it was at that trace event; a lower-case field is not readable, even of the same package (`context`) | locals and shapes only | `draw`, `std/look`, `after` (presentation) |
+| **look** | `when` on trace events | exported state of any node, as it was after that trace event; a lower-case field is not readable, even of the same package, and neither is a lower-case field of a record (`context`) | locals and shapes only | `draw`, `std/look`, `after` (presentation) |
 
 Rules that follow:
 
@@ -105,6 +105,12 @@ Rules that follow:
   `emit (message X with Y 1) by sim.Nobody`; in main any other node after `by` is a `context` error (`foreign-state` is defined for node code only). `after` schedules on the
   context it runs in: in node context, on the receiver's node.
   `lesson.Ask` and `lesson.Note` are main context only.
+- **Observers see the state after their fact.** An observer of fact `e`
+  reads the state as it is once `e` has happened: in `when (sim.Changed f of n
+  from old to new)`, `n`'s field already holds `new`. Only exported fields
+  are readable, node fields and record fields alike; the trace masks the
+  others (`"…"`, `implementation/04-formats.md`), so a look cannot depend on
+  them (decision 56).
 - **Purity of looks.** Observers cannot `set` node state, `deliver`,
   `emit`, or send. A look can never change what happens, only how it looks.
 - **Shared phrases.** A phrase without a receiver takes the context of

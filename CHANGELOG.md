@@ -6,7 +6,31 @@ GitHub release page.
 
 ## Unreleased
 
+Completes Synod 0.2 (gap G14 closed); the release will be `dsl` v0.2.3, with
+std and compiler patches.
+
 ### Changed
+
+- Scene builder and looks (M5): `spec/09` states drawing, attachments,
+  replacement, tombstones, groups, `Place` as a constraint, layout positions
+  and pinning (§9.2, §9.4), `Tween` of `"x"`/`"y"` with a shape, the morph
+  rule, tween supersede and `look.Flight` (§9.3), color names (§9.5), and the
+  presentation clock in integer milliseconds with pace in thousandths, the
+  scale formula, the constants, the shapes rule 4 waits for, first slot 0,
+  proportional mode, look `after` timers and the 2 s tail (§9.6), and the
+  default look ("uses std/look", §9.7). Decisions 63 to 69. `spec/05`: a look
+  reads only exported fields, record fields included, and sees the state
+  after its fact. `spec/08`: `net.Id` and `net.Type`. `spec/11` §11.3: look
+  faults are never in the trace and stop the scene (decision 68).
+- G14 resolved: new natives `look.Flight`, `net.Id`, `net.Type`,
+  `sim.StateRows` and the unexported `look.delete`; `Travel`, `Remove` and
+  `std/look/basic` become ordinary Synod.
+- `implementation/03-scene-builder.md` rewritten; `04-formats.md` gives the
+  exact `scene.json` layout (key order, first key, `end`, the `failed` marker,
+  numbers rounded to 0.01, theme order, color names; readers ignore unknown
+  marker kinds); `05-cli.md`: `synod run` always writes the trace and the
+  scene, `--scene`, `--pace`, `--mode`, the scene status line, the `look
+  failed` line and exit 1.
 
 - Rich diagnostics (M4): `spec/11` §11.1 defines the rich form beside the short form, the no-position form `path: error[code]: message`, and the text style of labels, help and notes. `check.json` gains `end`, and `label`, `labels`, `help` (with edits) and `notes`; `implementation/04-formats.md` states that within a major version keys are only added and readers ignore unknown keys. `implementation/05-cli.md` documents `--style` and `--color` and the terminal and `NO_COLOR` rules. The agent and Mac app guides and the M4 roadmap entry follow.
 

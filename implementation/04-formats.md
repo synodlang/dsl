@@ -71,36 +71,56 @@ unexported fields appear as `"…"` so looks cannot depend on them.
 
 ## scene.json
 
-Read by the `player` library (the Mac app and the site both use it).
+Read by the `player` library (the Mac app and the site both use it). Written
+by `synod run` beside the trace, byte for byte as below: no spaces, numbers as
+in the trace, one shape per line.
 
-```json
-{
-  "format": "synod-scene/1",
-  "duration": 18450,
-  "canvas": {"w": 1600, "h": 1000},
-  "theme": {"Paper": "#151A2E", "Ink": "#EDE9E1", "Line": "#3A4366", "Quiet": "#8A90A8",
-            "Accent": "#F4A340", "Good": "#5CC8B8", "Warning": "#E8C35A", "Critical": "#E86F5A"},
-  "shapes": [
-    {"id": "s7", "kind": "rect", "props": {"w": 96, "h": 56, "radius": 12},
-     "keys": [
-       {"at": 0,    "x": 800, "y": 300, "opacity": 0, "fill": "Ink"},
-       {"at": 300,  "opacity": 1},
-       {"at": 5200, "fill": "Accent"}
-     ]}
-  ],
-  "markers": [
-    {"at": 4100, "kind": "pause", "text": "Who becomes leader next?"},
-    {"at": 6000, "kind": "caption", "text": "Raft never has two leaders in one term."},
-    {"at": 9000, "kind": "broken", "text": "always ((lists.Size ChosenValues) at most 1)"}
-  ],
-  "trace": [ {"seq": 12, "at": 1240} ]
-}
+```
+{"format":"synod-scene/1","duration":18450,"canvas":{"w":1600,"h":1000},"theme":{"Paper":"#151A2E","Ink":"#EDE9E1","Line":"#3A4366","Quiet":"#8A90A8","Accent":"#F4A340","Good":"#5CC8B8","Warning":"#E8C35A","Critical":"#E86F5A"},"shapes":[
+{"id":"s7a1f03c2b9d4","kind":"rect","props":{"w":96,"h":56,"radius":12},"keys":[{"at":0,"x":800,"y":300,"opacity":0,"fill":"Ink"},{"at":300,"opacity":1},{"at":5200,"fill":"Accent"}],"end":9000},
+{"id":"s0c3e91ab5d27","kind":"label","props":{},"keys":[{"at":0,"x":0,"y":40,"opacity":1,"fill":"Ink","text":"n1"}]}
+],"markers":[
+{"at":4100,"kind":"pause","text":"Who becomes leader next?"},
+{"at":6000,"kind":"caption","text":"Raft never has two leaders in one term."},
+{"at":9000,"kind":"broken","text":"always ((lists.Size ChosenValues) at most 1)"}
+],"trace":[
+{"seq":12,"at":1240}
+]}
 ```
 
-- `kind`: `circle`, `rect`, `label`, `line`, `group`. `line` has `from`/`to` shape ids.
-- Each keyframe sets only the properties that change. Between two keys
-  the player interpolates with the house curve (smootherstep); colors
-  interpolate in OKLab. Colors are theme names, never raw hex.
+Line 1 ends with `"shapes":[`; each shape is one line, separated by `,\n`;
+then `\n],"markers":[`, one marker per line, `\n],"trace":[`, one entry per
+line, and `\n]}\n`. An empty array is `[]` with no newline inside.
+
+- **Key order.** A shape: `id`, `kind`, `props`, `keys`, then `end`. `end` is
+  the presentation time the shape is deleted, and is omitted when it lives to
+  the end of the scene. Inside a key: `at`, then `x`, `y`, `scale`,
+  `opacity`, `rotation`, `fill`, `stroke`, `text`, `effect`. A marker: `at`,
+  `kind`, `text`. The theme: Paper, Ink, Line, Quiet, Accent, Good, Warning,
+  Critical, then any other used colors sorted by byte order.
+- **First key.** The first key of every shape sets `x`, `y` and `opacity`;
+  `scale` if not 1; `rotation` if not 0; `fill` and `stroke` when set; `text`
+  for labels. Later keys set only the properties that change, strictly
+  increasing in `at`. Between two keys the player interpolates with the house
+  curve (smootherstep); colors interpolate in OKLab; `text` and `effect` hold
+  (step). `effect` is `"glow"` or `"none"`. A group's members' `x` and `y`
+  are relative to it.
+- **Shapes.** `kind`: `circle` (`props` `{"r"}`), `rect`
+  (`{"w","h","radius"}`), `label` (`{}`), `line` (`{"from","to"}`, shape ids;
+  its ends follow those shapes, so it has no position keys), `group`
+  (`{"items":[ids]}`). `id` is `s` and 12 lowercase hex digits
+  (`03-scene-builder.md`). A `line` or `group` may refer to the singleton
+  `look.Center`, written as an empty group only then.
+- **Colors** are names, never raw hex: a `std/theme` name bare (`Accent`),
+  another `<qualifier>.<Name>` (`raftlook.Hot`); every name used is in
+  `theme`.
+- **Numbers.** Numbers the builder computes are rounded to 0.01; the encoder
+  fails on a non-finite number. Times are integer ms.
+- **Markers.** `kind`: `pause` (a `lesson.Ask` question), `caption` (a
+  `lesson.Note`), `broken` (the rule of `sim.Broken`), `failed` (a
+  `sim.Failed` fact, `<pos>: error[<code>]: <message>`, or a look fault,
+  `look <pos>: error[<code>]: <message>`). `caption` and `pause` are
+  timeline-only. **Readers ignore a marker kind they do not know.**
 - `trace` maps each trace `seq` to its presentation slot, so the player can
   show "simulated time" and jump to a fact.
 

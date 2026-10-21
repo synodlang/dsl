@@ -112,3 +112,20 @@ internally, and `check.json` carries both.
 | `bad-argument` | an argument outside a phrase's domain: a negative `after` delay, `sim.Seed` not a whole number in 0..2^53, a negative `sim.StopAt`, `net.Latency` unless `0 ≤ a ≤ b`, `net.Loss` outside 0..1, a negative or fractional count, `random.Between` or `random.TimeBetween` with `b` below `a`, `lists.Take` or `lists.Range` with a non-whole argument |
 | `number-range` | a non-finite number, or a time too large for 64 bits |
 | `run-limit` | more than 100000 steps at one instant, call depth over 10000, or a list or text over 1000000 items |
+
+### Look faults
+
+A run-time error in look context (an observer, a timer of an observer, or a
+reactive block) is a **look fault**. It uses the codes above but is never
+recorded in the trace and is not `sim.Failed` (decision 68): the scene stops
+at the fact being drawn, the partial scene is written with a `failed` marker
+(`implementation/04-formats.md`), and `synod run` reports `look failed at
+<time>: <pos>: error[<code>]: <message>` and exits 1
+(`implementation/05-cli.md`). The cases:
+
+| Code | Look cases |
+| --- | --- |
+| `missing-key` | `card of n` or `tag of k` with no shape attached under that name to that key: `no shape is attached to <key> under "<name>"`; `item k of m` with a missing key |
+| `bad-argument` | `Tween` with a property other than the eight, or a value of the wrong kind or range (`"opacity"` outside 0..1, negative `"scale"`); a negative duration or `after` delay; `look.Flight` on a message not bound by a net event (`look.Flight needs a message bound by a net event`); `look.Layout` with another kind; `look.Effect` with another name; a second group for a shape; a `Place` cycle; a negative radius or size |
+| `run-limit` | more than 100000 timer firings at one instant; call depth over 10000; more than 1000000 shapes; more than 10000000 keys |
+| `index-range`, `division-by-zero`, `number-range` | as in the table above |
