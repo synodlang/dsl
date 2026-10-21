@@ -21,7 +21,7 @@ Everything belonging to the language lives in the
 
 Rules:
 
-- `dsl` is versioned (`v0.2.0`, …). `compiler`, `std` and `agent-skills`
+- `dsl` is versioned (`v0.2.1`, …). `compiler`, `std` and `agent-skills`
   each declare which `dsl` version they implement.
 - The **trace format** and **scene format** (`04-formats.md`) are
   contracts between `compiler` and `player`, versioned in `dsl`.
