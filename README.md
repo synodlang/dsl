@@ -34,12 +34,11 @@ uses what is written here.
 | `spec/` | The language specification, normative |
 | `std/README.md` | The standard library catalog, normative |
 | `implementation/` | How each repository is built: architecture, compiler, runtime, scene builder, file formats, CLI, Mac app, Claude integration, agent skills, site, roadmap, documentation |
-| `examples/` | Sample packages, each with a `demo.synod` main file, in canonical Synod, to be moved to the `examples` repo |
 | `assets/icon.svg` | The language icon |
 
 ## Reading order
 
-For a person: `spec/00-introduction.md`, then the examples, then the rest of `spec/`.
+For a person: `spec/00-introduction.md`, then the [examples](https://github.com/synodlang/examples), then the rest of `spec/`.
 
 For an implementing agent: read **everything in `spec/` and `std/`
 first**, then `implementation/00-architecture.md` and
@@ -63,5 +62,5 @@ the design changes; no principle is traded against another.
 
 ## Status
 
-Specification v0.1, October 2026. The earlier design document in Claude
+Specification v0.2, October 2026 (v0.1.0 was the first draft, before review). The earlier design document in Claude
 Docs is superseded by this repository.

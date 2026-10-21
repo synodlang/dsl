@@ -22,7 +22,7 @@ Rules for every section:
   Every program on the site has a **Run** button: it calls `synod.wasm`
   and plays the scene with `player`. Diagnostics are shown inline, with a
   link to their Errors page.
-- Docs are versioned by `dsl` tag (`/docs/v0.1/…`); the latest version is
+- Docs are versioned by `dsl` tag (`/docs/v0.2/…`); the latest version is
   the default. Search is static (built at deploy time, no server).
 - Pages link between sections: a tutorial chapter links to the reference
   section of each form it introduces, and each reference section links

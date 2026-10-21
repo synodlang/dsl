@@ -28,7 +28,8 @@ Design: the brand from `assets/icon.svg`: navy ground `#151A2E`, pale
   (install `synod`, run `synod fmt --check` and `synod check ./...`),
   `skills-sync.yml`.
 - `CONTRIBUTING.md`: changes to the language start as a pull request to
-  `dsl` that updates the spec, `decisions.md`, and examples together.
+  `dsl` that updates the spec and `decisions.md`, together with matching
+  pull requests to `examples` and the tutorial.
 - Issue templates: language proposal, bug, example request.
 
 ## Licences

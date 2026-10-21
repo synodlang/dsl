@@ -7,7 +7,7 @@ passing in CI. Do not start a milestone before the previous one passes.
 
 - Create the repositories listed in `00-architecture.md` (including
   `player` and the site) under `github.com/synodlang`, each with a README, licence and CI stub.
-- Push this `dsl` repository as `v0.1.0`.
+- Push this `dsl` repository as `v0.2.0` (`v0.1.0` is the first draft, before review).
 
 **Accept:** every repository exists; `dsl` README renders.
 

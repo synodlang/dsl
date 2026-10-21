@@ -19,7 +19,7 @@ Synod follows Go.
   `synod.mod` file at its root:
   ```
   module github.com/synodlang/examples
-  synod 0.1
+  synod 0.2
   require github.com/someone/raft v1.2.0
   ```
 - `synod.sum` pins the exact commit of every dependency, so a scenario

@@ -10,7 +10,7 @@ Everything belonging to the language lives in the
 | `dsl` | Markdown | This specification, the std catalog, these guides, decisions, the tutorial |
 | `compiler` | Go | The `synod` command: loader, parser, formatter, resolver, checker, simulator, scene builder, doc generator; also built as `synod.wasm` |
 | `std` | Synod (+ native ids) | The standard library packages; natives are declared here and implemented in `compiler` |
-| `examples` | Synod | Sample packages and programs (start from `dsl/examples/`) |
+| `examples` | Synod | Sample packages and programs; the acceptance tests of the roadmap |
 | `player` | TypeScript | Canvas library that plays `scene.json`; used by `mac-app` (in a WKWebView) and the site |
 | `mac-app` | Swift / SwiftUI | Editor, player host, Predict / Break it / Compare, Claude CLI integration, video export |
 | `agent-skills` | Markdown | Skills that teach coding agents to read and write Synod |
@@ -19,7 +19,7 @@ Everything belonging to the language lives in the
 
 Rules:
 
-- `dsl` is versioned (`v0.1.0`, …). `compiler`, `std` and `agent-skills`
+- `dsl` is versioned (`v0.2.0`, …). `compiler`, `std` and `agent-skills`
   each declare which `dsl` version they implement.
 - The **trace format** and **scene format** (`04-formats.md`) are
   contracts between `compiler` and `player`, versioned in `dsl`.

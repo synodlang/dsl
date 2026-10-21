@@ -9,7 +9,7 @@ reject unknown major versions.
 
 ```
 module github.com/synodlang/examples
-synod 0.1
+synod 0.2
 require github.com/someone/raft v1.2.0
 ```
 
@@ -22,7 +22,7 @@ dependency: `<module> <version> <commit sha> <tree hash>`.
 One JSON object per line. Line 1 is the header:
 
 ```json
-{"format":"synod-trace/1","synod":"0.1","seed":7,"program":"examples/paxos","packages":["paxos","std/net","std/sim"]}
+{"format":"synod-trace/1","synod":"0.2","seed":7,"program":"examples/paxos","packages":["paxos","std/net","std/sim"]}
 ```
 
 Then one line per trace event:
