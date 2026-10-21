@@ -6,6 +6,14 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.2 — 2026-10-21
+
+The simulator's rules, written down while building `synod run`, and a better
+`math.Hash`. Programs that use `math.Hash` get different (better spread)
+values than before; nothing else changes the meaning of a valid program.
+
+### Changed
+
 - M3 simulator rules stated: seed precedence (`--seed`, then `sim.Seed`, then
   1), step and time-limit rules, `sim.StopAt` boundary, evaluation order, RNG
   consumption, restart, `after` in shared code, node key per trace event,
