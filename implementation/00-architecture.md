@@ -15,6 +15,8 @@ Everything belonging to the language lives in the
 | `mac-app` | Swift / SwiftUI | Editor, player host, Predict / Break it / Compare, Claude CLI integration, video export |
 | `agent-skills` | Markdown | Skills that teach coding agents to read and write Synod |
 | `synodlang.github.io` | Static site | Organization site at https://synodlang.github.io: intro, documentation built from `dsl` (`11-documentation.md`), interactive examples (`synod.wasm` + `player`) |
+| `homebrew-tap` | Ruby | Homebrew formula for `synod`; updated by the `compiler` release |
+| `scoop-bucket` | JSON | Scoop manifest for `synod`; updated by the `compiler` release |
 | `.github` | YAML / Markdown | Organization profile, shared CI workflows, contribution guide |
 
 Rules:

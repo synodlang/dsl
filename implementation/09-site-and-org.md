@@ -8,7 +8,13 @@ organization at https://synodlang.github.io until a domain exists.
 
 - **Home:** the icon, one sentence ("A small language for watching
   distributed systems think"), a looping Raft election played live by
-  `player` (no recording), three buttons: Start the tutorial · Get the app · See examples.
+  `player` (no recording), three buttons: Start the tutorial · Install · See examples.
+- **Install:** `/install/`, one self-contained page: the visitor's OS
+  first, then macOS, Linux, Windows and Go. Each shows the package-manager
+  command, the `install.sh` command (macOS, Linux) and direct download
+  links filled from the latest GitHub release, with a link to Releases as
+  fallback. It notes the unsigned binaries and `synod version`. The script
+  itself is served at the site root: `/install.sh`.
 - **Docs:** the tutorial, the language reference, the library, guides
   and error pages, built from `dsl` and `std` at build time. Structure,
   sources and the tutorial plan are in `11-documentation.md`.

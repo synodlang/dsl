@@ -18,5 +18,31 @@ Exit codes: 0 success, 1 diagnostics or a `sim.Failed` run, 2 usage or I/O error
 run (`ok 6 nodes 4,812 events 31ms`); the Mac app uses
 `synod run --json-events` to stream progress.
 
-Distribution: GitHub releases with universal macOS and Linux binaries,
-plus a Homebrew tap `synodlang/tap`.
+## Distribution
+
+Targets: macOS (amd64, arm64, and a universal archive), Linux (amd64,
+arm64), Windows (amd64, arm64). Binaries are **unsigned for now**: no
+Apple Developer ID or Windows code-signing certificate yet. Package
+managers and `install.sh` avoid the quarantine and SmartScreen warnings;
+browser downloads need `xattr -d com.apple.quarantine ./synod` (macOS) or
+"More info → Run anyway" (Windows).
+
+A release is built on every `v*` tag of `compiler`. The version comes
+from the tag; the commit comes from Go build info (`synod version`). It
+publishes to GitHub Releases:
+
+- `synod-<tag>-<os>-<arch>.tar.gz` (Windows: `.zip` with `synod.exe`),
+- `synod-<tag>-darwin-universal.tar.gz`,
+- `SHA256SUMS`,
+
+and updates the `homebrew-tap` and `scoop-bucket` repositories.
+
+| Channel | Command |
+| --- | --- |
+| Homebrew | `brew install synodlang/tap/synod` |
+| Scoop | `scoop bucket add synodlang https://github.com/synodlang/scoop-bucket` then `scoop install synod` |
+| Script (macOS, Linux) | `curl -fsSL https://synodlang.github.io/install.sh \| sh` (`SYNOD_VERSION` pins, `SYNOD_INSTALL` sets the directory; verifies `SHA256SUMS`; no sudo) |
+| Go | `go install github.com/synodlang/compiler/cmd/synod@latest` |
+| Download | GitHub Releases of `synodlang/compiler` |
+
+The site's `/install/` page lists all of these (`09-site-and-org.md`).
