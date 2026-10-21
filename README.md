@@ -11,7 +11,7 @@ consensus algorithm of his paper "The Part-Time Parliament", known today
 as basic Paxos.
 
 ```synod
-# package gossip (excerpt)
+# from package gossip
 Node has
   set Heartbeat to 0
   set Known to {}

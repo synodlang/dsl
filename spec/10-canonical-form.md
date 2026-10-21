@@ -6,26 +6,28 @@ practice nobody formats by hand. Code across all repositories looks alike.
 
 | Area | Canonical rule |
 | --- | --- |
-| Encoding | UTF-8, LF, final newline, no trailing spaces |
-| Header | the first line is `# package <name>`: the folder name, or `main` in the folder's main file |
-| Imports | directly after the header, one per line, sorted by path, no blank lines between them |
+| Encoding | UTF-8, final newline, no trailing spaces, no byte order mark |
+| Line endings | LF; CR LF is `non-canonical` |
+| Header | the first non-blank line is `# package <name>`: the folder name, or `main` in the folder's main file; `synod fmt` never adds or changes it |
+| Imports | directly after the header, one per line, sorted by the byte order of the full path text, no blank lines between them; a `use` after a declaration is moved up |
+| Header and body | with imports: one blank line after the last import; without imports: the first declaration follows the header directly |
 | Indentation | 2 spaces per level |
-| Blank lines | exactly one between top-level declarations (none between imports); none inside blocks |
-| Comments | `# ` with one space; a trailing comment has one space before `#` |
-| Parentheses | around every multi-item argument; never around a single item |
+| Blank lines | exactly one between top-level declarations (none between imports); none inside blocks, none between a block and its continuation line |
+| Comments | `# ` with one space, then the text verbatim; a bare `#` stays bare; a trailing comment has one space before `#`; a comment line takes the indentation of the line it precedes; a comment between a block and its continuation stays and precedes the continuation line; top-level comments detached by a blank line stay detached |
+| Parentheses | around every multi-item argument; never around a single item. The formatter removes parentheses but never inserts them |
 | Holes | always typed, element types included: `[n: node]`, `[ns: list of Node]` |
 | Receivers | `define [n: Node] Learn [k: node] at [v: number]`, `when [n: Node] (net.Received digest from sender)`: one space after the receiver |
-| Members | `n.Known`, `Vote.term`: no spaces around `.`, never parenthesized |
-| Numbers | `0.5`, `-1`, `2`; no leading `+`, no trailing zeros |
+| Members | `n.Known`, `Vote.term`: never parenthesized; a space around `.` is a `syntax` error |
+| Numbers | `0.5`, `-1`, `2`; no leading zeros, no trailing zeros. `.5`, `+1` and `x-1` are never written: they are `syntax` errors, not formatting |
 | Durations | the largest unit giving a whole number: `1500ms`, `2s` |
-| Text | double quotes; escapes only `\"`, `\\`, `\n` |
+| Text | double quotes; escapes only `\"`, `\\`, `\n`; no control characters (`syntax`) |
 | Commas | `{a, b}`, `message T with a 1, b 2`, `each k, v in m`: one space after each comma, none before, none inside braces |
 | Records | `message T with a 1, b 2`: settings in declaration order of the fields |
 | Colors | upper-case hex: `#F4A340` |
 | Continuation lines | `else`, `otherwise`: own line at the statement's indentation, directly after its block |
-| Negation | `not (a is b)` becomes `(a is not b)`; `not (a less than b)` becomes `(a at least b)`; likewise for `more than`, `at least`, `at most`, `is in` |
+| Negation | `not (a is b)` becomes `(a is not b)` and `not (a is not b)` becomes `(a is b)`; likewise `less than`/`at least`, `more than`/`at most`, `is in`/`is not in`; `not (a and b)` is unchanged |
 | Names | exported names start upper-case, nothing else does; no underscores |
 
 The negation row is how Synod keeps one spelling per meaning while still
-offering `is not`, `at least` and friends: the formatter always picks the
-direct operator.
+offering `is not`, `at least` and friends: the formatter rewrites a negated
+comparison into the operator that means the same.

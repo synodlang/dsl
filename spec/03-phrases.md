@@ -6,7 +6,7 @@ phrase, including the whole standard library.
 
 ```synod
 define Send [m: msg] to [n: node]
-  # body
+  emit m by n
 ```
 
 ## 3.1 The pattern rules
@@ -45,6 +45,11 @@ define Send [m: msg] to [n: node]
    `look.Fill card with theme.Accent`.
 7. Reserved words (`spec/01`) are never heads and may appear as later
    words: `Send [m: msg] to [n: node]`, `Majority of [n: number]`.
+8. **A head is never directly followed by a comparison operator** (`is`,
+   `is not`, `is in`, `is not in`, `less than`, `more than`, `at least`,
+   `at most`): `Count is [n: number]` is a `bad-pattern` error, because
+   its sentences read as comparisons and `not (…)` could not be
+   rewritten without changing their meaning.
 
 ## 3.2 Names and uniqueness
 

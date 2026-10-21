@@ -48,3 +48,12 @@ something the spec did not.
 | 40 | A continuation line (one word with a block, at its statement's indentation, directly after the statement's block) continues that statement; `else` is one | One rule builds `if … else` and every multi-block phrase |
 | 41 | `net.DropNext` names the record type as text: `net.DropNext "Accept" from a to b` | One spelling in the catalog, the spec and Break it |
 | 42 | The organization site is `synodlang.github.io`: static, with examples edited and re-run in the browser by `synod.wasm` | GitHub Pages for the organization; no server; interactive examples replace recordings |
+| 43 | The header is `# package <word>` on the first non-blank line; with imports, one blank line follows the last import; without, the first declaration follows the header directly | One layout per file; the header and imports read as the file's preamble |
+| 44 | Comments attach to lines (the next line, or the line they trail) and never form blocks or statements; a comment line's indentation is not checked | Comments cannot change structure; the formatter re-indents them |
+| 45 | `+1`, `.5`, `x-1` and spaces around `.` are `syntax` errors, not formatter fixes | Each has no single obvious meaning to rewrite to, so the formatter does not guess |
+| 46 | CR LF line endings and a byte order mark are `non-canonical`; `synod fmt` fixes them | They are harmless to read, so they are repaired, not rejected |
+| 47 | Two atoms (words, members, numbers, durations, texts, colors) are always separated by whitespace | `x-1` is neither `x minus 1` nor the number `-1` after `x`; no silent guess |
+| 48 | Imports are sorted by the byte order of the full path text, `@version` included; a `use` below a declaration is moved up | A total order that needs no locale or parsing; one place for imports |
+| 49 | Blank and comment lines may sit between a block and its continuation line; the formatter drops the blanks and keeps the comments before the continuation | A comment never breaks `if … else` |
+| 50 | The formatter rewrites `not (c)` into the direct operator both ways, `is not` into `is` included; `not (a and b)` stays; a pattern whose head is directly followed by a comparison operator is a `bad-pattern` error | One spelling per meaning in both directions; such a pattern would read as a comparison |
+| 51 | The formatter removes parentheses but never inserts them; a missing pair is an `unknown-phrase` error | Wrapping would guess where an argument ends |

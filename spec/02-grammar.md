@@ -26,6 +26,12 @@ value        = number | duration | text | color | "true" | "false" ;
 list         = "{" [ item { "," item } ] "}" ;
 ```
 
+- **Comments and layout.** Comments are not part of the grammar above:
+  each attaches to the line that follows it (or to the line it trails) and
+  never forms a block or a statement. A file may start with the package
+  header (`spec/06` §6.1), which is also a comment. `use` lines stand only at
+  the top level (`use` nested in a block is a `syntax` error), and `()` is a
+  `syntax` error.
 - An **item** is the unit an inline hole receives: one token, one
   parenthesized sentence, or one list literal. This is why matching is
   exact (see `spec/03`).
@@ -40,7 +46,8 @@ list         = "{" [ item { "," item } ] "}" ;
   line. Its word and block join that statement's sentence as its next word
   and block hole. `else` is the continuation line of `if`; `otherwise` is
   the continuation line of `Retry … times` (`spec/03` §3.1). A
-  continuation line that follows no block is a `syntax` error. No
+  continuation line that follows no block is a `syntax` error. Blank and
+  comment lines may stand between a block and its continuation line. No
   statement is a single word with a block (`spec/03` §3.1, rule 5), so
   every such line is a continuation line.
 
@@ -111,6 +118,9 @@ arithmetic = arg ( "plus" | "minus" | "times" | "divided by" ) arg ;
 - **A zero-hole phrase is one item**, written bare: `time.Now`,
   `theme.Accent`, `Quorum`, `raft.Leaders`, `n.Version`.
 - **Members are never parenthesized:** `n.Known`, `Vote.term`.
+- **Parentheses are removed, never added, by the formatter.** It unwraps
+  a parenthesized single item but never wraps a multi-item argument; a
+  missing pair is reported by the compiler (`unknown-phrase`).
 - **Entries.** `define main` and `define [n: Node] start` are language
   forms; `main` and `start` are reserved words and never phrase heads.
 - **`else`** is a continuation line: its own line, at its `if`'s

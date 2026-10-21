@@ -18,16 +18,16 @@ verbatim.
 
 | Code | Meaning |
 | --- | --- |
-| `syntax` | the structure grammar cannot parse the line; a comma outside list items, `message … with` settings and `each` names; a continuation line that follows no block |
+| `syntax` | the structure grammar cannot parse the line; a comma outside list items, `message … with` settings and `each` names; a continuation line that follows no block; a number, text, comment or `use` written wrongly (`.5`, `+1`, `x-1`, a control character in text, `#todo`, a nested `use`, `()`) |
 | `indent` | bad indentation (tabs, odd widths, unexpected indent) |
-| `non-canonical` | parseable but not canonical; `synod fmt` fixes it |
+| `non-canonical` | parseable but not canonical (including CR LF line endings and a byte order mark); `synod fmt` fixes it |
 | `bad-header` | missing `# package` header, or a name that is neither the folder name nor `main` |
 | `unknown-phrase` | no phrase matches the sentence |
 | `ambiguous-phrase` | more than one phrase matches |
 | `duplicate-name` | a name defined twice in one package namespace (`spec/03` §3.2), including a second `start` |
 | `shadowing` | a name hides another name in scope |
 | `reserved-word` | a reserved word used as a name or head |
-| `bad-pattern` | a define pattern breaks the rules in `spec/03` §3.1 |
+| `bad-pattern` | a define pattern breaks the rules in `spec/03` §3.1, including a head directly followed by a comparison operator |
 | `bad-receiver` | a receiver whose type is not `Node` or `p.Node`; a `start` or `when` receiver that is not `Node`; a node-event `when` without a receiver, or a trace-event `when` with one; a receiver, `start`, node-event `when` or `Node has` in a main file |
 | `bad-place` | `set` targets something other than a local, a node field, or an element of one (hole parameters, `when` bindings, `each` names and record fields cannot be set) |
 | `type-mismatch` | an argument, operand, element or node type is not accepted (`spec/04` §4.7) |

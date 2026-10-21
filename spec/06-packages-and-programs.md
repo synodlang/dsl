@@ -7,7 +7,8 @@ Synod follows Go.
 - A package is a folder. All `.synod` files in it share one namespace,
   except a main file (§6.5), which is a package of its own.
 - Every file starts with a comment naming its package: the folder name,
-  or `main` for the folder's one main file (§6.5):
+  or `main` for the folder's one main file (§6.5). The header is exactly
+  `# package <word>` on the first non-blank line:
   ```synod
   # package gossip
   ```
@@ -35,8 +36,8 @@ Synod follows Go.
 ## 6.3 Imports
 
 ```synod
-use std/net
 use github.com/synodlang/examples/gossip
+use std/net
 ```
 
 - The qualifier is always the last path segment: `net.Send`, `gossip.Join`.
@@ -53,7 +54,7 @@ use github.com/synodlang/examples/gossip
 - An import path must name a library package: a folder that holds a
   library file. A missing folder, or a folder holding only a main file,
   is an `unknown-import` error.
-- Imports come first in the file, one per line, sorted by path.
+- Imports come first in the file, directly after the header, one per line, sorted by the byte order of the full path text (including any `@version`). A `use` after another declaration is moved up by `synod fmt`.
 
 ## 6.4 Exports
 
