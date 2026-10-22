@@ -64,6 +64,8 @@ Rules:
 - `player` is distributed as GitHub release assets (ESM bundle, IIFE bundle,
   `.d.ts`, `SHA256SUMS`); npm comes later. The app bundles a release and the
   site downloads a pinned one.
+- The app's runs and exports (decisions 74 and 75) do not change this: it
+  calls the bundled `synod` per change and draws with `player`.
 - Neither the app nor the site interprets Synod: the app calls the
   bundled `synod`, the site calls `synod.wasm`, and both draw with `player`.
 - Everything is deterministic: same sources, seed and version produce

@@ -85,8 +85,10 @@ access and `synod.sum` verification are not implemented in M2. `synod fmt` appli
 Exit codes: 0 success, 1 diagnostics or a `sim.Failed` run, 2 usage or I/O error.
 
 `synod run` with `--watch` re-runs on every save and prints one line per
-run (`ok 6 nodes 4,812 events 31ms`); the Mac app uses
-`synod run --json-events` to stream progress.
+run (`ok 6 nodes 4,812 events 31ms`); the Mac app may later use
+`synod run --json-events` to stream progress. The M8 app does not: it runs
+`synod check --json` and `synod run` again for every change (decision 74), so
+`--watch` and `--json-events` stay not implemented.
 
 ## Distribution
 

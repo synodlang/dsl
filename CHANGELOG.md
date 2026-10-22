@@ -6,6 +6,16 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.6 — 2026-10-22
+
+The Mac app (M8) is specified: what it does, how it runs and exports, and
+how it is released.
+
+### Changed
+
+- Mac app (M8): `implementation/06-mac-app.md` splits M8 from M9 (GIF export, the editor, Predict choices, Break it and Compare move to M9), says the timeline speed is the player rate and takes effect at once (the scene `--pace` is not exposed), describes the run and cache behaviour, the export frame schedule with one render path (`renderFrame`; the `OffscreenCanvas`/`renderToContext` alternative is removed), where Predict answers live, node choice from a list, and distribution. `10-roadmap.md` M8 gets its concrete acceptance (smoke at pace 0.9 to 1.1; a Raft export of N frames matching the stage player at PSNR 38 dB or more and closer to its own reference than to its neighbours) and M9 takes GIF; `05-cli.md` says the app may later use `--json-events` while M8 re-runs per change and both flags stay not implemented; `00-architecture.md` follows. Decisions 74 to 77.
+- Gap G15 (open, for M9): clicking a node on the stage needs an additive optional shape key `node` in `synod-scene/1`, written by `look.Card` and `std/look/basic`, and a player `hitTest(x, y)`.
+
 ## v0.2.5 — 2026-10-22
 
 How a player draws a scene, written down precisely enough that every player

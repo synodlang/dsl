@@ -103,20 +103,44 @@ CI; WebKit pixel goldens match within tolerance in a pinned container; in
 Safari on Apple silicon at 120 Hz, JS frame work has p99 ≤ 4 ms for every
 golden scene and for a 50-node, 200-message stress scene.
 
-## M8 — Mac app
+## M8 — Mac app (`mac-app`)
 
 - Open a workspace, run, play scenes with `player` in a WKWebView,
-  timeline, inspector, video export.
+  timeline (speed is the player rate, instant), inspector (node chosen from
+  a list), problems and a read-only source view, video export, and a minimal
+  Predict (stops at each `lesson.Ask`, free-text answer).
+- Run behaviour, export schedule and release rules: decisions 74 to 76
+  (`06-mac-app.md`). Not in M8: GIF export, the editor, Predict choices,
+  Break it, Compare (all M9).
+- Release: `mac-app` v0.2.0 bundles `synod` v0.2.4, `player` v0.2.0 and the
+  examples; it is ad-hoc signed and not notarized.
 
-**Accept:** every example plays; exported 1080p video of Raft matches
-the player frame for frame at the same pace.
+**Accept:**
+
+- Smoke: every bundled example runs, loads in the player with no warnings or
+  errors, and plays at 1x with a measured pace (player time over wall time)
+  from 0.9 to 1.1.
+- Export: Raft (seed 3, ordered) exported at 1080p, 60 fps, rate 1 has
+  `N = ceil(D·60/1000) + 1` frames (8,880 for the golden scene) at
+  presentation times `k/60`. A sample of frames (the first and last, one
+  after each marker, 60 evenly spaced and 30 consecutive around the busiest
+  moment) match `renderFrame(k·1000/60)` of the stage player at PSNR 38 dB or
+  more (never below 34 dB), and each is closer to its own reference than to
+  the references of frames `k-1` and `k+1`, so an off-by-one frame fails.
 
 ## M9 — Editor and learning modes
 
-- Editor with tokens and diagnostics, Predict, Break it, Compare.
+- Editor with tokens and diagnostics, GIF export, Predict choices, Break it,
+  Compare.
+- G15 (open): choosing a node by clicking the stage needs the scene to say
+  which node a shape belongs to. `synod-scene/1` gains an additive optional
+  shape key `node`, written by `look.Card` and `std/look/basic`, and the
+  player gains `hitTest(x, y)` (format rule: keys only added). Until then the
+  app picks nodes from a list.
 
 **Accept:** Break it can reproduce the Cassandra hinted-handoff story by
-clicks alone; Predict stops at each `lesson.Ask`.
+clicks alone; Predict offers choices at each `lesson.Ask`; GIF export
+works; clicking a node on the stage selects it.
 
 ## M10 — Claude integration and agent skills
 
