@@ -175,12 +175,16 @@ report, and `scripts/acceptance-m9.sh` in `mac-app` runs them all)
   `nodeBounds` box hits its node or a message (at least 80% node hits, no
   mismatch), and a click dispatched on the stage selects that node.
 - Break it: starting from the Cassandra demo without its scripted crash,
-  clicks alone (Crash n5 at 6s, Restart at 18s) insert exactly two blocks,
+  clicks alone insert exactly two blocks: Crash n5 after seeking to the last
+  fact at or before 6s and typing `6s` in the sheet's time field (the default
+  time, 1ms after that fact, shifts the gossip course with seed 3 so no hint is
+  stored), then Restart n5 after seeking to the last fact at or before 18s with
+  the sheet's default time. The blocks are
   `sim.Crash (item 4 of sim.Nodes) # n5` and the matching `sim.Restart`, and
   the new trace has `sim.Crashed n5` at 6 to 7s, n2's `cassandra.PendingHints`
   at 1 or more after 12s, `sim.Restarted n5`, a `cassandra.Mutation` arriving at
   n5 afterwards and `PendingHints` back to 0, and n5 ends with
-  `cassandra.Data {"user:42": "Grace"}`. Each step's check passes and no text
+  `cassandra.Data {"user:42": "Grace"}`. Each step's check passes and no source text
   is typed.
 - Compare: `raft` with seeds 3 and 4 gives two runs with a monotone sync map;
   after `seekSim(T)` for 20 values of `T` each side is at its map value within

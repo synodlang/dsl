@@ -6,6 +6,14 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.9 — 2026-10-22
+
+The M9 acceptance text for Break it says exactly what the check does.
+
+### Changed
+
+- `implementation/10-roadmap.md` M9 acceptance: the Cassandra hinted-handoff check types `6s` in the sheet's time field for the crash (the default time, 1ms after the current fact, changes the gossip course with seed 3 so no hint is stored) and uses the default time for the restart; still no source text is typed.
+
 ## v0.2.8 — 2026-10-22
 
 A run-time error raised inside std is reported where the user can act on it.
