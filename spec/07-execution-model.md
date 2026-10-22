@@ -33,7 +33,7 @@ set) fails the run with `time-limit` at 10 minutes.
   A message arriving at a crashed node is a step: `net.Dropped`, reason
   `"crashed"`.
 - More than 100000 steps at one instant is a `run-limit` error, as are
-  call depth over 10000 and a collection or text over 1000000 items.
+  call depth over 500 and a collection or text over 1000000 items.
 - `sim.StopAt` is a time of at least 0; the last call wins, and a time in
   the past ends the run after the current step.
 - A run-time error in `define main`, a step or an `always` ends the run.
