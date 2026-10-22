@@ -6,6 +6,14 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.8 — 2026-10-22
+
+A run-time error raised inside std is reported where the user can act on it.
+
+### Changed
+
+- A run-time error raised while std code runs is reported at the position in user code of the call that entered std, in `sim.Failed`, the `failed at` and `look failed at` lines and `--json`; the std position is kept as a note (decision 89; `spec/07` §7.8, `spec/11` §11.3, `implementation/04-formats.md`, `implementation/05-cli.md`).
+
 ## v0.2.7 — 2026-10-22
 
 The editor and learning modes of the Mac app (M9) are specified, and three gaps

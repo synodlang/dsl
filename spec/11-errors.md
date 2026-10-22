@@ -101,6 +101,13 @@ start only (`synod-trace/1`); the span a failure underlines in the rich form
 is not part of the trace. A diagnostic's position is a span (start and end)
 internally, and `check.json` carries both.
 
+A run-time error raised while std code runs (a failed argument check inside a
+std phrase, say) is reported at the position in user code of the call that
+entered std: the caller of the outermost std frame on the call stack
+(decision 89). That position is the `pos` of `sim.Failed` and of the `failed at`
+line; the std position is kept as a note in the rich and `--json` forms. The
+rule holds in every context, so a look fault is placed the same way.
+
 | Code | Meaning |
 | --- | --- |
 | `missing-key` | `item k of m` with a key not in the map |

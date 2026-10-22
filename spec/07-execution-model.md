@@ -124,6 +124,8 @@ Configured from `main` with `std/net` (see `std/README.md`):
 
 A run-time error (missing key, type mismatch, division by zero, sending
 to `sim.Nobody`…) stops the run and is recorded as the last trace event
-`sim.Failed` with the error code, message and source location. There is
+`sim.Failed` with the error code, message and source location. The location
+is in user code: an error raised inside std is placed at the call that entered
+std (`spec/11` §11.3). There is
 no `sim.Ended` after it. Everything up to it can still be played. Codes:
 `spec/11` §11.3.

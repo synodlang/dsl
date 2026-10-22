@@ -70,6 +70,8 @@ Diagnostic output (`fmt`, `check`, `run`):
   run prints `failed at 2s: <pos>: error[<code>]: <message>` and, in rich
   style, the source line of the failure under it (the trace and the scene
   are still written; exit 1). A broken `always` alone is exit 0.
+  The `<pos>` of an error raised inside std is the user's call that entered
+  std, and the rich form adds the std position as a note (decision 89).
 - After those lines the scene status: `scene 18.45s, 42 shapes ->
   out/scene.json` (the duration as a time, `spec/04`; `-> stdout` for
   `--scene -`).
