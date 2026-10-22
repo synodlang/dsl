@@ -39,15 +39,20 @@ Synod follows Go.
   compiler reads: there is no override. `synod get` fills it from a shared
   download store, `~/.synod/cache/<module>@<version>/`, which holds each
   downloaded module once for all projects, verified against `synod.sum`
-  and never edited; `synod get` copies from it (or hard-links where
-  possible) and downloads only what the store lacks. `vendor/` is ignored by git
+  and never edited; `synod get` copies from it and downloads only what the
+  store lacks. `vendor/` is ignored by git
   (`synod new` writes a `.gitignore` containing `vendor/`); `synod.sum`
   keeps builds reproducible after a fresh `synod get`, and everything
-  works offline once fetched. Only the main module's `vendor/` is read; a
+  works offline once fetched (`synod.sum` is specified in
+  `implementation/04-formats.md`). Only the main module's `vendor/` is read; a
   dependency's own `vendor/` is never used. The versions used are chosen
   by minimal version selection over every `require` line of the main
   module and its dependencies, so one version per module. A folder with no `synod.mod` above it
   is a module with no path: only `std/` imports resolve in it.
+- A module comes from the repository at `https://` plus the first three
+  segments of its path (`github.com/someone/raft`), fetched with `git`. The
+  tag is the version (`v1.2.0`) for a module at the repository root and
+  `<subfolder>/<version>` for a module in a subfolder (decision 95).
 - `github.com/synodlang/std/…` is never imported directly; `std/<package>`
   is the only spelling, and `@version` on a `std/` path is an error.
 
@@ -83,6 +88,8 @@ use std/net
 - It applies to phrase heads, record types, record fields, node fields,
   and the node type `Node`, which is always exported (`gossip.Node`).
 - Only exported names are visible from other packages, including from look packages.
+- A declaration's **doc comment** is the comment lines directly above its
+  line, with no blank line between; `synod doc` shows it (decision 90).
 
 ## 6.5 Programs and `define main`
 

@@ -13,7 +13,7 @@ Everything belonging to the language lives in the
 | `examples` | Synod | Sample packages and programs; the acceptance tests of the roadmap |
 | `player` | TypeScript | Canvas library that plays `scene.json`; used by `mac-app` (in a WKWebView) and the site |
 | `mac-app` | Swift / SwiftUI | Editor, player host (click-to-select), Predict / Break it / Compare, Claude CLI integration, video export |
-| `agent-skills` | Markdown | Skills that teach coding agents to read and write Synod |
+| `agent-skills` | Claude Code plugin (Markdown, generated parts) | Skills that teach coding agents to read and write Synod |
 | `synodlang.github.io` | Static site | Organization site at https://synodlang.github.io: intro, documentation built from `dsl` (`11-documentation.md`), interactive examples (`synod.wasm` + `player`) |
 | `homebrew-tap` | Ruby | Homebrew formula for `synod`; updated by the `compiler` release |
 | `scoop-bucket` | JSON | Scoop manifest for `synod`; updated by the `compiler` release |
@@ -34,8 +34,8 @@ Rules:
   changes, other repositories list fixes and newly implemented features.
 - The **trace format** and **scene format** (`04-formats.md`) are
   contracts between `compiler` and `player`, versioned in `dsl`.
-- `agent-skills` must be regenerated whenever `dsl` or `std` changes; CI in
-  `agent-skills` fails if it is stale.
+- `agent-skills` is regenerated from pinned releases, and its CI fails when
+  anything differs after regeneration or a newer release exists (decision 97).
 - Official packages are imported as `github.com/synodlang/<repo>/<package>`.
 
 ## Data flow

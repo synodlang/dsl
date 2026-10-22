@@ -2,15 +2,15 @@
 
 | Command | What it does |
 | --- | --- |
-| `synod new <dir> [--lib]` | Create a module: `synod.mod`, a package folder with a library file and a `demo.synod` main file (`--lib`: no main file), `.gitignore` |
+| `synod new <dir> [--module path] [--lib]` | Create a module: `synod.mod`, `.gitignore`, a package folder with a library file and a `demo.synod` main file (`--lib`: no main file) |
 | `synod fmt [paths…] [--check] [--style rich\|short] [--color auto\|always\|never]` | Rewrite files into canonical form; `--check` exits 1 if anything would change |
 | `synod check [paths…] [--json] [--tokens] [--overlay file] [--style rich\|short] [--color auto\|always\|never]` | Load, resolve and check; print diagnostics |
 | `synod run <folder> [--seed n] [--trace file] [--scene file] [--pace x] [--mode ordered\|proportional]` | Check and run the folder's main file: simulate and build the scene; default outputs `out/trace.jsonl` and `out/scene.json` |
 | `synod run <folder> --summary` | Print a compact, human-readable summary of the run: facts grouped per step, invariant results (used by agents) |
-| `synod get [module@version]` | Fill `vendor/` from the shared download store (downloading what is missing) and update `synod.mod`/`synod.sum` |
-| `synod doc [package] [--catalog]` | Print a package's exported phrases; `--catalog` prints the std catalog as Markdown for `agent-skills` |
-| `synod explain <code>` | Explain a diagnostic code with an example |
-| `synod version` | Language, compiler and format versions (the `formats` line lists the formats the compiler writes, so not `synod-overlay/1`, which it only reads) |
+| `synod get [module@version]` | Make `vendor/` and `synod.sum` match the build list, downloading what the store lacks; with an argument, first add or replace that `require` line |
+| `synod doc [package] [--json] [--catalog] [--scope file] [--overlay file] [--style rich\|short] [--color auto\|always\|never]` | Print a package's phrases, records and `Node` fields from its source; with no package, list the visible packages; `--catalog` prints the std catalog as Markdown for `agent-skills` |
+| `synod explain [code] [--json] [--catalog] [--style rich\|short] [--color auto\|always\|never]` | Explain a diagnostic code with an example and its fix; with no code, list the codes |
+| `synod version` | Language, compiler and format versions (the `formats` line lists the formats the compiler writes, `synod-trace/1 synod-scene/1 synod-check/1 synod-doc/1 synod-explain/1`, so not `synod-overlay/1`, which it only reads) |
 
 Folders: `synod fmt` and `synod check` walk a folder argument for `.synod`
 files and skip folders whose names start with `.` or `_` and folders named
@@ -46,8 +46,9 @@ Diagnostic output (`fmt`, `check`, `run`):
   `.synod` files and `synod.mod` it names, and diagnostics and tokens keep the
   replaced file's path and positions. A missing or unreadable overlay, a bad
   `format` or a key that is not an existing `.synod` file or `synod.mod` is
-  exit 2, `synod check: overlay: <key>: no such file`. Only `check` takes it:
-  `fmt`, `run` and the other commands exit 2 on it as on any unknown flag.
+  exit 2, `synod check: overlay: <key>: no such file`. Only `check` and `doc`
+  take it: `fmt`, `run` and the other commands exit 2 on it as on any
+  unknown flag.
 
 `synod run <folder>` details:
 
@@ -89,13 +90,125 @@ Modules: `synod check` and `synod run` read remote modules from the main
 module's `vendor/` only, at `vendor/<module path>@<version>/`; `synod new`
 writes a `.gitignore` containing `vendor/`;
 a missing one is `unknown-import` with the hint `run "synod get <m>@<v>"`.
-`synod get` fills `vendor/` from the shared download store
-`~/.synod/cache/<module>@<version>/` (copying, or hard-linking where
-possible) and downloads only the modules the store lacks; downloads are
-verified against `synod.sum`, and store entries are never edited. The
-compiler reads `vendor/` only, never the store. `synod get`, network
-access and `synod.sum` verification are not implemented in M2. `synod fmt` applies the fixes that need declarations
+The compiler reads `vendor/` only, never the store. `synod fmt` applies the fixes that need declarations
 (`spec/10`) when the package loads, and leaves them alone otherwise.
+
+`synod new <dir> [--module path] [--lib]` details (decision 94):
+
+- `dir` must not exist or must be an empty folder (parents are created);
+  otherwise exit 2, `synod new: <dir> is not empty`. Nothing is overwritten.
+- The module path is `--module` or the base name of `dir`, and must be a
+  valid module path. The package name is the path's last segment and must be
+  a lower-case Synod word that is not reserved; otherwise exit 2,
+  `synod new: "<x>" is not a package name; use a lower-case word`.
+- It writes `synod.mod` (`module <path>`, `synod 0.2`), `.gitignore`
+  (`vendor/` and `out/`), `<pkg>/<pkg>.synod`, a node that counts, and,
+  unless `--lib`, `<pkg>/demo.synod`, which spawns it, crashes it and stops
+  the run. All pass `synod fmt --check`, `synod check` and `synod run <pkg>`.
+- It prints `created <dir>: synod.mod, .gitignore, <pkg>/<pkg>.synod,
+  <pkg>/demo.synod` and exits 0.
+
+`synod get [module@version]` details (decisions 60 and 95):
+
+- `synod get` makes `vendor/` and `synod.sum` match the build list.
+  `synod get <module>@<vX.Y.Z>` first adds or replaces that `require` line in
+  `synod.mod` (sorted, canonical), then does the same. A missing or malformed
+  version is exit 2, `synod get: write <module>@vX.Y.Z`. It works on the
+  module found in the working directory or above; without one, exit 2,
+  `synod get: no synod.mod here or above`.
+- A module comes from `https://` plus the first three segments of its path,
+  at the tag `<version>` (`<subfolder>/<version>` for a module in a
+  subfolder), by `git clone --quiet --depth 1 --no-tags --branch <tag>` with
+  `GIT_TERMINAL_PROMPT=0`. No `git` on `PATH` is exit 2, `synod get:
+  downloading needs git on PATH`. The module root must hold a `synod.mod`
+  whose `module` line equals the requested path, else exit 2, `… declares
+  module <x>`; a symbolic link in the tree is exit 2. `.git` and any
+  subfolder with its own `synod.mod` are left out.
+- The store `~/.synod/cache/<module>@<version>/` (on Windows under the user
+  profile) is written once: an entry is built in `~/.synod/cache/.tmp-<random>/`
+  and renamed into place, and an entry that already exists is used after
+  verification. Entries are read-only (files 0444, folders 0555) and never
+  edited.
+- `synod.sum` is `04-formats.md`. A mismatch of the tree hash or of the
+  commit is exit 2, `synod get: <m>@<v>: checksum mismatch: synod.sum has
+  h1:…, the store has h1:…`; the store entry is never repaired or deleted (the
+  message says to delete it by hand and run again).
+- Minimal version selection runs over the main module's `require` lines and
+  each dependency's `synod.mod` read from the store. `vendor/<module>@<version>/`
+  is a copy of the verified store entry (never a link, so an edit in `vendor/`
+  cannot reach the store) and is replaced when its hash differs from the sum.
+  Anything else under `vendor/` is removed: `vendor/` belongs to `synod get`.
+- It succeeds without network exactly when the store has every module of the
+  build list. Output is one line per module, `<m>@<v> downloaded`,
+  `<m>@<v> from cache` or `<m>@<v> up to date`; exit 0.
+
+`synod doc [package]` details (decisions 90 to 92):
+
+- An argument starting with `std/` names a std package (`std/` is the
+  reserved prefix of `spec/06` §6.2; write `./std/x` for a local folder of that
+  name). Otherwise an existing folder (`twopc`, `./twopc`) names that folder's
+  package, and an argument that is no folder is an import path, resolved in
+  the main module or `vendor/`. A bare word that is not a folder is exit 2,
+  `synod doc: no package "net"`, with the hint `did you mean "std/net"?`.
+- With no package it lists the visible packages, one per line:
+  `<import path>  <title>` (two spaces; the title only when it is not
+  empty). Order: std in byte order, then the main module's library
+  packages, then the build list's packages. Without a `synod.mod` it lists
+  std and the current folder.
+- Short form, per phrase, no blank lines:
+
+  ```
+  net.Send [m: msg] from [a: node] to [b: node]
+      action; node; Send through the network from `a`, which must be the receiver
+  net.Id [m: msg]
+      gives number; any; The message id of the net fact that bound `m`
+  ```
+
+  The second line is four spaces, then `action`, `gives <Gives>`,
+  `node event` or `trace event`; then `; <contexts>` (std only) and
+  `; <doc>` (when the doc comment is not empty). Records print as `record
+  lesson.Asked: Question text, Choices list of text`, node fields as `node
+  twopc.Node: State text, Participants list of twopc.Node`, and a package with
+  observers or invariants adds `importing activates <n> observers, <m>
+  invariants`. The rich form (terminal) has a bold `std/net — the simulated
+  network` heading, a blank line between entries, the pattern in bold and the
+  second line dim; color follows the rules above. Lines are not wrapped.
+- Each pattern is printed by the compiler's one pattern printer, with the
+  qualifier the reader writes. Only exported names are listed; `--scope`
+  adds the file's own package with all its names.
+- A documented package with diagnostics prints them as `synod check` does and
+  exits 1. Usage and I/O problems exit 2.
+- `--json` prints `synod-doc/1` (`04-formats.md`).
+- `--scope <file>` needs `--json`, else exit 2. It lists what that file can
+  write, spelled as that file must write it (decision 92); `--overlay` makes
+  it read unsaved text. This is what the Mac app's phrase completion uses.
+- `--catalog` takes no package and cannot be combined with `--json` or
+  `--scope` (exit 2). It prints `# Synod standard library`, the line
+  ``Generated by `synod doc --catalog` for Synod 0.2. Do not edit.``, then one
+  `## std/<p> — <title>` section per std package in byte order, each with the
+  table `| Phrase | Gives | Context | Meaning |` (qualified patterns; `look`
+  in the context column for std/look), the `Node event:` and `Trace events:`
+  lists and, for std/theme, the `| Name | Value | Use |` table. Unexported
+  phrases are left out. It becomes
+  `agent-skills/skills/synod/reference/std-catalog.md`.
+
+`synod explain [code]` details (decision 93):
+
+- Without a code, one line per code, `<code>  <summary>`, in the order of
+  the `spec/11` tables (compile-time codes, then run-time codes).
+- With a code, the short form is `<code>: <summary>`, a blank line, the
+  prose, `Example (p/p.synod):` with each file indented 4, `synod check says:`
+  (or `synod run says:`) and the diagnostic indented 4, then `Fix: <sentence>`
+  and the fixed files indented 4. The rich form is the same with color and the
+  diagnostic in its rich form.
+- The diagnostic is produced when the command runs, by checking (or running)
+  the example in memory, never read from a stored text.
+- An unknown code is exit 2, `synod explain: unknown code "x"`, plus
+  `  hint: did you mean "y"?` when one code is at edit distance 2 or less.
+- `--json` prints `synod-explain/1` (`04-formats.md`). `--catalog` prints
+  `# Synod diagnostic codes`, the generated line and the table
+  `| Code | Meaning | Fix |` in the order of `spec/11`; it becomes
+  `agent-skills/skills/synod/reference/errors.md`.
 
 Exit codes: 0 success, 1 diagnostics or a `sim.Failed` run, 2 usage or I/O error.
 

@@ -132,8 +132,8 @@ golden scene and for a 50-node, 200-message stress scene.
 
 - Editor with tokens and diagnostics, format on save and quick fixes, GIF
   export, Predict choices, Break it, Compare, and choosing a node by clicking
-  the stage. Phrase completion moves to M10: it needs `synod doc`, which is
-  not implemented, and M10 needs `synod doc` for the agent-skills catalog.
+  the stage. Phrase completion moves to M10, together with `synod doc`, which
+  it needs and which M10 also needs for the agent-skills catalog.
 - G15 (resolved, decisions 83 and 84): `synod-scene/1` gains the additive
   optional shape keys `node` and `msg`, written by the scene builder for every
   node attachment and `look.Flight` (not by `look.Card`, which is Synod code),
@@ -199,16 +199,124 @@ report, and `scripts/acceptance-m9.sh` in `mac-app` runs them all)
 
 ## M10 — Claude integration and agent skills
 
-- `agent-skills` with the generated catalog; the prompt bar.
-- `synod doc` (needed for the catalog) and, with it, phrase completion in the
-  editor (moved from M9).
-- `agent-skills` is still empty after M9, so the rule that it is regenerated
-  when the std catalog changes could not apply yet: M10 generates it from the
-  catalog as it stands, including `lesson.Ask … choosing`.
+- `synod doc` (decisions 90 to 92), `synod explain` (93), `synod new` (94) and
+  `synod get` (95) in the compiler; std doc comments equal the catalog
+  (decision 91).
+- Phrase completion in the editor (moved from M9), from `synod doc --json
+  --scope` (decision 92).
+- The prompt bar, which runs the user's own Claude Code CLI after an opt-in and
+  handles no credential (decision 96), and `agent-skills` as a Claude Code
+  plugin with generated parts (decision 97). `agent-skills` was empty after M9,
+  so M10 generates it from the catalog as it stands, including
+  `lesson.Ask … choosing`.
+- No MCP server and no in-app Messages-API chat in M10 (G28).
+- G19 to G27 are resolved by decisions 90 to 97. G29: the live acceptance
+  (11 below) needs the owner's Claude Code login, so CI cannot run it. G30: the
+  site build runs the native `synod doc --json` and `synod explain --json`
+  (`11-documentation.md`). G31: `synod get` lives in `internal/get`, and
+  `internal/load` stays read-only (`01-compiler.md`). G32: `05-cli.md` no
+  longer says that `synod get` is not implemented.
+- Release: compiler v0.2.6, std v0.2.2, agent-skills v0.2.0, `mac-app` v0.2.2,
+  in this order, after `dsl` v0.2.10; examples, player and the site are
+  unchanged (decision 61).
 
-**Accept:** "animate two-phase commit with a coordinator crash" produces
-a checked program in one request, using the `twopc` package without
-rewriting it.
+**Accept:** (headless unless marked)
+
+Compiler:
+
+1. `synod doc` in the examples module lists the 13 std packages and the
+   examples' library packages; `synod doc std/net` matches its golden.
+2. Every row of `std/README.md` appears in `synod doc --catalog` with the same
+   pattern (qualified), Gives, contexts and Meaning.
+3. `synod doc --json --scope twopc/demo.synod` lists the imports `twopc`,
+   `lesson`, `net` and `sim`, and `twopc.Coordinate [ps: list of twopc.Node]
+   from [c: twopc.Node]` with 2 holes.
+4. `synod explain` lists exactly the 38 codes of `spec/11`; every `synod
+   explain <code>` exits 0, every entry's example gives only its code and its
+   fix is clean, and `synod explain nope` exits 2.
+5. `synod new` then `synod fmt --check .`, `synod check .` and `synod run
+   <pkg>` all exit 0 in the new folder.
+6. `synod get` passes the offline repository tests. Network check (CI only,
+   allowed to fail when GitHub is unreachable): in a `synod new` module,
+   `synod get github.com/synodlang/examples@v0.2.1` writes
+   `vendor/github.com/synodlang/examples@v0.2.1/twopc/twopc.synod`, the
+   `synod.sum` line has commit `0f15d8d8f41f6fcaa68d4b2bb921da63884dfafc`, and a
+   second run with networking off prints `from cache` or `up to date`.
+
+`agent-skills`:
+
+7. `go run ./tools/sync --check` exits 0 with the pinned versions; every
+   whole-file `synod` block and `reference/examples` pass `synod fmt --check`
+   and `synod check`; the plugin version equals the CHANGELOG version; the
+   release has the tarball and `SHA256SUMS`.
+8. On screen: `claude plugin validate .` (when this Claude Code has it), then
+   `/plugin marketplace add synodlang/agent-skills` and `/plugin install
+   synod@synodlang` load the skill.
+
+`mac-app` (`scripts/acceptance-m10.sh` runs `Synod --m10`):
+
+9. Completion, in a temp copy of the examples:
+   - for every `.synod` file, `doc --scope` decodes and its imports equal the
+     qualifiers the compiler reports;
+   - in `gossip/gossip.synod`, on a new line after the first `net.Send` line,
+     typing `net.Se` makes `net.Send [m: msg] from [a: node] to [b: node]` the
+     first item; accepting it makes the line `<indent>net.Send m from a to b`
+     with placeholders at `m`, `a` and `b`, `m` selected; Tab selects `a`,
+     typing `p` replaces it, Esc clears them;
+   - in `raft/raft.synod`, inside a receiver phrase, typing `n.` offers exactly
+     raft's receiver phrases and `Node` fields from the scope, and no std
+     phrase;
+   - in `twopc/demo.synod`, `twopc.Co` accepts to `twopc.Coordinate ps from c`;
+   - after an unbalanced `(` (the overlay check fails), `net.` still offers
+     net's phrases from the cached scope;
+   - `doc --scope` of `cassandra/demo.synod` takes under 300 ms in the app, and
+     computing the items for the largest example file under 16 ms.
+10. Prompt bar, deterministic (`--claude-check --claude <fake>`), on a temp copy
+    of a module with a dirty buffer:
+    - Send is refused until Save All, and the save happens;
+    - the fake's log shows the argv of `07-claude-integration.md` exactly (model
+      `claude-opus-5-5`), the working directory equal to the module root, the
+      environment keys inside the allowlist, `PATH` starting with the bundled
+      `synod`'s folder, and the variable `SYNOD_SECRET_SENTINEL` (set in the app
+      process) absent;
+    - the progress lines equal the fixture's tool uses in order;
+    - the fake's new file is opened, its program selected, and a run started
+      within 2 s;
+    - the banner shows the number of changed files; Revert restores every byte
+      and removes the added file;
+    - a second prompt carries `--resume <id from the fixture>`;
+    - a slow request and Stop end the process within 3 s;
+    - with the setting off, the fake's log does not exist (no launch);
+    - a search of the app's sources finds no `SecItem`, `Keychain` or
+      `ANTHROPIC`.
+11. Prompt bar, live: needs the owner's Claude Code login and network, not CI
+    (a locked screen is fine). `scripts/acceptance-m10-live.sh` runs the prompt
+    "animate two-phase commit with a coordinator crash", one request and no
+    follow-up, three times, each in a fresh module (`synod.mod` with `module
+    example.com/acc`, `synod 0.2` and `require github.com/synodlang/examples
+    v0.2.1`, a `.gitignore`, and the bundled `synod get`). A run passes when
+    all of these hold:
+    - the result is not an error and `synod check .` exits 0;
+    - exactly one new main file, and `synod run <its folder>` exits 0;
+    - the trace header `packages` contains
+      `github.com/synodlang/examples/twopc`;
+    - the trace has a `sim.Crashed` whose node's last `sim.Added` or
+      `sim.Changed` state has a non-empty `twopc.Participants` (the
+      coordinator);
+    - no new file declares `# package twopc` or a `Prepare has`, `Vote has` or
+      `Decision has` record;
+    - the h1 of `vendor/…@v0.2.1` is unchanged.
+
+    All 3 of 3 must pass. A failure is fixed in `SKILL.md`, then `agent-skills`
+    and the app's pin are re-released, never by retrying. The report goes into
+    the `mac-app` release pull request.
+12. Regression: `--m9 --quick`, the M8 smoke and acceptance scripts still pass.
+
+Manual, on an unlocked screen: the completion popup (look, caret anchor,
+keyboard feel, placeholder drawing); the prompt bar (layout, live progress, Stop,
+the banner, Show changes, Revert); the Settings, Claude opt-in sheet and the
+"claude not found" and "not logged in" messages; one real prompt from the bar,
+end to end; the Gatekeeper first launch of the release.
 
 ## M11 — Remaining examples, site, documentation, `.github`
 

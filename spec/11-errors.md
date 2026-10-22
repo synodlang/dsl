@@ -18,7 +18,8 @@ reaches the time limit) is `path: error[code]: message`, without `:line:col`.
 
 `synod check --json` emits the same as JSON (`implementation/04-formats.md`).
 Messages must be short and specific, because they are fed back to agents
-verbatim.
+verbatim. `synod explain <code>` explains every code with an example
+(decision 93).
 
 **Rich form.** The form for people at a terminal (`synod check --style rich`):
 the source line with markers under the exact span, labelled secondary spans,

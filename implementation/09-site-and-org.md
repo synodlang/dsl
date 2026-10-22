@@ -17,7 +17,10 @@ organization at https://synodlang.github.io until a domain exists.
   itself is served at the site root: `/install.sh`.
 - **Docs:** the tutorial, the language reference, the library, guides
   and error pages, built from `dsl` and `std` at build time. Structure,
-  sources and the tutorial plan are in `11-documentation.md`.
+  sources and the tutorial plan are in `11-documentation.md`. From M11 the
+  build also downloads the native `synod` of the pinned compiler release and
+  runs `synod doc --json` and `synod explain --json` for the Library and Errors
+  pages; the wasm API is unchanged.
 - **Examples:** one page per example with editable source and a Run
   button. It calls `synod.wasm` (check, run) and plays the result
   with `player`; diagnostics are shown inline. No recordings. The site
@@ -39,8 +42,9 @@ Design: the brand from `assets/icon.svg`: navy ground `#151A2E`, pale
 
 - `profile/README.md`: what Synod is, links to every repository. It lists `player` and the site (follow-up in that repo).
 - Shared workflows: `go.yml` (vet, test, golden tests), `synod.yml`
-  (install `synod`, run `synod fmt --check` and `synod check ./...`),
-  `skills-sync.yml`.
+  (install `synod`, run `synod fmt --check` and `synod check ./...`). The
+  `agent-skills` sync workflow lives in `agent-skills` itself, not here
+  (decision 97).
 - `CONTRIBUTING.md`: changes to the language start as a pull request to
   `dsl` that updates the spec and `decisions.md`, together with matching
   pull requests to `examples` and the tutorial.

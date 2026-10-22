@@ -16,10 +16,21 @@ require github.com/someone/raft v1.2.0
 
 One directive per line: `module` (once), `synod` (language version,
 once; newer than the compiler's is a `syntax` error), `require` (zero or
-more, sorted; unsorted is `non-canonical`). `synod.sum` holds one line per
-dependency: `<module> <version> <commit sha> <tree hash>`.
+more, sorted; unsorted is `non-canonical`).
 
-Downloaded modules are not part of any format: `synod get` fills `vendor/` (which `.gitignore` excludes) from the shared download store `~/.synod/cache/<module>@<version>/`, downloading only what is missing and verifying it against `synod.sum`; `synod.sum` is what makes a fresh download reproducible.
+## synod.sum
+
+`synod.sum` holds exactly the build list (every module of the minimal version selection, the main module excluded), one line per module, sorted by module path:
+
+```
+github.com/synodlang/examples v0.2.1 0f15d8d8f41f6fcaa68d4b2bb921da63884dfafc h1:<base64>
+```
+
+The line is `<module> <version> <commit> h1:<base64>`: the 40-hex commit of the tag, and the tree hash `h1:`, which is Go's `dirhash` Hash1. It is the base64 (standard alphabet, with padding) of the SHA-256 of the text made of one line `"<sha256 hex of the file>  <slash path>\n"` for every file of the module, paths relative to the module root and sorted by byte order; `.git` and any folder that holds its own `synod.mod` are not part of the module. An empty build list has no `synod.sum`: the file is removed.
+
+The first download of a module with no line records it (trust on first use). Afterwards a store entry whose recomputed `h1:`, or a tag whose commit, differs from the line is exit 2 (decision 95).
+
+Downloaded modules are not part of any format: `synod get` fills `vendor/` (which `.gitignore` excludes) with copies from the shared download store `~/.synod/cache/<module>@<version>/`, downloading only what is missing and verifying every entry against `synod.sum`; `synod.sum` is what makes a fresh download reproducible.
 
 ## trace.jsonl
 
@@ -267,18 +278,59 @@ tokens sorted by position, for editor highlighting and go-to-definition:
   so a file with only a parse error is highlighted in full.
 - The WebAssembly API returns these documents as text, identical to the CLI's (`01-compiler.md`).
 
-## overlay.json (`synod check --overlay`)
+## overlay.json (`synod check --overlay`, `synod doc --overlay`)
 
 ```json
 {"format":"synod-overlay/1","replace":{"gossip/gossip.synod":"/tmp/overlay/1.synod"}}
 ```
 
-An editor uses it to check text that is not saved (decision 80), as Go's
+An editor uses it to check text that is not saved and to list the names such a file can write (decision 80), as Go's
 `-overlay` does. `replace` maps files to files: each key is an existing
 `.synod` file or `synod.mod`, absolute or relative to the working directory;
 each value is a file holding the content to check in its place. The compiler
 checks the key's file as if it held that content, and reports diagnostics and
 tokens with the key's path and positions. Nothing is written. A new file has
-to be saved before it is checked. Only `synod check` takes `--overlay`; a
+to be saved before it is checked. Only `synod check` and `synod doc` take `--overlay`; a
 missing or unreadable overlay file, a bad `format` or a key that is not an
 existing `.synod` file or `synod.mod` is exit 2.
+
+## synod-doc/1 (`synod doc --json`)
+
+```json
+{"format":"synod-doc/1","diagnostics":[],"scope":null,"packages":[
+ {"path":"std/net","name":"net","qualifier":"net","title":"the simulated network","std":true,"activates":false,
+  "phrases":[{"pattern":"net.Send [m: msg] from [a: node] to [b: node]",
+    "items":[{"word":"net.Send"},{"hole":"m","type":"msg"},{"word":"from"},{"hole":"a","type":"node"},{"word":"to"},{"hole":"b","type":"node"}],
+    "blocks":[],"receiver":null,"gives":"—","contexts":["node"],"kind":"phrase","native":true,"exported":true,
+    "doc":"Send through the network from `a`, which must be the receiver",
+    "def":{"file":"std/net/net.synod","line":3,"col":1}}],
+  "records":[],"node":null}]}
+```
+
+Keys are written in this order: `format`, `diagnostics`, `scope`, `packages`.
+
+- `diagnostics` are the diagnostic objects of `synod-check/1`; with any, `synod doc` exits 1.
+- `packages` lists the documented packages. `path` is the import path (`std/net`, or the module path plus the folder); `qualifier` is how the reader writes the package (the alias under `use … as`); `title` is `""` when the package has none; `activates` is true when the package has observers or invariants, which importing it activates.
+- A phrase has `pattern` (printed by the compiler, qualified as written outside the package), `items` (the pattern's items: `{"word"}` or `{"hole","type"}`), `blocks` (`[{"word":"otherwise","hole":"b"}]`, with `""` for an unnamed block hole), `receiver` (`{"name":"n","type":"Node"}` or null), `gives` (`—` for an action, else the Gives text of `std/README.md`), `contexts` (std only, else `null`), `kind` (`phrase`, `node-event` or `trace-event`), `native`, `exported`, `doc` (the doc comment, `spec/06` §6.4; `""` when none) and `def` (the declaration's position).
+- A record is `{"name","doc","fields":[{"name","type","exported"}]}`; `node` is `{"doc","fields":[…]}`, or null when the package has no `Node has`.
+- `scope` is null, or with `--scope <file>` (needs `--json`):
+
+```json
+"scope":{"file":"twopc/demo.synod","package":"main","imports":[{"path":"github.com/synodlang/examples/twopc","qualifier":"twopc"}]}
+```
+
+  `packages` then holds the file's own package (all its names, unexported ones included, with bare heads) and each import (exported names, heads spelled with that file's qualifier or alias), in import order. Readers ignore unknown keys.
+
+## synod-explain/1 (`synod explain --json`)
+
+```json
+{"format":"synod-explain/1","codes":[
+ {"code":"unknown-phrase","kind":"compile","summary":"No phrase matches the sentence by its shape.","text":"…",
+  "command":"check","example":{"files":{"p/p.synod":"# package p\n…"},"program":""},
+  "diagnostic":"p/p.synod:3:5: error[unknown-phrase]: …",
+  "fix":{"note":"Parenthesize the condition.","files":{"p/p.synod":"…"},"deleted":[]}}]}
+```
+
+- `kind` is `compile` or `run`; `command` is `check` or `run`, and `program` is the folder `synod run` runs (`""` for `check`).
+- `diagnostic` is the short form lines the compiler printed when the document was made, never a stored text (decision 93).
+- `fix.files` replace the example's files of the same path and `fix.deleted` removes files. Without a code, `codes` lists every code in the order of `spec/11`.

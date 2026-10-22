@@ -9,12 +9,16 @@ The site carries all Synod documentation. It is built from `dsl` and
 | --- | --- | --- |
 | **Tutorial** | `dsl/tutorial/` | Learn Synod from nothing, bottom up (below) |
 | **Reference** | `dsl/spec/` | The specification, one page per chapter, normative |
-| **Library** | `dsl/std/README.md` and `synod doc` | One page per std package: every phrase with its pattern, result, contexts and a runnable example |
+| **Library** | `dsl/std/README.md` and `synod doc --json` of the pinned compiler | One page per std package: every phrase with its pattern, result, contexts and a runnable example |
 | **Examples** | `examples` repo | One page per example: editable source, Run, and the story to watch |
 | **Guides** | `dsl/tutorial/guides/` | Task pages: install the CLI (points to `/install/`), use the Mac app (Predict, Break it, Compare), write a look, publish a package, use Synod with Claude or another agent |
-| **Errors** | `synod explain` | One page per diagnostic code (`spec/11`): the message, a minimal program that triggers it, the fix |
+| **Errors** | `synod explain --json` of the pinned compiler | One page per diagnostic code (`spec/11`): the message, a minimal program that triggers it, the fix |
 | **Design** | `README.md` principles and `spec/decisions.md` | Why Synod is the way it is |
 | **Tribute** | site | Lamport's "The Part-Time Parliament" and the name |
+
+The Library and Errors pages are generated at site build time by running the
+native pinned `synod` (`synod doc --json`, `synod explain --json`); the
+WebAssembly API has neither command and is unchanged (decisions 90 and 93).
 
 Rules for every section:
 

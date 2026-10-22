@@ -2,13 +2,13 @@
 
 SwiftUI, macOS 15+, Apple silicon first (the bundled `synod` is the
 universal binary). It bundles the `synod` binary and treats it as its
-engine. Offline-first: everything except "Ask Claude" works without a
-network.
+engine. Offline-first: the app needs no network; only the prompt bar, which
+runs the user's own Claude Code, uses one.
 
 **Milestones.** M8 ships the workspace, runner, player, timeline,
 inspector, problems and a read-only source view, video export and a
 minimal Predict. M9 adds the editor, GIF export, Predict choices, Break it
-and Compare. Each component below says which milestone it belongs to.
+and Compare. M10 adds phrase completion and the prompt bar. Each component below says which milestone it belongs to.
 
 ## Main window
 
@@ -27,7 +27,7 @@ and Compare. Each component below says which milestone it belongs to.
 ```
 
 M8 shows the source read-only (opened from Problems or the sidebar); the
-editor is M9.
+editor is M9; the prompt bar (M10) sits above the editor, see "Claude" below.
 
 ## Components
 
@@ -71,8 +71,43 @@ editor is M9.
   - *Outside changes.* A changed file reloads when its buffer is clean; with a
     dirty buffer a banner offers "Reload" or "Keep mine". The bundled examples
     are read-only, with a "Copy Examples to Folder…" banner.
-  - Phrase completion needs `synod doc`, which is not implemented, so it
-    moves to M10 with the agent-skills catalog.
+  - *Phrase completion (M10, decision 92).* Items come only from
+    `synod doc --json --scope <file>` (`04-formats.md`), so the app guesses
+    no qualifier and has no lexer: the word being typed is the run of letters,
+    digits and `.` before the caret, not a token.
+    - *Scope.* After any check of the file's folder (a run, an overlay check or
+      a folder check) with no `error` diagnostic, the app runs `synod doc
+      --json --scope <relative path> [--overlay <the same overlay.json>]` from
+      the module root, debounced 150ms, cancellable, and caches the result per
+      file. On exit 1 it keeps the previous scope, so completion works while a
+      line is half typed. Completion is off, with a note in Settings, when
+      `synod version` lacks `synod-doc/1`.
+    - *Context.* The prefix is the run of `[A-Za-z0-9.]` code points directly
+      before the caret, and the character before the run is the start of the
+      line, a space, `(`, `{` or `,`. It is split at the last `.`:
+
+      | Typed | Items |
+      | --- | --- |
+      | no dot | own package phrases (bare heads) and every import's exported, non-receiver phrases (qualified heads) whose head, or `qual.head`, starts with the partial |
+      | `q.` with `q` an import qualifier or alias | `q`'s exported non-receiver phrases |
+      | `x.` with `x` not a qualifier | own receiver phrases and own `Node` fields |
+      | `x.q.` | `q`'s exported receiver phrases and exported `Node` fields |
+
+      Ranking: case-sensitive prefix, then case-insensitive prefix; then the
+      own package, the imports in import order, then source order; at most 50
+      items.
+    - *Inserting.* The partial is replaced by the items joined with single
+      spaces; for a receiver item nothing before the last `.` is touched.
+      Each hole becomes a placeholder range holding the hole's name; the first
+      is selected, Tab and Shift-Tab cycle, typing replaces the selection, and
+      ranges move with edits like tokens. Esc, or an edit outside every range,
+      clears them. Block holes are not inserted. Placeholders are drawn as a
+      rounded Quiet background and are never written as text.
+    - *Popup.* A borderless child window below the caret that takes no focus.
+      A row shows the pattern, then `gives …; contexts` dim, and the doc line
+      in a detail strip. ↑ and ↓ move, ⏎ or Tab accepts, Esc closes. It opens
+      after `.` following a word or after two prefix characters; ⌃Space opens
+      it anywhere.
 - **Runner (M8).** Every run is `synod check --json --tokens <program>` and, when it
   reports no error, `synod run <program> --trace <file> --scene <file> --style
   short --color never`, both from the module root (decision 74). The files go
@@ -193,8 +228,8 @@ editor is M9.
     main file is saved. The edit goes through the editor's buffer, so it is
     undoable with ⌘Z and the banner's "Undo Break it"; then the file is saved
     (formatted) and the program re-runs. The viewer keeps the presentation time.
-    This is the one place besides saving in the editor where the app writes
-    into the workspace, and it only happens on the user's click.
+    Besides saving in the editor and Revert (see "Claude"), this is where
+    the app writes into the workspace, and it only happens on the user's click.
   - *Checking it.* After the run the app looks for the action's fact in the new
     trace: `sim.Crashed` or `sim.Restarted` for that node at `T`,
     `net.Partitioned` or `net.Healed` at `T`, a `net.Dropped` of that type on
@@ -222,18 +257,60 @@ editor is M9.
 
 ## Claude
 
-See `07-claude-integration.md`. The app shows a prompt bar ("animate
-Raft with 5 nodes and a leader crash"), streams progress, and opens the
-result in the editor. Generated code is just Synod source the user owns.
+See `07-claude-integration.md`. The prompt bar (M10, decision 96) runs the
+user's own Claude Code CLI; there is no in-app model client, no API key and no
+Keychain use, and the app never asks for, stores or passes a credential:
+Claude Code keeps its own login. Generated code is just Synod source the user
+owns.
+
+- *Opt-in.* In Settings, Claude, "Enable the prompt bar (uses Claude Code)" is
+  off by default. Turning it on shows a sheet saying what happens: the app runs
+  your `claude` command in the workspace; your request and the files Claude
+  reads go to Anthropic under your Claude Code account; the app stores no key.
+  The section also has a `claude` path field (found in `~/.local/bin/claude`,
+  `~/.claude/local/claude`, `/opt/homebrew/bin/claude` and
+  `/usr/local/bin/claude`), an "In use" line with the output of `claude
+  --version` (5 s timeout) and a Model field whose default is `claude-opus-5-5`
+  (empty means Claude Code's own default). Settings are stored in
+  UserDefaults. The app has no telemetry.
+- *Invocation and environment.* As in `07-claude-integration.md`: the module
+  root is the working folder, the bundled `synod` comes first on `PATH`, the
+  bundled agent-skills SKILL.md is the system prompt, and the environment is an
+  allowlist.
+- *Flow.* The bar is disabled on the read-only bundled examples. Dirty buffers
+  must be saved first ("Save All and Send" sheet). The app snapshots the
+  workspace's `.synod` files, `synod.mod` and `synod.sum` outside `vendor/`,
+  `out/` and dot or underscore folders (files of at most 1 MB, 20 MB in all;
+  above that Revert is off), and the module's editor buffers are read-only while
+  Claude runs. The stream becomes progress lines ("Read twopc/twopc.synod",
+  "Ran synod check .", "Edited demo.synod") and the final text. Stop sends
+  SIGINT, then SIGTERM after 3 s, then SIGKILL 2 s later. When Claude finishes,
+  changed files reload into clean buffers, the program list refreshes, the
+  newest added or changed main file's program is selected and opened, a run
+  starts, and a banner reads "Claude changed N files" with "Show changes" and
+  "Revert". Revert restores the snapshot bytes and deletes added files, and
+  runs only on the user's click. A follow-up uses `--resume <session_id>` from
+  the `system/init` event; "New conversation" clears it. The preset "Explain
+  this run" (enabled when a run exists) asks for `lesson.Note` captions in
+  `define main`, without changing the behaviour.
+- *Errors.* `claude` not found: setup text with the install link. An
+  `is_error` result, or a non-zero exit without a result: the result text, or
+  the last line of stderr. Not logged in: "Run `claude` once in Terminal to log
+  in."
+- *Parts.* A pure `ClaudeInvocation` (argv and environment), a tolerant
+  `ClaudeStreamParser` for the stream-json events, a `ClaudeProcess` actor, a
+  `ClaudeLocator` and a `WorkspaceSnapshot` (snapshot, diff, revert).
 
 ## Project files
 
 A workspace is a folder with `synod.mod`. The app never stores Synod code
-anywhere else, so everything works with Git and the CLI. It writes nothing
-into the workspace on its own: run outputs and the editor's overlay files go
-to its cache and Predict answers to Application Support (decisions 74, 77 and
-81). It writes a workspace file only when the user saves in the editor (a quick fix
-changes the buffer, not the file) or clicks a Break it action.
+anywhere else, so everything works with Git and the CLI. Claude Code, run
+from the prompt bar at the user's request, edits the workspace itself
+(decision 96). The app writes nothing into the workspace on its own: run
+outputs and the editor's overlay files go to its cache and Predict answers to
+Application Support (decisions 74, 77 and 81). It writes a workspace file only
+on Save in the editor (a quick fix changes the buffer, not the file), on a Break
+it action, or on Revert after a prompt-bar change.
 
 ## Distribution
 

@@ -6,6 +6,24 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.10 — 2026-10-22
+
+M10 (Claude integration, agent skills, `synod doc`, `synod explain`, `synod new`, `synod get` and phrase completion) is specified, and gaps G19 to G27 of Synod 0.2 are closed.
+
+### Added
+
+- `synod doc` (decisions 90 and 91, gaps G19 and G20): documents a package from its source, with doc comments, `--json` (`synod-doc/1`), `--catalog`, `--scope` and `--overlay`; every std `define` has a doc comment equal to its catalog Meaning, and Gives has one spelling per rule (`implementation/05-cli.md`, `implementation/04-formats.md`).
+- Phrase completion in the Mac app (decision 92, gap G22), from `synod doc --json --scope`; decision 80 now says that `check` and `doc` take `--overlay`.
+- `synod explain` (decision 93, gap G23) with the entry format and the `synod-explain/1` format, `synod new` (decision 94, gap G24) and `synod get` (decision 95, gap G25) with the download rule, the store, `synod.sum` (its exact line and `h1:` hash) and `vendor/` copies.
+- The prompt bar of the Mac app (decision 96, gap G26): it runs the user's own Claude Code CLI after an opt-in, with an allowlisted environment and no credential handled by the app; `implementation/07-claude-integration.md` has the invocation.
+- `agent-skills` as a Claude Code plugin with generated parts and pinned versions (decision 97, gap G27); the M10 acceptance (`implementation/10-roadmap.md`).
+
+### Changed
+
+- `std/README.md`: the three byte-for-byte blocks (`time`, `lesson`, `look`) gain their doc comments, the Meaning cells of `Place … below` and `Place … beside` are filled, and `same type as` becomes `same as` (the Meaning of `disk.Read` says "the type of `d`").
+- `spec/06` §6.2 says that `synod get` copies (no hard links) and where a module comes from; §6.4 defines doc comments. `spec/11` §11.1 points to `synod explain`.
+- `implementation/01-compiler.md` adds `internal/doc`, `internal/explain` and `internal/get` (gap G31); `05-cli.md` no longer says that `synod get` is not implemented (gap G32) and `synod version` lists `synod-doc/1` and `synod-explain/1`; `06-mac-app.md`, `08-agent-skills.md`, `09-site-and-org.md` (the sync workflow lives in `agent-skills`), `11-documentation.md` (the site build runs the native `synod doc --json` and `synod explain --json`, gap G30) and `00-architecture.md` follow.
+
 ## v0.2.9 — 2026-10-22
 
 The M9 acceptance text for Break it says exactly what the check does.

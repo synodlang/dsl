@@ -79,6 +79,7 @@ A change to this catalog is not done until `agent-skills` is regenerated
 
 ```synod
 # package time
+# Run `b` now and every `d`
 define Every [d: time] [b: block]
   b
   after d
@@ -140,7 +141,7 @@ define Every [d: time] [b: block]
 | Pattern | Gives | Context | Kind | Meaning |
 | --- | --- | --- | --- | --- |
 | `Write [v: value] at [k: text] on [n: node]` | — | node | N | Store `v` durably on `n`, which must be the receiver (instantly; records `disk.Written`) |
-| `Read [k: text] on [n: node] or [d: value]` | same type as `d` | node | N | The value stored on `n`, or `d` when nothing is stored; the result has the same type as `d` (`spec/04` §4.4) |
+| `Read [k: text] on [n: node] or [d: value]` | same as `d` | node | N | The value stored on `n`, or `d` when nothing is stored; the result has the type of `d` (`spec/04` §4.4) |
 
 **Trace event:** `Written [k: text] on [n: node]`.
 
@@ -164,15 +165,19 @@ Asked has
 Noted has
   set Text to ""
 
+# Emit `Asked` with no choices; the player pauses and asks the viewer to predict
 define Ask [q: text]
   emit (message Asked with Question q) by sim.Nobody
 
+# Emit `Asked` with the choices `c`: 2 to 6 distinct, non-empty texts, else `bad-argument`; the player pauses and offers them
 define Ask [q: text] choosing [c: list of text]
   emit (message Asked with Question q, Choices (choices c)) by sim.Nobody
 
+# Emit `Noted`; the player shows a caption
 define Note [t: text]
   emit (message Noted with Text t) by sim.Nobody
 
+# Unexported: check `c` for `Ask … choosing` (used by it)
 define choices [c: list of text] native "lesson.choices"
 ```
 
@@ -213,8 +218,8 @@ one-word color phrases, look context. Default values (the Synod brand):
 | `Effect [e: text] on [s: shape]` | — | N | `"glow"`, `"blur"` or `"trail"`, for 600ms |
 | `Layout [kind: text]` | — | N | `"ring"`, `"row"` or `"grid"` for node cards |
 | `Place [s: shape] above [t: shape]` | — | N | Position relative to another shape; likewise `below`, `beside` |
-| `Place [s: shape] below [t: shape]` | — | N | |
-| `Place [s: shape] beside [t: shape]` | — | N | |
+| `Place [s: shape] below [t: shape]` | — | N | Position relative to another shape: below |
+| `Place [s: shape] beside [t: shape]` | — | N | Position relative to another shape: beside |
 | `Center` | shape | N | An invisible point at the scene centre |
 | `Orbit [s: shape] around [c: shape] at [f: number]` | — | N | Place on a circle of radius 300 around `c`, at fraction `f` of a turn (0 is 12 o'clock, clockwise) |
 | `Flight [s: shape] from [a: shape] to [b: shape] for [m: msg]` | — | N | Move `s` from `a` to `b`, landing when `m` arrives (halfway when dropped) |
@@ -226,9 +231,11 @@ one-word color phrases, look context. Default values (the Synod brand):
 
 ```synod
 # package look
+# Opacity over 300ms
 define Fade [s: shape] to [o: number]
   Tween "opacity" of s to o over 300ms
 
+# Scale to 1.15 and back over 300ms
 define Pulse [s: shape]
   Tween "scale" of s to 1.15 over 150ms
   after 150ms

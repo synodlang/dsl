@@ -14,7 +14,7 @@ internal/source/    files, positions, diagnostics
 internal/lex/       tokens, INDENT/DEDENT, paths, colors vs comments
 internal/parse/     structure tree: File → Line → Sentence → Item, Block
 internal/format/    canonical printer; fmt = parse → print
-internal/load/      synod.mod, synod.sum, vendor/ lookup, package graph (`synod get` also manages the download store ~/.synod/cache)
+internal/load/      synod.mod, synod.sum, vendor/ lookup, package graph (read-only: it never writes `vendor/` or the store)
 internal/resolve/   phrase tables, pattern matching, name binding
 internal/check/     types, inference, contexts, exports, unused names
 internal/ir/        resolved program: phrases, handlers, records, state
@@ -22,7 +22,9 @@ internal/sim/       runtime (02-runtime.md)
 internal/natives/   one Go function per std native id
 internal/scene/     scene builder (03-scene-builder.md)
 internal/trace/     trace and scene encoders (04-formats.md)
-internal/doc/       std catalog generator for agent-skills
+internal/doc/       `synod doc`: packages from source, short, rich and JSON forms, `--scope`, the std catalog for agent-skills
+internal/explain/   `synod explain`: embedded entries `codes/<code>.md` (the entry format of decision 93), run in memory at explain time
+internal/get/       `synod get`: git download, the store `~/.synod/cache`, `synod.sum`, `vendor/` copies
 testdata/           golden tests
 ```
 
@@ -42,7 +44,7 @@ testdata/           golden tests
    pointing at the first differing line. `synod fmt` writes the printed
    form instead. Negation rewriting (`spec/10`) happens in the printer.
 4. **Load.** Read `synod.mod`, resolve imports to package folders (module
-   the main module's `vendor/` for remote ones, which is the only place the compiler reads; `synod get` fills it from the download store `~/.synod/cache/<module>@<version>/`, verified against `synod.sum`, `std/` to the bundled std, which is authored in
+   the main module's `vendor/` for remote ones, which is the only place the compiler reads; `synod get` (`internal/get`) fills it from the download store `~/.synod/cache/<module>@<version>/`, verified against `synod.sum`, `std/` to the bundled std, which is authored in
    the std repo and vendored into the compiler with `embed`). Split each folder
    by header into the library package and at most one main file
    (`bad-header`, `extra-main`). Imports resolve to library packages
