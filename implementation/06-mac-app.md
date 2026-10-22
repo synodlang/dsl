@@ -228,8 +228,8 @@ editor is M9; the prompt bar (M10) sits above the editor, see "Claude" below.
     main file is saved. The edit goes through the editor's buffer, so it is
     undoable with ⌘Z and the banner's "Undo Break it"; then the file is saved
     (formatted) and the program re-runs. The viewer keeps the presentation time.
-    Besides saving in the editor and Revert (see "Claude"), this is where
-    the app writes into the workspace, and it only happens on the user's click.
+    This is one of the places where the app writes into the workspace (see
+    "Project files"), and it only happens on the user's click.
   - *Checking it.* After the run the app looks for the action's fact in the new
     trace: `sim.Crashed` or `sim.Restarted` for that node at `T`,
     `net.Partitioned` or `net.Healed` at `T`, a `net.Dropped` of that type on
@@ -272,26 +272,38 @@ owns.
   `/usr/local/bin/claude`), an "In use" line with the output of `claude
   --version` (5 s timeout) and a Model field whose default is `claude-opus-5-5`
   (empty means Claude Code's own default). Settings are stored in
-  UserDefaults. The app has no telemetry.
-- *Invocation and environment.* As in `07-claude-integration.md`: the module
-  root is the working folder, the bundled `synod` comes first on `PATH`, the
-  bundled agent-skills SKILL.md is the system prompt, and the environment is an
-  allowlist.
+  UserDefaults; the external-session toggle below never is. The app has no
+  telemetry.
+- *Invocation, environment and tools.* As in `07-claude-integration.md`: the
+  module root is the working folder, the bundled `synod` comes first on `PATH`,
+  the bundled agent-skills SKILL.md is the system prompt, the environment is an
+  allowlist, and Claude changes the workspace only through the app's editor MCP
+  server and `synod mcp` (decisions 98 to 100). Claude's own Write and Edit are
+  off, and the only shell command is `synod get`.
+- *External sessions.* The Settings section also has "Let Claude Code in
+  Terminal use the editor", off at every launch and never stored, with a "Copy
+  MCP config" button and a note that the copied line is valid until Synod quits
+  or Disconnect is pressed. While it is on, the window shows "Claude (Terminal)
+  connected" with Disconnect, which closes the connections and rotates the
+  token. The bridge is `Contents/Helpers/synod-editor-mcp`.
 - *Flow.* The bar is disabled on the read-only bundled examples. Dirty buffers
-  must be saved first ("Save All and Send" sheet). The app snapshots the
-  workspace's `.synod` files, `synod.mod` and `synod.sum` outside `vendor/`,
-  `out/` and dot or underscore folders (files of at most 1 MB, 20 MB in all;
-  above that Revert is off), and the module's editor buffers are read-only while
-  Claude runs. The stream becomes progress lines ("Read twopc/twopc.synod",
-  "Ran synod check .", "Edited demo.synod") and the final text. Stop sends
-  SIGINT, then SIGTERM after 3 s, then SIGKILL 2 s later. When Claude finishes,
-  changed files reload into clean buffers, the program list refreshes, the
-  newest added or changed main file's program is selected and opened, a run
-  starts, and a banner reads "Claude changed N files" with "Show changes" and
-  "Revert". Revert restores the snapshot bytes and deletes added files, and
-  runs only on the user's click. A follow-up uses `--resume <session_id>` from
-  the `system/init` event; "New conversation" clears it. The preset "Explain
-  this run" (enabled when a run exists) asks for `lesson.Note` captions in
+  must be saved first ("Save All and Send" sheet), so Claude starts from buffers
+  equal to the disk. The app snapshots the workspace's `.synod` files,
+  `synod.mod` and `synod.sum` outside `vendor/`, `out/` and dot or underscore
+  folders (files of at most 1 MB, 20 MB in all; above that Revert is off), and
+  the module's editor buffers are read-only to the user while Claude runs.
+  Claude's edits appear live in the editor, each one an undoable "Claude Edit"
+  group, and stay unsaved until Claude calls `save_files` or the user saves. The
+  stream becomes progress lines ("Read twopc/twopc.synod", "mcp__synod-editor__apply_edits",
+  "Ran synod check .") and the final text. Stop sends SIGINT, then SIGTERM after
+  3 s, then SIGKILL 2 s later. When Claude finishes, the program list refreshes,
+  the newest added or changed main file's program is selected and opened, a run
+  starts when its files are saved, and a banner reads "Claude changed N files"
+  with "Show changes", "Save All" (while a buffer is unsaved) and "Revert".
+  Revert restores the snapshot bytes and deletes added files, and runs only on
+  the user's click. A follow-up uses `--resume <session_id>` from the
+  `system/init` event; "New conversation" clears it. The preset "Explain this
+  run" (enabled when a run exists) asks for `lesson.Note` captions in
   `define main`, without changing the behaviour.
 - *Errors.* `claude` not found: setup text with the install link. An
   `is_error` result, or a non-zero exit without a result: the result text, or
@@ -305,12 +317,14 @@ owns.
 
 A workspace is a folder with `synod.mod`. The app never stores Synod code
 anywhere else, so everything works with Git and the CLI. Claude Code, run
-from the prompt bar at the user's request, edits the workspace itself
-(decision 96). The app writes nothing into the workspace on its own: run
-outputs and the editor's overlay files go to its cache and Predict answers to
-Application Support (decisions 74, 77 and 81). It writes a workspace file only
-on Save in the editor (a quick fix changes the buffer, not the file), on a Break
-it action, or on Revert after a prompt-bar change.
+from the prompt bar at the user's request, changes the workspace through the
+editor's own tools (decisions 96 and 99). The app writes nothing into the
+workspace on its own: run outputs and the editor's overlay files go to its cache
+and Predict answers to Application Support (decisions 74, 77 and 81). It writes
+a workspace file only on Save in the editor (a quick fix changes the buffer, not
+the file), on a Break it action, on Revert after a prompt-bar change, or when
+Claude calls `save_files` or `create_file` during a request or an external
+session the user allowed.
 
 ## Distribution
 
@@ -320,6 +334,8 @@ not notarized, and its notes name the bundled `synod`, `player` and examples.
 The app bundles a pinned `synod` (the darwin-universal release archive), a
 pinned `player` release and the examples at a pinned commit, listed in
 `deps.env` and verified by `SHA256SUMS` and the pinned hashes (decision 76).
+The bundle also holds the editor MCP bridge, `Contents/Helpers/synod-editor-mcp`
+(signed like `synod`, `07-claude-integration.md`).
 Because the app is not notarized, macOS blocks the first launch: the README
 says to use System Settings, Privacy & Security, "Open Anyway" (on macOS 15
 and later right-click, Open no longer skips the check), or to run

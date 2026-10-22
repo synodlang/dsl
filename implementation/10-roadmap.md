@@ -209,7 +209,8 @@ report, and `scripts/acceptance-m9.sh` in `mac-app` runs them all)
   plugin with generated parts (decision 97). `agent-skills` was empty after M9,
   so M10 generates it from the catalog as it stands, including
   `lesson.Ask … choosing`.
-- No MCP server and no in-app Messages-API chat in M10 (G28).
+- MCP in M10 (G28, decisions 98 to 102): the editor server of the Mac app (a bundled stdio bridge over a Unix socket) and `synod mcp`; an in-app Messages-API chat stays out (no key handling).
+- G33: unsaved Claude edits cannot run, because a run reads saved files (decision 81), so Claude saves first. G34: a new file must exist on disk to be checked (decision 80), so `create_file` creates it, and decision 99 names the two disk writes. G35: the external token is not stored, so a copied config stops working after a relaunch. G36: the Claude Code flag spellings, MCP tool names and protocol version strings are checked against the installed `claude` and modelcontextprotocol.io.
 - G19 to G27 are resolved by decisions 90 to 97. G29: the live acceptance
   (11 below) needs the owner's Claude Code login, so CI cannot run it. G30: the
   site build runs the native `synod doc --json` and `synod explain --json`
@@ -309,8 +310,45 @@ Compiler:
 
     All 3 of 3 must pass. A failure is fixed in `SKILL.md`, then `agent-skills`
     and the app's pin are re-released, never by retrying. The report goes into
-    the `mac-app` release pull request.
+    the `mac-app` release pull request. The transcript must show
+    `mcp__synod-editor__` calls and no Write or Edit, all conditions hold after
+    `save_files`, and the `protocolVersion` Claude Code sent is recorded. The
+    owner also checks an external session (Settings toggle on, Copy MCP config,
+    an edit asked in Terminal appears unsaved in the app and ⌘Z undoes it,
+    Disconnect makes the same request fail), and `claude mcp add synod --
+    synod mcp` with the answers to "explain unknown-phrase" and "summarize a run
+    of raft" matching the CLI and no new `out/`.
 12. Regression: `--m9 --quick`, the M8 smoke and acceptance scripts still pass.
+13. `synod mcp` (compiler CI): a scripted session piped into `synod mcp` in the
+    examples module gives, for each tool, text equal to the CLI output, and
+    `run_summary` leaves `git status --porcelain` empty.
+14. `--mcp-check <examples copy>` in the app (a locked screen is fine), with the
+    built bridge and a scripted MCP client:
+    - `tools/list` equals the golden;
+    - after dirtying `gossip/gossip.synod`, `read_buffer` returns the unsaved
+      text;
+    - `apply_edits` (misspelling `net.Send` as `net.Sned`) makes a fresh
+      `get_diagnostics` report `unknown-phrase` within 2 s while the disk is
+      unchanged, and one undo restores the bytes;
+    - a stale version gives `version-mismatch`;
+    - `save_files` makes the disk equal the `synod fmt` output and starts a run
+      within 2 s;
+    - `create_file` of `extra/demo2.synod` lands formatted and a second call
+      gives `exists`;
+    - `../x` gives `outside-module` and the bundled examples give `read-only`;
+    - a wrong token is refused;
+    - while running, `lsof -nP -a -p <pid> -iTCP -sTCP:LISTEN` is empty, the
+      socket is 0600 in a 0700 folder, and after the session the socket, the
+      folder and the config file are gone;
+    - with external access off a bridge connection is refused; with it on, a
+      bridge with `--workspace` works; after Disconnect the old token is
+      refused.
+15. `--claude-check` (extends 10) with the fake Claude: the argv has
+    `--mcp-config`, `--strict-mcp-config` and the exact allowed and disallowed
+    lists of `07-claude-integration.md`; the config file is 0600 during the run
+    and gone afterwards; the scripted edits appear as "Claude Edit" undo groups;
+    the progress lines show the MCP tool names; Revert restores the snapshot; no
+    Write or Edit tool appears.
 
 Manual, on an unlocked screen: the completion popup (look, caret anchor,
 keyboard feel, placeholder drawing); the prompt bar (layout, live progress, Stop,

@@ -10,6 +10,7 @@
 | `synod get [module@version]` | Make `vendor/` and `synod.sum` match the build list, downloading what the store lacks; with an argument, first add or replace that `require` line |
 | `synod doc [package] [--json] [--catalog] [--scope file] [--overlay file] [--style rich\|short] [--color auto\|always\|never]` | Print a package's phrases, records and `Node` fields from its source; with no package, list the visible packages; `--catalog` prints the std catalog as Markdown for `agent-skills` |
 | `synod explain [code] [--json] [--catalog] [--style rich\|short] [--color auto\|always\|never]` | Explain a diagnostic code with an example and its fix; with no code, list the codes |
+| `synod mcp [--root dir]` | Serve `doc`, `explain`, `check`, `run_summary` and `fmt` as MCP tools over stdio, for agents without a shell |
 | `synod version` | Language, compiler and format versions (the `formats` line lists the formats the compiler writes, `synod-trace/1 synod-scene/1 synod-check/1 synod-doc/1 synod-explain/1`, so not `synod-overlay/1`, which it only reads) |
 
 Folders: `synod fmt` and `synod check` walk a folder argument for `.synod`
@@ -209,6 +210,30 @@ The compiler reads `vendor/` only, never the store. `synod fmt` applies the fixe
   `# Synod diagnostic codes`, the generated line and the table
   `| Code | Meaning | Fix |` in the order of `spec/11`; it becomes
   `agent-skills/skills/synod/reference/errors.md`.
+
+`synod mcp [--root dir]` details (decisions 101 and 102):
+
+- It runs a stdio JSON-RPC server (`07-claude-integration.md`, Protocol) until
+  stdin closes. The root defaults to the working directory; every call runs from
+  it, and a path outside it is `outside-module`. Requests are handled one at a
+  time, and `notifications/cancelled` is accepted and ignored.
+- Each tool builds an argument list and runs the CLI's own command in-process,
+  so a tool is exactly one command. The result is `structuredContent
+  {"exitCode","stdout","stderr"}` plus one `text` item: stdout, followed by
+  stderr when it is not empty. Exit codes 0 and 1 are normal results; exit 2 is
+  an `isError` result.
+
+  | Tool | Input (all optional unless marked) | Command |
+  | --- | --- | --- |
+  | `doc` | `package`, `scope`, `json` (default true) | `doc [package] [--scope s] --json`, without `--json` when `json` is false |
+  | `explain` | `code`, `json` (default false) | `explain [code] [--json]` |
+  | `check` | `paths` (default `["."]`), `json` (default true) | `check <paths> [--json] --style short` |
+  | `run_summary` | `folder` (required), `seed` (integer from 0), `mode` (`ordered` or `proportional`) | `run <folder> --summary --style short --trace <tmp>/t.jsonl --scene <tmp>/s.json [--seed] [--mode]`; the temporary folder is deleted afterwards, so nothing is written to `out/` |
+  | `fmt` | `paths` (default `["."]`), `check` (default false) | `fmt <paths> [--check] --style short` |
+
+- `doc`, `explain`, `check` and `run_summary` have `readOnlyHint: true`; `fmt`
+  has `readOnlyHint: false` and `idempotentHint: true`. The package imports no
+  network package and there is no `get` tool.
 
 Exit codes: 0 success, 1 diagnostics or a `sim.Failed` run, 2 usage or I/O error.
 

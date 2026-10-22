@@ -89,6 +89,12 @@ Reference files: grammar.md, phrases.md, contexts.md, canonical.md,
 std-catalog.md, trace-events.md, errors.md, examples/.
 ```
 
+`SKILL.md` has a short section "If the synod-editor tools are present": edit
+only with them (`read_buffer`, then `apply_edits` or `replace_buffer`,
+`create_file` for new files, `get_diagnostics` fresh until clean, `save_files`,
+and only then `run_summary`), because a run reads saved files. The README says
+how to use `synod mcp` in any session: `claude mcp add synod -- synod mcp`.
+
 `SKILL.md` stays under about 200 lines, stamps the `dsl` version it was written
 for, and carries the budget rules of `07-claude-integration.md`.
 

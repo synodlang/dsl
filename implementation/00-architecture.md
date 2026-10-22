@@ -12,7 +12,7 @@ Everything belonging to the language lives in the
 | `std` | Synod (+ native ids) | The standard library packages; natives are declared here and implemented in `compiler` |
 | `examples` | Synod | Sample packages and programs; the acceptance tests of the roadmap |
 | `player` | TypeScript | Canvas library that plays `scene.json`; used by `mac-app` (in a WKWebView) and the site |
-| `mac-app` | Swift / SwiftUI | Editor, player host (click-to-select), Predict / Break it / Compare, Claude CLI integration, video export |
+| `mac-app` | Swift / SwiftUI | Editor, editor MCP server, player host (click-to-select), Predict / Break it / Compare, Claude CLI integration, video export |
 | `agent-skills` | Claude Code plugin (Markdown, generated parts) | Skills that teach coding agents to read and write Synod |
 | `synodlang.github.io` | Static site | Organization site at https://synodlang.github.io: intro, documentation built from `dsl` (`11-documentation.md`), interactive examples (`synod.wasm` + `player`) |
 | `homebrew-tap` | Ruby | Homebrew formula for `synod`; updated by the `compiler` release |

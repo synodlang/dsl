@@ -24,6 +24,7 @@ internal/scene/     scene builder (03-scene-builder.md)
 internal/trace/     trace and scene encoders (04-formats.md)
 internal/doc/       `synod doc`: packages from source, short, rich and JSON forms, `--scope`, the std catalog for agent-skills
 internal/explain/   `synod explain`: embedded entries `codes/<code>.md` (the entry format of decision 93), run in memory at explain time
+internal/mcp/       `synod mcp`: the stdio JSON-RPC loop, dispatch and schema registry (stdlib only, no network package)
 internal/get/       `synod get`: git download, the store `~/.synod/cache`, `synod.sum`, `vendor/` copies
 testdata/           golden tests
 ```
