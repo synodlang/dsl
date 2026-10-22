@@ -148,8 +148,10 @@ define Every [d: time] [b: block]
 
 | Pattern | Gives | Context | Kind | Meaning |
 | --- | --- | --- | --- | --- |
-| `Ask [q: text]` | — | main | S | Emit `Asked`; the player pauses and asks the viewer to predict |
+| `Ask [q: text]` | — | main | S | Emit `Asked` with no choices; the player pauses and asks the viewer to predict |
+| `Ask [q: text] choosing [c: list of text]` | — | main | S | Emit `Asked` with the choices `c`: 2 to 6 distinct, non-empty texts, else `bad-argument`; the player pauses and offers them |
 | `Note [t: text]` | — | main | S | Emit `Noted`; the player shows a caption |
+| `choices [c: list of text]` | same as `c` | main | N | Unexported: check `c` for `Ask … choosing` (used by it) |
 
 ```synod
 # package lesson
@@ -157,6 +159,7 @@ use std/sim
 
 Asked has
   set Question to ""
+  set Choices to {}
 
 Noted has
   set Text to ""
@@ -164,9 +167,19 @@ Noted has
 define Ask [q: text]
   emit (message Asked with Question q) by sim.Nobody
 
+define Ask [q: text] choosing [c: list of text]
+  emit (message Asked with Question q, Choices (choices c)) by sim.Nobody
+
 define Note [t: text]
   emit (message Noted with Text t) by sim.Nobody
+
+define choices [c: list of text] native "lesson.choices"
 ```
+
+`choices` is not exported (a native, like `look.delete`). It returns `c` after
+checking it, and fails with `bad-argument` (`lesson.Ask … choosing needs 2 to
+6 different, non-empty choices`) unless `c` has 2 to 6 distinct, non-empty
+texts, so `choosing {}` is never a second spelling of `Ask [q: text]`.
 
 ## std/theme — named colors
 

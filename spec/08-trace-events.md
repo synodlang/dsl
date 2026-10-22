@@ -78,7 +78,7 @@ when (sim.Emitted raft.Elected by n)
   the receiver in scope; in main context `n` must be `sim.Nobody`, because
   main is not a node. `emit` is never allowed in look or check context.
 - `std/lesson` is written this way: `lesson.Ask` emits `lesson.Asked`
-  (Predict mode pauses on it) and `lesson.Note` emits `lesson.Noted` (a
+  (Predict mode pauses on it; its `Choices` field is `{}` unless `Ask … choosing` gave some) and `lesson.Note` emits `lesson.Noted` (a
   caption), both by `sim.Nobody`, because both are main-context phrases.
 
 ## 8.3 Coverage

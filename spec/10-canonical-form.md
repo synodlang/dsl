@@ -19,7 +19,7 @@ practice nobody formats by hand. Code across all repositories looks alike.
 | Receivers | `define [n: Node] Learn [k: node] at [v: number]`, `when [n: Node] (net.Received digest from sender)`: one space after the receiver |
 | Members | `n.Known`, `Vote.term`: never parenthesized; a space around `.` is a `syntax` error; a package's own qualifier inside it (`n.raft.Role` in `raft`) is `non-canonical`, and `synod fmt` drops it when the package loads (the own name alone as a `package` value stays) |
 | Numbers | `0.5`, `-1`, `2`; no leading zeros, no trailing zeros. `.5`, `+1` and `x-1` are never written: they are `syntax` errors, not formatting |
-| Durations | the largest unit giving a whole number: `1500ms`, `2s` |
+| Durations | the largest unit giving a whole number: `1500ms`, `2s`; otherwise milliseconds with the fraction (`20.431ms`) |
 | Text | double quotes; escapes only `\"`, `\\`, `\n`; no control characters (`syntax`) |
 | Commas | `{a, b}`, `message T with a 1, b 2`, `each k, v in m`: one space after each comma, none before, none inside braces |
 | Records | `message T with a 1, b 2`: settings in declaration order of the fields; out of order is `non-canonical`, and `synod fmt` reorders it when the package loads |

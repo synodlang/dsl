@@ -130,21 +130,77 @@ golden scene and for a 50-node, 200-message stress scene.
 
 ## M9 — Editor and learning modes
 
-- Editor with tokens and diagnostics, GIF export, Predict choices, Break it,
-  Compare.
-- G15 (open): choosing a node by clicking the stage needs the scene to say
-  which node a shape belongs to. `synod-scene/1` gains an additive optional
-  shape key `node`, written by `look.Card` and `std/look/basic`, and the
-  player gains `hitTest(x, y)` (format rule: keys only added). Until then the
-  app picks nodes from a list.
+- Editor with tokens and diagnostics, format on save and quick fixes, GIF
+  export, Predict choices, Break it, Compare, and choosing a node by clicking
+  the stage. Phrase completion moves to M10: it needs `synod doc`, which is
+  not implemented, and M10 needs `synod doc` for the agent-skills catalog.
+- G15 (resolved, decisions 83 and 84): `synod-scene/1` gains the additive
+  optional shape keys `node` and `msg`, written by the scene builder for every
+  node attachment and `look.Flight` (not by `look.Card`, which is Synod code),
+  and the player gains `hitTest(x, y)` and `nodeBounds()`.
+- G16 (resolved, decision 82): `lesson.Ask` had no way to say what Predict
+  offers. `std/lesson` gains `Ask [q: text] choosing [c: list of text]`,
+  `lesson.Asked` the field `Choices`, and a `pause` marker the key `choices`
+  (a gap of Synod 0.2, fixed in a patch like G14).
+- G17 (resolved, decision 83): the `msg` key says which message a dot is.
+- G18 (resolved, decision 85): Break it edits `define main` with
+  `sim.Nodes` and `net.DropNext` at send time, and Heal is added. Decision 86
+  covers verification, and decision 87 Compare.
+- Editor, GIF and learning-mode rules: decisions 78 to 88 (`06-mac-app.md`,
+  `04-formats.md`, `05-cli.md`). `synod check` gains `--overlay` and lexical
+  tokens for files that do not parse (decisions 79 and 80).
+- Release: compiler v0.2.5, std v0.2.1, examples v0.2.1, player v0.2.1,
+  `mac-app` v0.2.1, in this order, after `dsl` v0.2.7 (decision 61).
 
-**Accept:** Break it can reproduce the Cassandra hinted-handoff story by
-clicks alone; Predict offers choices at each `lesson.Ask`; GIF export
-works; clicking a node on the stage selects it.
+**Accept:** (headless unless marked; the app has modes that write a JSON
+report, and `scripts/acceptance-m9.sh` in `mac-app` runs them all)
+
+- Editor: for every file of the bundled examples, the tokens map to valid
+  UTF-16 ranges of the right length and every role has a style. In a copy of
+  `gossip`, an unsaved edit that misspells `net.Send` as `net.Sned` gives an
+  `unknown-phrase` underline over exactly `line:col` to `end` within 2s, with
+  the disk file unchanged; its quick fix restores the text byte for byte. A
+  buffer with an unsorted import saved equals the `synod fmt` output and starts
+  a run within 2s. A file with an unbalanced `(` still has lexical tokens. The
+  overlay check of `cassandra` takes under 300ms.
+- Predict: every bundled program has at least one `pause` marker, each with 2
+  to 6 choices; playing at rate 4 shows each choice list, and choosing the
+  first saves `answer` and `choice` and playback reaches the end.
+- GIF: `tcp` exported at 640 px, 20 fps, rate 1 decodes with the right frame
+  count, every delay 0.05s, loop count 0, size 640×400, every pixel in the
+  palette; sampled frames match `renderFrame(at_k)` at PSNR 30 dB or more (never
+  below 28 dB) and each is closer to its own reference than to its neighbours;
+  exporting twice gives identical bytes.
+- Click to select: for every program, at 10 times, the center of every
+  `nodeBounds` box hits its node or a message (at least 80% node hits, no
+  mismatch), and a click dispatched on the stage selects that node.
+- Break it: starting from the Cassandra demo without its scripted crash,
+  clicks alone (Crash n5 at 6s, Restart at 18s) insert exactly two blocks,
+  `sim.Crash (item 4 of sim.Nodes) # n5` and the matching `sim.Restart`, and
+  the new trace has `sim.Crashed n5` at 6 to 7s, n2's `cassandra.PendingHints`
+  at 1 or more after 12s, `sim.Restarted n5`, a `cassandra.Mutation` arriving at
+  n5 afterwards and `PendingHints` back to 0, and n5 ends with
+  `cassandra.Data {"user:42": "Grace"}`. Each step's check passes and no text
+  is typed.
+- Compare: `raft` with seeds 3 and 4 gives two runs with a monotone sync map;
+  after `seekSim(T)` for 20 values of `T` each side is at its map value within
+  0.5ms, and playing 2s at 1x keeps the right side within 17ms of the left
+  side's mapped time; the node lists match by name.
+- Regression: the M8 smoke and Raft export checks still pass.
+- Manual, on an unlocked screen: typing feel, highlight colors and contrast,
+  underlines and the lightbulb, ⌘-click navigation, real mouse clicks and
+  drags, the Break it popovers, the Predict layout and keys, Compare
+  smoothness at 120 Hz, GIF quality in Safari and Quick Look, and the
+  Gatekeeper first launch of the release.
 
 ## M10 — Claude integration and agent skills
 
 - `agent-skills` with the generated catalog; the prompt bar.
+- `synod doc` (needed for the catalog) and, with it, phrase completion in the
+  editor (moved from M9).
+- `agent-skills` is still empty after M9, so the rule that it is regenerated
+  when the std catalog changes could not apply yet: M10 generates it from the
+  catalog as it stands, including `lesson.Ask … choosing`.
 
 **Accept:** "animate two-phase commit with a coordinator crash" produces
 a checked program in one request, using the `twopc` package without

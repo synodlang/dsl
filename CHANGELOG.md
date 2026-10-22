@@ -6,6 +6,24 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.7 — 2026-10-22
+
+The editor and learning modes of the Mac app (M9) are specified, and three gaps
+of Synod 0.2 are closed: where Predict gets its choices, which node or message
+a shape is, and what Break it writes.
+
+### Added
+
+- `lesson.Ask [q: text] choosing [c: list of text]` in the std catalog (gap G16, decision 82): 2 to 6 distinct, non-empty choices, else `bad-argument`. `lesson.Asked` gains the field `Choices` (`{}` for a plain `Ask`) and a `pause` marker the key `choices`; `std/README.md` has the new `lesson.synod` byte for byte.
+- `synod-scene/1` shape keys `node` and `msg`, written by the scene builder (gaps G15 and G17, decision 83), and the reader rules for `hitTest` in `04-formats.md` "Hit testing (readers)" (decision 84).
+- `synod check --overlay <file>` and the `synod-overlay/1` format (decision 80), and lexical tokens for files that do not parse in `synod check --json --tokens` (decision 79).
+
+### Changed
+
+- Mac app (M9): `06-mac-app.md` specifies the editor (tokens from `synod check`, no lexer of its own, unsaved buffers by overlay, format on save, quick fixes applied only on request, go to definition), Predict choices, Break it (gap G18: `sim.Nodes`, `net.DropNext` at send time, Heal, verification of the effect and of broken rules), Compare (nodes matched by name, one timeline in simulated time instead of shape ids) and GIF export (schedule, palette, limits). Phrase completion moves to M10, with `synod doc`. Decisions 78 to 88; decision 74 now runs `synod check --json --tokens`.
+- `10-roadmap.md`: G15 is resolved (the builder writes `node`, not `look.Card`), G16 to G18 are resolved, the M9 acceptance is concrete, and M10 notes that `agent-skills` is generated from the catalog as it stands. `05-cli.md`, `04-formats.md` (the Mac app applies a `help` edit when the user picks it), `03-scene-builder.md`, `spec/05`, `spec/08` and `00-architecture.md` follow.
+- `spec/10`: a duration that is not a whole number of milliseconds is written in milliseconds with the fraction (`20.431ms`), as the compiler already does.
+
 ## v0.2.6 — 2026-10-22
 
 The Mac app (M8) is specified: what it does, how it runs and exports, and

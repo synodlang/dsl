@@ -104,7 +104,7 @@ Rules that follow:
   which main also uses with `sim.Nobody` (main is not a node):
   `emit (message X with Y 1) by sim.Nobody`; in main any other node after `by` is a `context` error (`foreign-state` is defined for node code only). `after` schedules on the
   context it runs in: in node context, on the receiver's node.
-  `lesson.Ask` and `lesson.Note` are main context only.
+  `lesson.Ask` (both spellings, with and without `choosing`) and `lesson.Note` are main context only.
 - **Observers see the state after their fact.** An observer of fact `e`
   reads the state as it is once `e` has happened: in `when (sim.Changed f of n
   from old to new)`, `n`'s field already holds `new`. Only exported fields

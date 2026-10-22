@@ -128,11 +128,16 @@ created and deleted in the same instant and never referenced is not written.
 **Layout.** Members are shapes attached under `card` to nodes not removed,
 not deleted and not pinned, in node id order; positions are as in `spec/09`
 §9.4, re-flowed after each activation whose membership or kind changed.
-Pinning is permanent.
+Pinning is permanent. A shape attached to a node by `draw … as w for n` gets
+`node`, the node's name, from its first node attachment (a replacement shape
+attached to the node gets it too; text and number attachments do not). The
+builder writes `node` and `msg` for every look, so `look.Card` and the looks
+over it need no change (decision 83).
 
 **Flights.** `look.Flight` writes the start `x` and `y` keys at now (the world
 position of the source) and registers a pending flight under the message id.
-`land(id, slot, dropped)` writes the end keys at the slot, at the target or
+The shape passed to `look.Flight` gets `msg`, the message id, from its first
+flight (decision 83). `land(id, slot, dropped)` writes the end keys at the slot, at the target or
 at the midpoint when dropped; a later `x` or `y` tween on the shape cancels
 the pending flight; unlanded flights are finalized at the end.
 
@@ -161,7 +166,8 @@ step with `std/theme/theme.synod` by a test.
 ## Markers
 
 Sorted by (time, fact order): `pause` from `sim.Emitted` with
-`std/lesson` `Asked` (matched by path and name), text `Question`; `caption`
+`std/lesson` `Asked` (matched by path and name), text `Question`, and `choices`
+from `Choices` when it is not empty; `caption`
 from `lesson.Noted`, `Text`; `broken` from `sim.Broken`, the rule text from
 `always …` on (without the `path:line:` prefix); `failed` from `sim.Failed`
 (`<trace pos>: error[<code>]: <message>`) and from a look fault (`look <trace
@@ -183,5 +189,7 @@ byte slice.
 
 ## Lesson pauses
 
-`sim.Emitted lesson.Asked` becomes a `pause` marker with the question; the
-player (in the app or on the site) stops there in Predict mode.
+`sim.Emitted lesson.Asked` becomes a `pause` marker with the question and, when
+`Choices` is not empty (`lesson.Ask … choosing`), its `choices`; the player (in
+the app or on the site) stops there in Predict mode and the app offers the
+choices (decision 82).

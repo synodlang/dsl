@@ -80,7 +80,7 @@ in the trace, one shape per line.
 {"id":"s7a1f03c2b9d4","kind":"rect","props":{"w":96,"h":56,"radius":12},"keys":[{"at":0,"x":800,"y":300,"opacity":0,"fill":"Ink"},{"at":300,"opacity":1},{"at":5200,"fill":"Accent"}],"end":9000},
 {"id":"s0c3e91ab5d27","kind":"label","props":{},"keys":[{"at":0,"x":0,"y":40,"opacity":1,"fill":"Ink","text":"n1"}]}
 ],"markers":[
-{"at":4100,"kind":"pause","text":"Who becomes leader next?"},
+{"at":4100,"kind":"pause","text":"Who becomes leader next?","choices":["It times out and elects a new leader","It waits for the old leader"]},
 {"at":6000,"kind":"caption","text":"Raft never has two leaders in one term."},
 {"at":9000,"kind":"broken","text":"always ((lists.Size ChosenValues) at most 1)"}
 ],"trace":[
@@ -92,11 +92,12 @@ Line 1 ends with `"shapes":[`; each shape is one line, separated by `,\n`;
 then `\n],"markers":[`, one marker per line, `\n],"trace":[`, one entry per
 line, and `\n]}\n`. An empty array is `[]` with no newline inside.
 
-- **Key order.** A shape: `id`, `kind`, `props`, `keys`, then `end`. `end` is
+- **Key order.** A shape: `id`, `kind`, `node`, `msg`, `props`, `keys`, then
+  `end`. `node` and `msg` are omitted when not set (below). `end` is
   the presentation time the shape is deleted, and is omitted when it lives to
   the end of the scene. Inside a key: `at`, then `x`, `y`, `scale`,
   `opacity`, `rotation`, `fill`, `stroke`, `text`, `effect`. A marker: `at`,
-  `kind`, `text`. The theme: Paper, Ink, Line, Quiet, Accent, Good, Warning,
+  `kind`, `text`, then `choices` (only on `pause`, and only when not empty). The theme: Paper, Ink, Line, Quiet, Accent, Good, Warning,
   Critical, then any other used colors sorted by byte order.
 - **First key.** The first key of every shape except a line sets `x`, `y` and
   `opacity`; a line's first key sets `opacity` and `stroke` (`"Line"`), no
@@ -112,12 +113,21 @@ line, and `\n]}\n`. An empty array is `[]` with no newline inside.
   (`{"items":[ids]}`). `id` is `s` and 12 lowercase hex digits
   (`03-scene-builder.md`). A `line` or `group` may refer to the singleton
   `look.Center`, written as an empty group only then.
+- **Node and message.** `node` is the name of the node (`"n3"`) a shape is
+  attached to by `draw … as w for n`; with several node attachments the first
+  counts. `msg` is the trace message id (`msg.id`, an integer) of the message
+  a shape flies for in `look.Flight … for m`; the first flight counts. The
+  scene builder writes both, so every look gets them, `std/look/basic`,
+  `raftlook` and `ringlook` included. Readers do not draw with them; they are
+  for hit testing. Label shapes may carry them too.
 - **Colors** are names, never raw hex: a `std/theme` name bare (`Accent`),
   another `<qualifier>.<Name>` (`raftlook.Hot`); every name used is in
   `theme`.
 - **Numbers.** Numbers the builder computes are rounded to 0.01; the encoder
   fails on a non-finite number. Times are integer ms.
-- **Markers.** `kind`: `pause` (a `lesson.Ask` question), `caption` (a
+- **Markers.** `kind`: `pause` (a `lesson.Ask` question; `choices` is the
+  list of texts of `lesson.Ask … choosing`, 2 to 6 of them, and is omitted
+  when the question has none), `caption` (a
   `lesson.Note`), `broken` (the rule of `sim.Broken`), `failed` (a
   `sim.Failed` fact, `<pos>: error[<code>]: <message>`, or a look fault,
   `look <pos>: error[<code>]: <message>`). `caption` and `pause` are
@@ -178,6 +188,27 @@ frames, clamped to `[0, duration]`.
   and the canvas rectangle clips what is drawn.
 - **Markers** are not drawn on the stage; a host shows them on its timeline.
 
+### Hit testing (readers)
+
+A reader that lets the viewer click the stage answers `hitTest(x, y)` by
+these rules (decision 84), so every reader gives the same answer. It needs no
+font metrics.
+
+- The test runs on the frame last drawn. `(x, y)` is in CSS px of the reader's
+  area; it is mapped through the inverse of the letterbox view and the inverse
+  world transform of each shape.
+- **Candidates** are drawn `circle` and `rect` shapes. A candidate's `node` is
+  its own, else the nearest enclosing group's; `msg` is resolved the same way
+  and separately. A shape with neither never hits.
+- **Slop** is 4 CSS px. A shape with a fill hits inside its geometry plus the
+  slop. A shape with only a stroke hits within 1 scene unit (half the stroke
+  width) plus the slop of its outline. A shape with neither fill nor stroke, a
+  `label`, a `line`, and a shape whose world opacity is below 0.05 never hit.
+- The topmost hit wins: the last in file order.
+- The result has the shape's `id` and `kind`, and its resolved `node` and `msg`
+  (each `null` when not set). A host may also ask for the box of a node: the
+  union of the bounding boxes of its drawn circles and rects, without slop.
+
 ## check.json (`synod check --json`)
 
 ```json
@@ -201,8 +232,9 @@ frames, clamped to `[0, duration]`.
   `{"line","col","end","new"}` replaces the span in the diagnostic's own file
   with `new`; an empty span inserts. Edits of one help do not overlap. An
   edit that adds whole lines inserts at column 1 with a `new` that ends in
-  `\n`. A fix across files has text only. No tool applies an edit in M4;
-  `synod fmt` applies only the canonical fixes.
+  `\n`. A fix across files has text only. `synod fmt` applies only the canonical
+  fixes; the Mac app applies a `help` edit only when the user picks it
+  (decision 81).
 - `notes` are statements.
 - `label`, `labels`, `help` and `notes` are omitted when empty.
 
@@ -225,4 +257,28 @@ tokens sorted by position, for editor highlighting and go-to-definition:
   `comment`.
 - `def` points to the declaration; it is omitted for std and language words.
 - Without `--tokens` the output has no `files` key.
+- `files` lists every user file of the checked packages (never std or
+  `vendor/`). A file that fails to lex or parse, and every other file of its
+  package, is listed with lexical tokens only (decision 79): all its tokens,
+  or those before its first lexical error. Their roles are `language` for
+  reserved words; `value` for numbers, durations, texts, colors, `true` and
+  `false`; `comment`; and `name` for every other word, part of a member and
+  import path. They have no `def`. A parse error comes after a complete lex,
+  so a file with only a parse error is highlighted in full.
 - The WebAssembly API returns these documents as text, identical to the CLI's (`01-compiler.md`).
+
+## overlay.json (`synod check --overlay`)
+
+```json
+{"format":"synod-overlay/1","replace":{"gossip/gossip.synod":"/tmp/overlay/1.synod"}}
+```
+
+An editor uses it to check text that is not saved (decision 80), as Go's
+`-overlay` does. `replace` maps files to files: each key is an existing
+`.synod` file or `synod.mod`, absolute or relative to the working directory;
+each value is a file holding the content to check in its place. The compiler
+checks the key's file as if it held that content, and reports diagnostics and
+tokens with the key's path and positions. Nothing is written. A new file has
+to be saved before it is checked. Only `synod check` takes `--overlay`; a
+missing or unreadable overlay file, a bad `format` or a key that is not an
+existing `.synod` file or `synod.mod` is exit 2.
