@@ -6,6 +6,17 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.11 — 2026-10-22
+
+The spec follows the choices of compiler v0.2.6 for `synod new` and `synod get`.
+
+### Changed
+
+- `synod get <module>@<version>` writes the new `require` line to `synod.mod` only after the build list has been resolved and every module has verified, so a failed get leaves `synod.mod` as it was (`implementation/05-cli.md`).
+- `synod new` takes a package name that is a lower-case word, not `main` and not the last element of a std package the template imports (`time`, `sim`); decision 94 says the same.
+- The shared store keeps, beside each read-only entry `<module>@<version>/`, a file `<module>@<version>.commit` holding the tag's commit; it is checked against `synod.sum` like the tree hash (`05-cli.md`, `04-formats.md`, `spec/06` §6.2).
+- A git checkout is byte-exact whatever the user's git configuration or the repository's attributes say, and a module whose tree contains a symbolic link (git mode 120000) is refused (`05-cli.md`).
+
 ## v0.2.10 — 2026-10-22
 
 M10 (Claude integration, agent skills, `synod doc`, `synod explain`, `synod new`, `synod get` and phrase completion) is specified, and gaps G19 to G27 of Synod 0.2 are closed.

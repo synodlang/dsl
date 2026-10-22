@@ -30,7 +30,7 @@ The line is `<module> <version> <commit> h1:<base64>`: the 40-hex commit of the 
 
 The first download of a module with no line records it (trust on first use). Afterwards a store entry whose recomputed `h1:`, or a tag whose commit, differs from the line is exit 2 (decision 95).
 
-Downloaded modules are not part of any format: `synod get` fills `vendor/` (which `.gitignore` excludes) with copies from the shared download store `~/.synod/cache/<module>@<version>/`, downloading only what is missing and verifying every entry against `synod.sum`; `synod.sum` is what makes a fresh download reproducible.
+Downloaded modules are not part of any format: `synod get` fills `vendor/` (which `.gitignore` excludes) with copies from the shared download store `~/.synod/cache/<module>@<version>/` (beside each entry, a file `<module>@<version>.commit` holds the tag's commit), downloading only what is missing and verifying every entry against `synod.sum`; `synod.sum` is what makes a fresh download reproducible.
 
 ## trace.jsonl
 

@@ -7,7 +7,7 @@
 | `synod check [paths…] [--json] [--tokens] [--overlay file] [--style rich\|short] [--color auto\|always\|never]` | Load, resolve and check; print diagnostics |
 | `synod run <folder> [--seed n] [--trace file] [--scene file] [--pace x] [--mode ordered\|proportional]` | Check and run the folder's main file: simulate and build the scene; default outputs `out/trace.jsonl` and `out/scene.json` |
 | `synod run <folder> --summary` | Print a compact, human-readable summary of the run: facts grouped per step, invariant results (used by agents) |
-| `synod get [module@version]` | Make `vendor/` and `synod.sum` match the build list, downloading what the store lacks; with an argument, first add or replace that `require` line |
+| `synod get [module@version]` | Make `vendor/` and `synod.sum` match the build list, downloading what the store lacks; with an argument, add or replace that `require` line once the build list is resolved and verified |
 | `synod doc [package] [--json] [--catalog] [--scope file] [--overlay file] [--style rich\|short] [--color auto\|always\|never]` | Print a package's phrases, records and `Node` fields from its source; with no package, list the visible packages; `--catalog` prints the std catalog as Markdown for `agent-skills` |
 | `synod explain [code] [--json] [--catalog] [--style rich\|short] [--color auto\|always\|never]` | Explain a diagnostic code with an example and its fix; with no code, list the codes |
 | `synod mcp [--root dir]` | Serve `doc`, `explain`, `check`, `run_summary` and `fmt` as MCP tools over stdio, for agents without a shell |
@@ -99,8 +99,9 @@ The compiler reads `vendor/` only, never the store. `synod fmt` applies the fixe
 - `dir` must not exist or must be an empty folder (parents are created);
   otherwise exit 2, `synod new: <dir> is not empty`. Nothing is overwritten.
 - The module path is `--module` or the base name of `dir`, and must be a
-  valid module path. The package name is the path's last segment and must be
-  a lower-case Synod word that is not reserved; otherwise exit 2,
+  valid module path. The package name is the path's last segment: it must be
+  a lower-case word that is not `main` and not the last element of a std
+  package the template imports (`time`, `sim`); otherwise exit 2,
   `synod new: "<x>" is not a package name; use a lower-case word`.
 - It writes `synod.mod` (`module <path>`, `synod 0.2`), `.gitignore`
   (`vendor/` and `out/`), `<pkg>/<pkg>.synod`, a node that counts, and,
@@ -112,24 +113,36 @@ The compiler reads `vendor/` only, never the store. `synod fmt` applies the fixe
 `synod get [module@version]` details (decisions 60 and 95):
 
 - `synod get` makes `vendor/` and `synod.sum` match the build list.
-  `synod get <module>@<vX.Y.Z>` first adds or replaces that `require` line in
-  `synod.mod` (sorted, canonical), then does the same. A missing or malformed
+  `synod get <module>@<vX.Y.Z>` adds or replaces that `require` line in
+  `synod.mod` (sorted, canonical) only after the build list, with that line,
+  has been resolved and every module of it has verified; a get that fails
+  leaves `synod.mod` as it was. A missing or malformed
   version is exit 2, `synod get: write <module>@vX.Y.Z`. It works on the
   module found in the working directory or above; without one, exit 2,
   `synod get: no synod.mod here or above`.
 - A module comes from `https://` plus the first three segments of its path,
   at the tag `<version>` (`<subfolder>/<version>` for a module in a
   subfolder), by `git clone --quiet --depth 1 --no-tags --branch <tag>` with
-  `GIT_TERMINAL_PROMPT=0`. No `git` on `PATH` is exit 2, `synod get:
+  `GIT_TERMINAL_PROMPT=0`. The checkout is byte-exact whatever the user's git
+  configuration or the repository's attributes say: no line-ending
+  conversion (`autocrlf`, `eol`), no `text`, `ident` or `filter` attribute,
+  and no symbolic link is made. No `git` on `PATH` is exit 2, `synod get:
   downloading needs git on PATH`. The module root must hold a `synod.mod`
   whose `module` line equals the requested path, else exit 2, `… declares
-  module <x>`; a symbolic link in the tree is exit 2. `.git` and any
+  module <x>`. A module whose tree contains a symbolic link (git mode
+  120000) is refused: exit 2, `synod get: <m>@<v>: <path> is a symbolic
+  link`. `.git` and any
   subfolder with its own `synod.mod` are left out.
 - The store `~/.synod/cache/<module>@<version>/` (on Windows under the user
   profile) is written once: an entry is built in `~/.synod/cache/.tmp-<random>/`
   and renamed into place, and an entry that already exists is used after
   verification. Entries are read-only (files 0444, folders 0555) and never
-  edited.
+  edited. Beside each entry, `<module>@<version>.commit` holds the tag's
+  40-hex commit and a newline; it is written before the entry appears, so
+  the entry itself holds nothing but the module's tree, and it is checked
+  against the `synod.sum` line like the tree hash. An entry with no such
+  file takes the commit of its `synod.sum` line; with neither, it is
+  damaged.
 - `synod.sum` is `04-formats.md`. A mismatch of the tree hash or of the
   commit is exit 2, `synod get: <m>@<v>: checksum mismatch: synod.sum has
   h1:…, the store has h1:…`; the store entry is never repaired or deleted (the

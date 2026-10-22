@@ -38,8 +38,8 @@ Synod follows Go.
   `vendor/github.com/someone/raft@v1.2.0/`). This is the only place the
   compiler reads: there is no override. `synod get` fills it from a shared
   download store, `~/.synod/cache/<module>@<version>/`, which holds each
-  downloaded module once for all projects, verified against `synod.sum`
-  and never edited; `synod get` copies from it and downloads only what the
+  downloaded module once for all projects, with the commit of its tag
+  beside it, verified against `synod.sum` and never edited; `synod get` copies from it and downloads only what the
   store lacks. `vendor/` is ignored by git
   (`synod new` writes a `.gitignore` containing `vendor/`); `synod.sum`
   keeps builds reproducible after a fresh `synod get`, and everything
