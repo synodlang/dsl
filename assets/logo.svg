@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Synod icon: three nodes, one message in motion">
+  <rect x="0" y="0" width="512" height="512" rx="114" fill="#151A2E"/>
   <g stroke="#3A4366" stroke-width="10" stroke-linecap="round">
     <line x1="256" y1="123" x2="140" y2="323"/>
     <line x1="256" y1="123" x2="372" y2="323"/>
