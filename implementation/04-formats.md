@@ -98,8 +98,9 @@ line, and `\n]}\n`. An empty array is `[]` with no newline inside.
   `opacity`, `rotation`, `fill`, `stroke`, `text`, `effect`. A marker: `at`,
   `kind`, `text`. The theme: Paper, Ink, Line, Quiet, Accent, Good, Warning,
   Critical, then any other used colors sorted by byte order.
-- **First key.** The first key of every shape sets `x`, `y` and `opacity`;
-  `scale` if not 1; `rotation` if not 0; `fill` and `stroke` when set; `text`
+- **First key.** The first key of every shape except a line sets `x`, `y` and
+  `opacity`; a line's first key sets `opacity` and `stroke` (`"Line"`), no
+  position. Every shape's first key also sets `scale` if not 1; `rotation` if not 0; `fill` and `stroke` when set; `text`
   for labels. Later keys set only the properties that change, strictly
   increasing in `at`. Between two keys the player interpolates with the house
   curve (smootherstep); colors interpolate in OKLab; `text` and `effect` hold
@@ -121,8 +122,61 @@ line, and `\n]}\n`. An empty array is `[]` with no newline inside.
   `sim.Failed` fact, `<pos>: error[<code>]: <message>`, or a look fault,
   `look <pos>: error[<code>]: <message>`). `caption` and `pause` are
   timeline-only. **Readers ignore a marker kind they do not know.**
-- `trace` maps each trace `seq` to its presentation slot, so the player can
-  show "simulated time" and jump to a fact.
+- `trace` maps each trace `seq` to its presentation slot, so a host can show
+  simulated time (taking `t` from the trace by `seq`) and jump to a fact.
+
+### Drawing a scene (readers)
+
+Readers draw a scene by these rules, so every conforming reader draws the
+same picture. `at` is a presentation time in ms, a float for the player's
+frames, clamped to `[0, duration]`.
+
+- **Lifetime.** A shape is drawn for `firstKey.at ≤ at < end`; with no `end`,
+  until the scene ends. A group draws nothing itself.
+- **Tracks.** Each property is its own track of the keys that set it. Before
+  the first key of a property, its default holds: `x` and `y` 800 and 500,
+  `scale` 1, `opacity` 1, `rotation` 0, `fill` and `stroke` none, `text`
+  empty, `effect` `"none"`; a line's `stroke` defaults to `Line` and a label's
+  `fill` to `Ink`. At and after the last key the last value holds; at a key's
+  `at` its value holds.
+- **Numbers.** Between two keys of a property, `v = a + (b − a)·S(u)`,
+  `u = (at − a.at)/(b.at − a.at)`, `S(u) = u³(u(6u − 15) + 10)`. `opacity` is
+  clamped to 0 to 1 and `scale` to 0 or more. `rotation` is in degrees,
+  clockwise (y points down).
+- **Colors.** Between two colors, convert the hex values (sRGB) to OKLab,
+  interpolate L, a, b with `S(u)`, convert back, clamp and round to 8 bits.
+  Between none and a color, or a color and none, the value steps at the later
+  key. A name missing from `theme` draws as `Ink`.
+- **Steps.** `text` and `effect` hold the value of the last key with
+  `key.at ≤ at`. An instant change is written as a key one ms earlier that
+  holds the old value, so no reader glides.
+- **Groups.** Membership is fixed for the whole scene: the builder writes every
+  member key, past ones too, relative to the group. A member's world
+  transform is `parent ∘ translate(x, y) ∘ rotate(rotation) ∘ scale(scale)`,
+  nested groups recursively; world opacity is the product of the opacities up
+  the chain. A group's glow applies to its members. Before a group's first
+  key its first-key values hold, so its members stay in place relative to it.
+  A deleted group's members end with it (each carries its own `end`).
+- **Geometry.** `(x, y)` is the center of every kind. A `circle` has radius
+  `r`; a `rect` is `w` by `h` with corner radius `min(radius, w/2, h/2)`; a
+  `label` is centered on `(x, y)` in both directions. The fill and the stroke
+  are drawn only when set; the stroke is 2 scene units wide, in the shape's
+  transform. A label has no stroke.
+- **Lines.** A `line` joins the world centers of `from` and `to`, 2 units
+  wide with round caps, in its own `stroke` at its own `opacity` times its
+  group's. It is drawn only while both ends are drawn, and is never clipped
+  to its ends.
+- **Glow.** While `effect` is `"glow"`, the shape is drawn with a blur of 24
+  scene units, colored by its `fill`, else its `stroke`, else `Ink`. An
+  `effect` value other than `"glow"` draws as `"none"`, so new effects can be
+  added within format 1.
+- **Order.** Shapes are drawn in file order, later over earlier.
+- **Unknown kinds.** A shape whose `kind` is unknown is skipped, with the
+  lines and groups that refer only to it.
+- **View.** The `canvas` is scaled by `min(width/w, height/h)` and centered
+  in the reader's area (letterbox). The area is filled with `Paper`
+  and the canvas rectangle clips what is drawn.
+- **Markers** are not drawn on the stage; a host shows them on its timeline.
 
 ## check.json (`synod check --json`)
 

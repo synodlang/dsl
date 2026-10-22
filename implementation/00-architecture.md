@@ -61,6 +61,9 @@ Rules:
   the editor runs the native `synod`, and video export renders player
   frames. (2) The site runs `synod.wasm` in the page, so examples are
   editable and re-runnable.
+- `player` is distributed as GitHub release assets (ESM bundle, IIFE bundle,
+  `.d.ts`, `SHA256SUMS`); npm comes later. The app bundles a release and the
+  site downloads a pinned one.
 - Neither the app nor the site interprets Synod: the app calls the
   bundled `synod`, the site calls `synod.wasm`, and both draw with `player`.
 - Everything is deterministic: same sources, seed and version produce

@@ -126,7 +126,9 @@ of `raft`.
   `m` must be bound by a net event (`net.Id m`), else `bad-argument`; a later
   `x` or `y` tween on `s` cancels the pending flight.
 - `look.Effect "glow" on s` lights `s` now and clears it 600ms later; any
-  other effect name is `bad-argument`.
+  other effect name is `bad-argument`. Glow is the only effect in 0.2;
+  readers draw an `effect` value they do not know as `none`, so effects can
+  be added within scene format 1 (`implementation/04-formats.md`).
 - `look.Orbit` puts a shape on the circle of radius 300 around the centre at
   a fraction `f` of a turn: `x = cx + 300·sin(2πf)`, `y = cy − 300·cos(2πf)`,
   and pins it.
@@ -173,8 +175,10 @@ shapes are positioned relative to cards (`look.Place … above`, `below`,
   `theme.Line`, `theme.Quiet`, `theme.Accent`, `theme.Good`,
   `theme.Warning`, `theme.Critical`. The default theme is the Synod brand
   (navy ground, pale nodes, amber accent; see `assets/icon.svg`).
-- Text uses the player's two fonts: a sans for labels and a mono for
-  values. Looks choose size and weight only.
+- Type. In Synod 0.2 a label is drawn in the player's sans at 16 px, weight
+  500, centered; looks cannot choose size, weight or the mono face. Choosing
+  them is planned as additive label props (`font`, `size`, `weight`) in
+  format 1 (decision 72).
 
 ## 9.6 The presentation clock
 

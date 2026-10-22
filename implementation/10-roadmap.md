@@ -95,10 +95,13 @@ text byte-identical to native for every example; release assets published.
 ## M7 — Player (`player`)
 
 - TypeScript canvas library that plays `scene.json`: keyframes,
-  smootherstep, OKLab colors, markers, `renderFrame(at)` for export.
+  smootherstep, OKLab colors, markers, `renderFrame(at)` for export, drawing
+  by the reader rules of `04-formats.md`.
 
-**Accept:** every golden scene plays at 120fps in Safari/WKWebView on
-Apple silicon; frame-render golden images match.
+**Accept:** the display-list goldens of every golden scene match exactly in
+CI; WebKit pixel goldens match within tolerance in a pinned container; in
+Safari on Apple silicon at 120 Hz, JS frame work has p99 ≤ 4 ms for every
+golden scene and for a 50-node, 200-message stress scene.
 
 ## M8 — Mac app
 

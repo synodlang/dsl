@@ -23,7 +23,10 @@ organization at https://synodlang.github.io until a domain exists.
   with `player`; diagnostics are shown inline. No recordings. The site
   build downloads the wasm pair of a pinned compiler release, verifies it
   against `SHA256SUMS` and serves it from the site; the module runs in a
-  Web Worker. An example page passes the examples module as `files` with
+  Web Worker. It likewise downloads the assets of a pinned `player` release
+  (ESM bundle, IIFE bundle, `.d.ts`), verifies them against `SHA256SUMS` and
+  serves them itself. The player bundles no fonts: the site loads JetBrains
+  Mono, and the home loop plays with `loop: true`. An example page passes the examples module as `files` with
   `program` set to the example's folder; a snippet that imports the
   examples carries them under `vendor/`.
 - **Tribute:** a short page on Leslie Lamport's "The Part-Time Parliament"

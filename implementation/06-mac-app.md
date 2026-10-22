@@ -31,23 +31,28 @@ Claude" works without a network.
   the current presentation time when possible.
 - **Player.** A `WKWebView` hosting the bundled `player` library
   (offline), fed `scene.json` through a JS bridge; the same renderer as
-  the site. The library interpolates keyframes with smootherstep; colors
-  in OKLab; shapes have soft shadows off, rounded corners on,
-  3Blue1Brown-style dark ground from the theme.
+  the site. The library draws by the reader rules of `04-formats.md`:
+  keyframes with smootherstep, colors in OKLab, no shadows except glow,
+  rounded corners on, 3Blue1Brown-style dark ground from the theme. Swift
+  loads it with `SynodPlayer.mount("#stage", opts)` and then
+  `player.setScene(<json string>)`; `attachWebKitBridge` posts the player's
+  events (time, marker, fact, play, pause, scene) to the host.
 - **Timeline.** Play, pause, step to previous/next fact, scrub, pace
   (0.25× to 4×), ordered/proportional toggle, markers for `pause`
   (from `lesson.Ask`), `caption`, `broken` (the scene `markers` in
-  `implementation/04-formats.md`).
+  `implementation/04-formats.md`). Pace is the player's playback rate and
+  changes at once; the ordered/proportional toggle changes the scene, so it
+  re-runs. Markers fire when playback crosses them, never on a seek.
 - **Inspector.** The selected node's exported state at the current time;
   the trace list around the current time; clicking a fact jumps there.
 - **Export.** Video via `AVAssetWriter` (H.264/HEVC, 1080p/4K, 60fps),
-  rendering `player` frames offscreen at fixed timesteps
-  (`renderFrame(at)`); and GIF.
+  rendering `player` frames offscreen at fixed timesteps: `renderFrame(at)`
+  after `pause()`, or `renderToContext` on an `OffscreenCanvas`; and GIF.
 
 ## Learning modes
 
 - **Predict.** Playback stops at every `pause` marker
-  (`lesson.Ask`). The viewer types or picks an answer, then playback
+  (`lesson.Ask`; the player option `stopAtPause`). The viewer types or picks an answer, then playback
   continues and shows what really happened. Answers are stored per
   program.
 - **Break it.** Click a node: Crash, Restart. Click a message dot: Drop

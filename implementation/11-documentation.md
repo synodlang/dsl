@@ -20,7 +20,9 @@ Rules for every section:
 
 - Every `synod` block that starts with `# package` is a complete file.
   Every program on the site has a **Run** button: it calls `synod.wasm`
-  (`run`, in a Web Worker) and plays the scene with `player`. A snippet
+  (`run`, in a Web Worker) and plays the scene with `player` (a pinned
+  release, assets verified against `SHA256SUMS`; the site supplies the fonts,
+  as the player bundles none). A snippet
   that imports the examples is bundled with them under
   `vendor/github.com/synodlang/examples@<ver>/`. Diagnostics are shown inline, with a
   link to their Errors page.

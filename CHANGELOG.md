@@ -6,6 +6,10 @@ GitHub release page.
 
 ## Unreleased
 
+### Changed
+
+- Player rules (M7): `implementation/04-formats.md` gains "Drawing a scene (readers)" (lifetime, per-property tracks and defaults, smootherstep and OKLab, groups, geometry, lines, glow, order, letterbox), corrects "First key" for lines (opacity and stroke, no position) and says the `trace` map lets a host show simulated time by `seq`. `spec/09` §9.3: glow is the only effect, readers draw unknown effects as `none`; §9.5: in 0.2 a label is sans 16 px weight 500. `06-mac-app.md`, `09-site-and-org.md`, `11-documentation.md`, `00-architecture.md` (player distribution) and the M7 acceptance in `10-roadmap.md` follow. Decisions 72 and 73.
+
 ## v0.2.4 — 2026-10-22
 
 The WebAssembly build is specified, and the call-depth limit is lowered so
