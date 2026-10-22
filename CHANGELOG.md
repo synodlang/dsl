@@ -6,6 +6,11 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.4 — 2026-10-22
+
+The WebAssembly build is specified, and the call-depth limit is lowered so
+that programs behave the same in a browser as on the command line.
+
 ### Changed
 
 - The call-depth limit (`run-limit`, `spec/07` and `spec/11`) is 500 nested calls on every target, down from 10000, so browsers never overflow their stack running the WebAssembly build and outputs stay byte-identical everywhere.
