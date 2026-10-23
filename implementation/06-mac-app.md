@@ -278,8 +278,9 @@ owns.
   module root is the working folder, the bundled `synod` comes first on `PATH`,
   the bundled agent-skills SKILL.md is the system prompt, the environment is an
   allowlist, and Claude changes the workspace only through the app's editor MCP
-  server and `synod mcp` (decisions 98 to 100). Claude's own Write and Edit are
-  off, and the only shell command is `synod get`.
+  server and `synod mcp` (decisions 98 to 100). Claude's built-in tools are
+  restricted to Read, Glob and Grep (no shell, no subagent, no Write or Edit),
+  and `synod get` is the user's step.
 - *External sessions.* The Settings section also has "Let Claude Code in
   Terminal use the editor", off at every launch and never stored, with a "Copy
   MCP config" button and a note that the copied line is valid until Synod quits

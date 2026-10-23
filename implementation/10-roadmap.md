@@ -311,7 +311,7 @@ Compiler:
     All 3 of 3 must pass. A failure is fixed in `SKILL.md`, then `agent-skills`
     and the app's pin are re-released, never by retrying. The report goes into
     the `mac-app` release pull request. The transcript must show
-    `mcp__synod-editor__` calls and no Write or Edit, all conditions hold after
+    `mcp__synod-editor__` calls and no Bash, Write or Edit, all conditions hold after
     `save_files`, and the `protocolVersion` Claude Code sent is recorded. The
     owner also checks an external session (Settings toggle on, Copy MCP config,
     an edit asked in Terminal appears unsaved in the app and ⌘Z undoes it,

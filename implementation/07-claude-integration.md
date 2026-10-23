@@ -27,8 +27,9 @@ The reference files are in <skills>/skills/synod/reference/.
 In this workspace, edit Synod files only with the synod-editor tools: read_buffer before editing, apply_edits or replace_buffer to change, create_file for new files, get_diagnostics (fresh) until clean, then save_files, and only then run_summary. Use the synod tools for doc, explain, check and run_summary." \
   --add-dir <skills>/skills/synod \
   --mcp-config <config file> --strict-mcp-config \
-  --allowedTools "Read,Glob,Grep,mcp__synod-editor__*,mcp__synod__doc,mcp__synod__explain,mcp__synod__check,mcp__synod__run_summary,Bash(synod get:*)" \
-  --disallowedTools "Write,Edit,MultiEdit,NotebookEdit,WebFetch,WebSearch,mcp__synod__fmt" \
+  --tools "Read,Glob,Grep" \
+  --allowedTools "Read,Glob,Grep,mcp__synod-editor__*,mcp__synod__doc,mcp__synod__explain,mcp__synod__check,mcp__synod__run_summary" \
+  --disallowedTools "Write,Edit,MultiEdit,NotebookEdit,WebFetch,WebSearch,Bash,Agent,Task,mcp__synod__fmt" \
   [--model <m>] [--resume <session_id>]
 ```
 
@@ -47,13 +48,19 @@ In this workspace, edit Synod files only with the synod-editor tools: read_buffe
   ```
 
 - The skill tells Claude how to look up phrases (`synod doc`), verify with
-  the checker, explain a diagnostic (`synod explain`) and fetch the example
-  packages (`synod get`). Files are formatted by Save, so there is no `fmt` tool
+  the checker, explain a diagnostic (`synod explain`) and use the example
+  packages (the skill says that when only the editor and `synod` tools exist,
+  `synod get` is the user's step). Files are formatted by Save, so there is no `fmt` tool
   in the request.
-- The tools are the whole allowlist: Claude reads files, changes buffers
-  through the editor server, uses the `synod` tools and runs only
-  `synod get` in a shell (it writes Synod source, decision 15). The app streams
+- `--tools` limits the built-in tools to Read, Glob and Grep; Claude reads
+  files, changes buffers through the editor server and uses the `synod` tools.
+  There is no shell, no subagent and no download (decision 15). The app streams
   progress lines (tool names included) into the prompt bar.
+- `--allowedTools` only pre-approves; `--tools` and `--disallowedTools`
+  restrict. The user's global instructions (`~/.claude/CLAUDE.md`) are still
+  loaded; `--setting-sources` could omit them but is not used.
+- Checked against Claude Code 2.1.308: the stream init then lists only Glob,
+  Grep, Read and the MCP tools.
 - The flags above are the documented ones of the Claude Code CLI; the
   implementer checks them, the tool names and the `type: "stdio"` config against
   `claude --help` of the installed version and reports any difference.
@@ -74,9 +81,10 @@ in an argument.
 ## Flow for "animate X"
 
 1. **Reuse first.** The skill tells Claude to search the workspace, run
-   `synod doc` for the visible packages and, to use the `examples`, run
-   `synod get github.com/synodlang/examples@v0.2.1` and import from
-   `vendor/`. If a package already models X, Claude only writes a main file
+   `synod doc` for the visible packages and, to use the `examples`, import from
+   `vendor/` (when it lacks them, `synod get
+   github.com/synodlang/examples@v0.2.1` is the user's step, as Claude has no
+   shell). If a package already models X, Claude only writes a main file
    (`define main`, typically 10–30 lines), and never copies, rewrites or edits
    an existing package or `vendor/`.
 2. **New behaviour only when missing.** Otherwise it writes a new

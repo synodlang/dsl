@@ -6,6 +6,15 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.12 — 2026-10-23
+
+The prompt bar's built-in tools are restricted to Read, Glob and Grep.
+
+### Changed
+
+- Decisions 96 and 100: the prompt bar's built-in tools are restricted with `--tools Read,Glob,Grep`; there is no shell, no subagent and no download, so `Bash(synod get:*)` is removed from the allowlist and `Bash`, `Agent` and `Task` are disallowed. `synod get` is the user's step (`implementation/07-claude-integration.md`, `06-mac-app.md`, `10-roadmap.md`).
+- `implementation/07-claude-integration.md` has the new invocation, says that `--allowedTools` only pre-approves while `--tools` and `--disallowedTools` restrict, that the user's global instructions are still loaded, and that it was checked against Claude Code 2.1.308.
+
 ## v0.2.11 — 2026-10-22
 
 The spec follows the choices of compiler v0.2.6 for `synod new` and `synod get`.
