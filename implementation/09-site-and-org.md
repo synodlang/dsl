@@ -2,13 +2,40 @@
 
 ## `synodlang.github.io`
 
-The organization site. It is a static site
-(Astro or plain HTML; no server), deployed with GitHub Pages for the
-organization at https://synodlang.github.io until a domain exists.
+The organization site. It is a static site (no server), built by a Go
+standard-library program and deployed with GitHub Actions to GitHub Pages for
+the organization at https://synodlang.github.io until a domain exists
+(decision 106).
+
+### Build
+
+- `deps.json` pins, per docs version (one entry per MINOR), the `dsl`, `std`
+  and `examples` tags with their commits, and the compiler and player release
+  tags with the SHA-256 of each asset used (decision 106).
+- `go run ./tools/build fetch` downloads the assets, checks each against the
+  release `SHA256SUMS` and the pin, extracts the native `synod` (the host's
+  own: linux-amd64 in CI, darwin-universal locally), checks that `synod
+  version` equals the pin, and checks the repositories out byte-exact at the
+  pinned commits with the git settings of decision 95. `build` writes
+  `_site/`, `check` verifies it (links, anchors, page counts, hashes, no
+  recordings) and `serve` serves it on 127.0.0.1. `-local` uses sibling
+  checkouts and marks pages as a local build.
+- Every `synod` block, example and step is checked or run natively during the
+  build; an unexpected exit code fails it.
+- A workflow builds, checks and deploys with GitHub Actions on every push to
+  `main`; the pull-request workflow also runs the browser tests (Playwright,
+  used for tests only). The owner switches Pages from the legacy branch build
+  to Actions once.
+- JetBrains Mono (Regular and Bold, OFL) is committed and self-hosted; the
+  site loads no font service. The player's labels use the system sans.
+- Docs live at `/docs/v<MAJOR>.<MINOR>/` and `/docs/` leads to the latest
+  (decision 107). The site highlights code from `synod-check/1` tokens only
+  (decision 108), and a Run calls `synod.wasm` in a Web Worker (decision 109).
 
 - **Home:** the icon, one sentence ("A small language for watching
   distributed systems think"), a looping Raft election played live by
-  `player` (no recording), three buttons: Start the tutorial · Install · See examples.
+  `player` (no recording): the build makes its scene with the native pinned
+  `synod run` of `examples/raft`, so the first page loads no wasm (decision 110), three buttons: Start the tutorial · Install · See examples.
 - **Install:** `/install/`, one self-contained page: the visitor's OS
   first, then macOS, Linux, Windows and Go. Each shows the package-manager
   command, the `install.sh` command (macOS, Linux) and direct download
@@ -28,8 +55,8 @@ organization at https://synodlang.github.io until a domain exists.
   against `SHA256SUMS` and serves it from the site; the module runs in a
   Web Worker. It likewise downloads the assets of a pinned `player` release
   (ESM bundle, IIFE bundle, `.d.ts`), verifies them against `SHA256SUMS` and
-  serves them itself. The player bundles no fonts: the site loads JetBrains
-  Mono, and the home loop plays with `loop: true`. An example page passes the examples module as `files` with
+  serves them itself. The player bundles no fonts: the site serves JetBrains
+  Mono itself, and the home loop plays with `loop: true`. An example page passes the examples module as `files` with
   `program` set to the example's folder; a snippet that imports the
   examples carries them under `vendor/`.
 - **Tribute:** a short page on Leslie Lamport's "The Part-Time Parliament"

@@ -254,7 +254,7 @@ must:
    no entry overrides another.
 3. Come with matching pull requests to
    [examples](https://github.com/synodlang/examples) and to the tutorial
-   (planned in `tutorial/`, see `implementation/11-documentation.md`).
+   (in `tutorial/`, see `implementation/11-documentation.md`).
 4. Add a section to `CHANGELOG.md` under "Unreleased".
 
 If you are unsure, open a language proposal issue first. Files must use LF

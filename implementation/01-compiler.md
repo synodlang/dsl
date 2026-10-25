@@ -26,6 +26,7 @@ internal/doc/       `synod doc`: packages from source, short, rich and JSON form
 internal/explain/   `synod explain`: embedded entries `codes/<code>.md` (the entry format of decision 93), run in memory at explain time
 internal/mcp/       `synod mcp`: the stdio JSON-RPC loop, dispatch and schema registry (stdlib only, no network package)
 internal/get/       `synod get`: git download, the store `~/.synod/cache`, `synod.sum`, `vendor/` copies
+internal/forms/     the form catalog, `uses` (which forms a program uses), `spec_test` (catalog against the spec) and `cmd/doccheck` (tutorial and Library checks, decisions 104 and 105); not linked into `synod` or `synod.wasm`
 testdata/           golden tests
 ```
 

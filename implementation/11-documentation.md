@@ -9,7 +9,7 @@ The site carries all Synod documentation. It is built from `dsl` and
 | --- | --- | --- |
 | **Tutorial** | `dsl/tutorial/` | Learn Synod from nothing, bottom up (below) |
 | **Reference** | `dsl/spec/` | The specification, one page per chapter, normative |
-| **Library** | `dsl/std/README.md` and `synod doc --json` of the pinned compiler | One page per std package: every phrase with its pattern, result, contexts and a runnable example |
+| **Library** | `dsl/std/README.md` and `synod doc --json` of the pinned compiler | One page per std package: every phrase with its pattern, result, contexts and a runnable example from `dsl/std/examples/` (decision 105) |
 | **Examples** | `examples` repo | One page per example: editable source, Run, and the story to watch |
 | **Guides** | `dsl/tutorial/guides/` | Task pages: install the CLI (points to `/install/`), use the Mac app (Predict, Break it, Compare), write a look, publish a package, use Synod with Claude or another agent |
 | **Errors** | `synod explain --json` of the pinned compiler | One page per diagnostic code (`spec/11`): the message, a minimal program that triggers it, the fix |
@@ -80,77 +80,135 @@ Every chapter has the same parts:
 - **Exercises:** two to four, each with its expected outcome hidden behind
   a toggle.
 
+### Module and folders
+
+Chapters 1–3 use one folder `hello/` with `hello.synod` (`# package main`) and
+no `synod.mod`. From chapter 4 the reader keeps one growing module, created by
+`synod new tutorial --module example.com/tutorial`; step 2 of chapter 4 renames
+the package folder to `counter` (the reason is the `bad-header` diagnostic
+shown in that chapter). The packages are `counter` (chapter 4), `pingpong`
+(5–8), `rumor` (9–11 and 13), `rumorlook` (12–13), `service` and `gossip`
+(14), `checks` (14), `raft` and `raftlook` (15). Every step folder is the
+whole module as the reader has it at that step.
+
 ### Chapters
 
-The module is created once, in chapter 4, and grows chapter by chapter.
-Chapters 1–3 are single main files.
+The 15 chapters below are the ladder. A phrase or form is "new" in exactly one
+chapter, and a step uses only items introduced in its chapter or an earlier one
+(decision 104). The `std` packages and phrases are introduced the same way.
 
 **Part I — One program, no nodes**
 
 | # | Chapter | Goal | New in this chapter |
 | --- | --- | --- | --- |
-| 1 | Hello, Synod | Show a sentence on the stage | file header `# package main`; `use`; `define main`; indentation blocks; a phrase call `lesson.Note "…"`; text; comments; Run; canonical form and `synod fmt` |
-| 2 | Values and names | Show a computed sentence | `set x to …` locals; numbers; `plus`, `minus`, `times`, `divided by`; one item per hole, so nested phrases are parenthesized; `text.From`; list literals `{…}` and `text.Join`; unused locals are errors |
-| 3 | Time | Show sentences at different moments, and ask the viewer | durations `ms` and `s`; `after` blocks; `sim.StopAt`; `time.Now`; `lesson.Ask` and Predict; the simulated and presentation clocks |
+| 1 | `01-hello` | Show a sentence on the stage | file header `# package main`; comments; indentation blocks; `use`; `define main`; text values; type `text`; context `main`; `std/lesson` `lesson.Note`; canonical form and `synod fmt` (why: indentation) |
+| 2 | `02-values` | Show a computed sentence | `set x to …` locals; number values; `plus`, `minus`, `times`, `divided by`; parentheses (one item per hole); list literals `{…}`; types `number` and `list of T`; `std/text` (`text.From`, `text.Join`); why: an unused name is an error |
+| 3 | `03-time` | Show sentences at different moments, and ask the viewer | duration values `ms` and `s`; `after` blocks; type `time`; `std/sim` (`sim.StopAt`); `std/time` (`time.Now`); `lesson.Ask` and `lesson.Ask … choosing` (decision 82); the simulated and presentation clocks |
 
 **Part II — Nodes and messages**
 
 | # | Chapter | Goal | New in this chapter |
 | --- | --- | --- | --- |
-| 4 | A first node | Put a node on the stage that counts | `synod new` and `synod.mod`; a library package folder and its header; `Node has` fields; capitals mean exported, so exported fields appear on the card; receivers and `define [n: Node] start`; `.` members (`n.Count`); `time.Every`; `demo.synod` uses its own package qualified; `sim.Spawn`, `sim.Cluster of … running …` |
-| 5 | Messages | Two nodes play ping-pong | record types with `has`; `message … with`; `net.Send … from n to …`; `when [n: Node] (net.Received Ping from sender)` and its bindings; record fields `Ping.Count`; `sim.Nobody`; main sets another package's field `a.pingpong.Peer`; `deliver` and `sim.Delivered`; `net.Latency` |
-| 6 | Decisions | Stop after ten rounds | `if`; `else` as a continuation line; `bool`; `is`, `is not`, `less than`, `more than`, `at least`, `at most`; `and`, `or`, `not`, and how `synod fmt` rewrites `not (…)` |
-| 7 | Your own phrases | Remove the repeated lines | `define` patterns with words and typed holes; value phrases and `result`; action phrases; receiver phrases (`define [n: Node] Answer …`, called `n.Answer …`); phrases without a receiver called from main (`define Pair [a: Node] and [b: Node]`); one name, one definition |
-| 8 | Many nodes | Broadcast to every peer and count replies | `list of T` and `map of K to V` in holes; `{}` and how its type is found; `item … of`; `set item k of … to …`; `is in`; `each x in …` and `each k, v in …`; `std/lists` (`Append`, `Extend`, `Without`, `Size`); `std/maps` |
-| 9 | Chance and determinism | Spread a rumour to random peers | `random.Pick`, `random.TimeBetween`, `random.Chance`; `sim.Seed`; the same seed gives the same run |
+| 4 | `04-first-node` | Put a node on the stage that counts | `synod new` and `synod.mod`; a package folder and its header; `Node has` fields; capitals mean exported; `define [n: Node] start`; `.` members; types `Node` and `package`; context `node`; `time.Every`; `sim.Spawn`; `sim.Crash`; `demo.synod` calls its own package qualified. Step 1 is the output of `synod new` byte for byte |
+| 5 | `05-messages` | Two nodes play ping-pong | record types with `has`; `message … with`, also qualified (`main` builds `pingpong.Start`); `when [n: Node] (net.Received …)` with bindings; `deliver`; types `node` and `record`; `std/net` (`net.Send`, `net.Received`, `net.Latency`); `sim.Nobody`, `sim.Delivered`; main sets `a.pingpong.Peer` |
+| 6 | `06-decisions` | Stop after ten rounds | `if` and `else`; bool values; `is`, `is not`, `less than`, `more than`, `at least`, `at most`; `and`, `or`, `not`; type `bool`; why: `not (a is b)` is not canonical |
+| 7 | `07-phrases` | Remove the repeated lines | `define` patterns with words and typed holes; receiver holes; `result`; type `msg`; value and action phrases; `define [n: Node] Reply [m: msg] to [p: node]` called `n.Reply …`; `define Pair [a: Node] and [b: Node]` called from main; `define … native` (prose only: it belongs to std, why: `native-outside-std`); why: `duplicate-name` |
+| 8 | `08-many-nodes` | Broadcast to every peer and count replies | `{}` (empty) and how its type is found; `map of K to V` and writing `list of T` in holes; `item … of`; `set item k of … to …`; `is in` and `is not in`; `each x in …` and `each k, v in …`; type `value` (prose); `std/lists` (`Append`, `Extend`, `Without`, `Size`); `std/maps` (`Size`, `Keys`); `std/math` (`math.Floor`, in `Majority of`); `sim.Cluster`; why: `ambiguous-empty` |
+| 9 | `09-chance` | Spread a rumour to random peers | `std/random` (`Pick`, `TimeBetween`, `Chance`); `sim.Seed` and `--seed`; the same seed gives the same run |
 
 **Part III — When things go wrong**
 
 | # | Chapter | Goal | New in this chapter |
 | --- | --- | --- | --- |
-| 10 | Faults | Keep the rumour spreading through crashes and loss | `sim.Crash`, `sim.Restart`, `start` runs again on restart; `net.Loss`, `net.Partition … from …`, `net.Heal`, `net.DropNext`; `disk.Write … on n` and `disk.Read … on n or …` survive restarts; block holes and continuation lines in your own phrases (`Retry … times` / `otherwise`) |
-| 11 | Invariants | Say what must never happen, then break it | `always`; check context and phrases without a receiver that read many nodes (`sim.NodesRunning`, `sim.IsUp`); `sim.Broken`; the four contexts side by side |
+| 10 | `10-faults` | Keep the rumour spreading through crashes and loss | block holes, continuation lines and `run` blocks in your own phrases (`Retry … times` / `otherwise`); type `block`; `std/disk` (`Write`, `Read`); `sim.Restart` and `start` running again; `net.Loss`, `net.Partition … from …`, `net.Heal`, `net.DropNext` |
+| 11 | `11-invariants` | Say what must never happen, then break it | `always`; context `check`; `sim.NodesRunning`, `sim.IsUp`, `sim.Nodes`, `sim.Broken`; the four contexts side by side |
 
 **Part IV — Seeing it**
 
 | # | Chapter | Goal | New in this chapter |
 | --- | --- | --- | --- |
-| 12 | Looks | Draw the system your way | look packages and observers (`when` on trace events); typed bindings `when (sim.Added [n: rumor.Node])`; `draw … as … for …` and reactive blocks; `name of v` attachments; `std/look` shapes, `look.Fill … with …`, layouts; `std/theme`; color phrases with a color literal; observers are pure |
-| 13 | Telling the story | Make the important moment stand out | package events: `emit … by n` and `sim.Emitted`; `look.Pulse`; `sim.Changed` with a `field` hole; captions from `lesson.Note` |
+| 12 | `12-looks` | Draw the system your way | `when` on trace events and typed bindings; `draw … as … for …` and reactive blocks; attachments (`name of v`); color values; types `shape` and `color`; context `look`; `std/look` (`Card`, `Fill`, `Layout`, `Label`…), `std/theme`, `std/look/basic`; why: context (setting a field in an observer) |
+| 13 | `13-story` | Make the important moment stand out | `emit … by n` and `sim.Emitted`; type `field`; `sim.Changed` with a `field` hole; `look.Pulse` and `look.Effect`; captions from `lesson.Note` |
 
 **Part V — Building real systems**
 
 | # | Chapter | Goal | New in this chapter |
 | --- | --- | --- | --- |
-| 14 | Packages and composition | Build a service on top of the rumour package | `use` of another package in the same module and of remote modules; versions and `synod.sum`; running is transitive, so `n.rumor.Known` and `p.Node` accepted as `q.Node`; `use … as` on a name collision; packages that only hold looks or invariants |
-| 15 | Capstone: Raft leader election | Build `examples/raft` from an empty file | Nothing new: each step adds one piece (roles and terms, a randomized election timeout, votes and majority, heartbeats, the "one leader per term" invariant, crashing the leader, a look), and the last step equals the example |
+| 14 | `14-packages` | Build a service on top of the rumour package | `use … as`; `require`, `synod get` and `synod.sum`; running is transitive, so `n.rumor.Known` and `p.Node` accepted as `q.Node`; a package that only holds invariants (`checks/`); a local `gossip` that builds on `examples/gossip` |
+| 15 | `15-raft` | Build `examples/raft` from an empty folder | Nothing new: each step adds one piece (roles and terms, a randomized election timeout, votes and majority, heartbeats, the "one leader per term" invariant, crashing the leader, a look); the last step equals the example |
 
 The tutorial ends with "Where next": the examples, the reference, and
 the Break it and Compare guides.
 
+### Source file format
+
+All paths are under `dsl/tutorial/` (decision 103).
+
+- `README.md`: the index. `coverage.md`: the table `| Item | Shown as | Reference | Chapter |`.
+  `versions.env`: `SYNOD_VERSION`, `SYNOD_LINUX_AMD64_SHA256`, `COMPILER_COMMIT`,
+  `EXAMPLES_VERSION`, `EXAMPLES_COMMIT`.
+- `NN-slug.md`: the chapter, prose only. Its headings are `# N. Title`, `## Goal`,
+  `## New in this chapter` (only `<!-- new -->` items), `## Steps`, `## What to watch`,
+  an optional `## Why it looks like this` and `## Exercises` (two to four
+  `<details><summary>Expected</summary>…</details>`).
+- Directives are HTML comments: `<!-- step K program=<folder> -->` under `## Steps`
+  and `<!-- why <slug> -->` under the optional section. A synod fence in a
+  chapter holds only text that parses, since the spec test reads every Markdown
+  file of this repository.
+- `code/NN-slug/stepK/`: step K as a complete folder (the whole module from
+  chapter 4); `code/NN-slug/stepK.summary`: the golden of `synod run <program>
+  --summary --style short`; `code/NN-slug/why-<slug>/` with a file `expect`
+  holding one line, the diagnostic code. `guides/*.md`: install, mac-app,
+  write-a-look, publish-a-package and agents.
+- The site shows the changed lines of step K as the difference to step K−1; step
+  1 is compared with the last step of the previous chapter.
+
 ### Coverage
 
-`dsl/tutorial/coverage.md` lists every language form in `spec/02` §2.2,
-every type in `spec/04`, every context in `spec/05`, and every std
-package, each with the chapter that introduces it. Each must appear
-exactly once as "new". CI fails when:
+The compiler holds the catalog of forms in `internal/forms` (not linked into
+`synod` or `synod.wasm`): the forms of `spec/02` §2.2 (about 64, from `header`
+to `divided-by`), the 16 types of `spec/04` §4.1 and §4.2, the four contexts of
+`spec/05` §5.4 and the std packages. Its test checks the catalog against the
+spec text: every production of `spec/02` §2.2 has a form, every quoted
+terminal of §2.1 and §2.2 occurs in some form, and the type, context and
+package ids equal the spec tables and the `## std/` headings of
+`dsl/std/README.md` (decision 104).
 
-- the spec gains a form, type, context or std package that has no chapter;
-- a chapter uses a form, type, context or std package before the chapter
-  that introduces it.
+`dsl/tutorial/coverage.md` has one row per catalog id, with its chapter, and may
+add rows `phrase:<pattern>` for std phrases. `internal/forms/cmd/doccheck`, run
+as `go run ./internal/forms/cmd/doccheck -synod <bin> -tutorial <dsl>/tutorial
+-library <dsl>/std/examples -examples <examples checkout> [-update]`, fails when:
+
+- a catalog item has no row, or has two, or a row's Reference names no spec heading;
+- a chapter or step directive is missing, or a step folder or program does not exist;
+- a step fails `synod fmt --check`, `synod get` (when it has `synod.sum`) or
+  `synod check`, or its `synod run <program> --summary --style short` differs from
+  its golden (`-update` rewrites the goldens);
+- a `why-<slug>` program does not fail with the code in `expect`;
+- a chapter uses a form, type, context or std phrase before the chapter that
+  introduces it;
+- step 1 of chapter 4 differs from `synod new tutorial --module example.com/tutorial`,
+  the last step of chapter 15 differs from `examples/raft` at `EXAMPLES_VERSION`
+  (`raftlook` and `demo.synod` after replacing the examples module path by
+  `example.com/tutorial/`), or a `require` line from chapter 14 on names another version.
+
+### Library examples
+
+`dsl/std/examples/<package>/` holds runnable examples, grouped by package (an
+example may use several phrases). `doccheck` takes every exported std phrase,
+events included, from `synod doc --json` and fails when none of the examples of its
+package uses it, or when an example fails `fmt --check`, `check` or `run`
+(decision 105). `dsl/std/examples/README.md`, `| Phrase | Examples |`, is generated
+by `doccheck -update` and CI fails when it is stale; the Library page shows these
+examples as runnable widgets.
 
 ### Sources and checks
 
-- Chapters are `dsl/tutorial/NN-slug.md`. Every step's files are under
-  `dsl/tutorial/code/NN-slug/stepK/`, with the same `synod.mod` the
-  reader created in chapter 4, so what the reader types is what CI
-  checks.
-- The site renders each step from those files; it never copies code
-  into Markdown by hand.
-- CI (from M2 on) runs `synod fmt --check` and `synod check` on every
-  step. From M3 on it also runs `synod run` and compares with a golden
-  trace summary (`synod run --summary`), so "What to watch" never goes
-  out of date.
+- The site renders each step from its files; it never copies code into
+  Markdown by hand, and `synod new` is the one source of chapter 4's first step.
 - The tutorial is versioned with `dsl`: a language change is not done
-  until the chapters, coverage and golden summaries are updated (see
-  `.github` `CONTRIBUTING.md`).
+  until the chapters, coverage, Library examples and golden summaries are
+  updated (see `.github` `CONTRIBUTING.md`). The `docs` job of this repository's
+  CI installs the pinned `synod`, checks out the compiler and the examples at
+  their pinned versions and runs `doccheck`; the compiler's CI runs it against the
+  pinned `dsl` tag.

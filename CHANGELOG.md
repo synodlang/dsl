@@ -6,6 +6,24 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.13 — 2026-10-25
+
+M11 (the site, the tutorial and the Library examples) is specified, and gaps G37 to G45 are closed.
+
+### Added
+
+- Decisions 103 to 105: the tutorial's layout (`dsl/tutorial/`), its coverage check against the compiler's form catalog, and a runnable example for every exported std phrase (`dsl/std/examples/`).
+- Decisions 106 to 110: the site is built by a Go standard-library program from `deps.json` pins, with verified assets, byte-exact checkouts and GitHub Actions; versioned docs at `/docs/v0.2/`; highlighting only from `synod-check/1` tokens; one Web Worker per page for Run; the home loop is a scene the build makes with the native `synod run`.
+- Decision 111 and `implementation/04-formats.md`: `synod-explain/1` `example.files` includes the implied `synod.mod`.
+- `implementation/01-compiler.md` lists `internal/forms` (catalog, uses, spec test and `doccheck`), which is not linked into `synod` or `synod.wasm`.
+
+### Changed
+
+- `implementation/11-documentation.md` has the corrected 15-chapter ladder, the module and folder plan, the tutorial source format, the coverage check and the Library examples.
+- `implementation/09-site-and-org.md` describes the Go build instead of "Astro or plain HTML", self-hosted JetBrains Mono and the prebuilt home scene.
+- `implementation/10-roadmap.md` M11 has gaps G37 to G45, the release order and numbered acceptance criteria.
+- `README.md` says the tutorial is in `tutorial/`.
+
 ## v0.2.12 — 2026-10-23
 
 The prompt bar's built-in tools are restricted to Read, Glob and Grep.

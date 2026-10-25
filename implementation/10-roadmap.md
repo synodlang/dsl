@@ -359,11 +359,43 @@ end to end; the Gatekeeper first launch of the release.
 ## M11 — Remaining examples, site, documentation, `.github`
 
 - The site and its documentation as in `09-site-and-org.md` and
-  `11-documentation.md`: tutorial, reference, library, guides, errors.
+  `11-documentation.md`: tutorial, reference, library, guides, errors. The
+  site is built by the Go program of decision 106 and deployed with GitHub
+  Actions; the tutorial is `dsl/tutorial/` (decisions 103 and 104) and the
+  Library examples are `dsl/std/examples/` (decision 105).
 - Tutorial chapters may be drafted from M2 on, since their code is
   checked by `synod check` from then; this milestone finishes them.
+- G37: the `synod new` template starts a counter that uses `sim.Crash`, so
+  chapter 4 teaches it. G38: an unused `sim.Cluster` value is an error and a
+  list needs `each` and `item`, so chapter 8 teaches it. G39: `std/math` and
+  `std/look/basic`, `is not in`, `native`, type `value` and `look.Effect` were
+  missing from the chapter table; `11-documentation.md` has all 15 chapters.
+  G40: the Library's runnable examples had no source; they live in
+  `dsl/std/examples/` (decision 105). G41: the tutorial file format was
+  unspecified (decision 103). G42: "Astro or plain HTML" is replaced by the Go
+  build (decision 106). G43: Pages built the legacy branch; Actions deploys
+  it, and the owner switches the setting once. G44: `synod explain --json`
+  `example.files` leaves out the implied `synod.mod`; it now includes it
+  (decision 111, `04-formats.md`). G45: the spec test of the compiler reads the
+  tutorial's Markdown, so every synod fence must parse.
+- Release order, each after the one before it: `dsl` v0.2.13 (this spec text),
+  compiler v0.2.7 (`internal/forms`, `doccheck`, the explain change),
+  agent-skills v0.2.3, `dsl` v0.2.14 (tutorial and Library examples),
+  agent-skills v0.2.4, a compiler commit that pins the docs CI to `dsl`
+  v0.2.14 (no tag), then the site v0.2.0 with its final `deps.json`.
 
-**Accept:** synodlang.github.io live; every example page and every
-tutorial step is editable and re-runs in the browser; the tutorial
-coverage check passes; every diagnostic code has an Errors page; no
-recordings.
+**Accept:**
+
+1. synodlang.github.io is live, deployed by GitHub Actions from `deps.json`
+   pins that verify against the release `SHA256SUMS`.
+2. `/docs/v0.2/` serves its own `synod.wasm` and player, and `/docs/` leads to it.
+3. The tutorial has 15 chapters and every step is editable and re-runs in the
+   browser.
+4. The coverage check (`doccheck`) passes: every catalog item has one chapter
+   and no step uses an item early.
+5. Every exported std phrase has a runnable Library example.
+6. Every example page is editable and re-runs in the browser.
+7. Every diagnostic code has an Errors page that runs its example files.
+8. The home page loops the prebuilt Raft scene; no recordings or videos.
+9. Code on the site is highlighted from `synod-check/1` tokens only.
+10. Fonts are self-hosted; the site loads no font service.

@@ -326,11 +326,12 @@ Keys are written in this order: `format`, `diagnostics`, `scope`, `packages`.
 ```json
 {"format":"synod-explain/1","codes":[
  {"code":"unknown-phrase","kind":"compile","summary":"No phrase matches the sentence by its shape.","text":"…",
-  "command":"check","example":{"files":{"p/p.synod":"# package p\n…"},"program":""},
+  "command":"check","example":{"files":{"synod.mod":"module example.com/p\n","p/p.synod":"# package p\n…"},"program":""},
   "diagnostic":"p/p.synod:3:5: error[unknown-phrase]: …",
   "fix":{"note":"Parenthesize the condition.","files":{"p/p.synod":"…"},"deleted":[]}}]}
 ```
 
 - `kind` is `compile` or `run`; `command` is `check` or `run`, and `program` is the folder `synod run` runs (`""` for `check`).
+- `example.files` holds every file the example is checked or run with, its `synod.mod` included (decision 111).
 - `diagnostic` is the short form lines the compiler printed when the document was made, never a stored text (decision 93).
 - `fix.files` replace the example's files of the same path and `fix.deleted` removes files. Without a code, `codes` lists every code in the order of `spec/11`.
