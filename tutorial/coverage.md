@@ -1,6 +1,6 @@
 # Coverage
 
-Which chapter teaches each item of the compiler's catalog of forms, types, contexts and std packages (decision 104). A step uses only items named for its chapter or an earlier one. `internal/forms/cmd/doccheck` checks this file; `Item` is `<kind>:<id>`, and rows `phrase:<pattern>` may name std phrases.
+Which chapter teaches each item of the compiler's catalog of forms, types, contexts and std packages (decision 104). A step uses only items named for its chapter or an earlier one. `internal/forms/cmd/doccheck` checks this file; `Item` is `<kind>:<id>`, and rows `phrase:<pattern>` may name std phrases. Every item is used by a step of its chapter, except `form:define-native` and `type:value`, which a chapter explains in prose only.
 
 | Item | Shown as | Reference | Chapter |
 | --- | --- | --- | --- |
@@ -86,16 +86,16 @@ Which chapter teaches each item of the compiler's catalog of forms, types, conte
 | `context:main` | `define main` | spec/05 §5.4 | 1 |
 | `context:check` | `always (…)` | spec/05 §5.4 | 11 |
 | `context:look` | `when (sim.Changed …)` | spec/05 §5.4 | 12 |
-| `package:std/disk` | `disk.Write` | std/README.md | 10 |
-| `package:std/lesson` | `lesson.Note` | std/README.md | 1 |
-| `package:std/lists` | `lists.Append` | std/README.md | 8 |
-| `package:std/look` | `look.Card` | std/README.md | 12 |
-| `package:std/look/basic` | the default look | std/README.md | 12 |
-| `package:std/maps` | `maps.Size` | std/README.md | 8 |
-| `package:std/math` | `math.Floor` | std/README.md | 8 |
-| `package:std/net` | `net.Send` | std/README.md | 5 |
-| `package:std/random` | `random.Pick` | std/README.md | 9 |
-| `package:std/sim` | `sim.StopAt` | std/README.md | 3 |
-| `package:std/text` | `text.Join` | std/README.md | 2 |
-| `package:std/theme` | `theme.Accent` | std/README.md | 12 |
-| `package:std/time` | `time.Now` | std/README.md | 3 |
+| `package:std/disk` | `disk.Write` | std/README.md § std/disk | 10 |
+| `package:std/lesson` | `lesson.Note` | std/README.md § std/lesson | 1 |
+| `package:std/lists` | `lists.Append` | std/README.md § std/lists | 8 |
+| `package:std/look` | `look.Card` | std/README.md § std/look | 12 |
+| `package:std/look/basic` | the default look | std/README.md § std/look | 12 |
+| `package:std/maps` | `maps.Size` | std/README.md § std/maps | 8 |
+| `package:std/math` | `math.Floor` | std/README.md § std/math | 8 |
+| `package:std/net` | `net.Send` | std/README.md § std/net | 5 |
+| `package:std/random` | `random.Pick` | std/README.md § std/random | 9 |
+| `package:std/sim` | `sim.StopAt` | std/README.md § std/sim | 3 |
+| `package:std/text` | `text.Join` | std/README.md § std/text | 2 |
+| `package:std/theme` | `theme.Accent` | std/README.md § std/theme | 12 |
+| `package:std/time` | `time.Now` | std/README.md § std/time | 3 |
