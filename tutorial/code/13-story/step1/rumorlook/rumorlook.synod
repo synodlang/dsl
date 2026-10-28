@@ -1,0 +1,26 @@
+# package rumorlook
+use example.com/tutorial/rumor
+use std/look
+use std/look/basic
+use std/sim
+use std/theme
+
+# The color of a card that knows the rumor
+define Heard
+  result #F4A340
+
+# Quiet while a node knows nothing, Heard afterwards
+define Tint [t: text]
+  if (t is "")
+    result theme.Quiet
+  result Heard
+
+# Replace the basic card with one whose color follows what the node knows
+when (sim.Added [n: rumor.Node])
+  draw (look.Card for n) as card for n
+    look.Fill card with (Tint n.rumor.Known)
+
+# A node that learns the rumor lights up
+when (sim.Emitted rumor.Learned by n)
+  look.Pulse (card of n)
+  look.Effect "glow" on (card of n)

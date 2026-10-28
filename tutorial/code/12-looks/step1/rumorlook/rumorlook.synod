@@ -1,0 +1,11 @@
+# package rumorlook
+use std/look
+use std/sim
+
+# Put the cards on a ring
+when sim.Started
+  look.Layout "ring"
+
+# One card for each node, attached to the node as "card"
+when (sim.Added n)
+  draw (look.Card for n) as card for n

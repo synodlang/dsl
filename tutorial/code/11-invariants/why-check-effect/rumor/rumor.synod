@@ -1,0 +1,109 @@
+# package rumor
+use std/disk
+use std/lists
+use std/net
+use std/random
+use std/sim
+
+Rumor has
+  set Text to ""
+
+Ack has
+  set Text to ""
+
+Join has
+  set Peers to {}
+
+Node has
+  set Peers to {}
+  set Known to ""
+  set Acked to {}
+  set GaveUp to 0
+
+# Every node in the list is told about all the others
+define Connect [ns: list of Node]
+  each n in ns
+    deliver (message Join with Peers (lists.Without n from ns)) to n
+
+# The peers that have not confirmed the rumor yet
+define [n: Node] Pending
+  set rest to {}
+  each p in n.Peers
+    if (p is not in n.Acked)
+      set rest to (lists.Append p to rest)
+  result rest
+
+# Run b now. If p has not confirmed 300ms later, run it again, up to k times in all, then run c
+define [n: Node] Retry [k: number] times for [p: node] [b: block] otherwise [c: block]
+  b
+  after 300ms
+    if (p is not in n.Acked)
+      if (k more than 1)
+        n.Retry (k minus 1) times for p
+          b
+        otherwise
+          c
+      else
+        c
+
+# Tell one random peer that has not confirmed, and again until all have
+define [n: Node] Tell
+  set open to n.Pending
+  if ((lists.Size open) more than 0)
+    set peer to (random.Pick open)
+    n.Retry 3 times for peer
+      net.Send (message Rumor with Text n.Known) from n to peer
+    otherwise
+      set n.GaveUp to (n.GaveUp plus 1)
+    after (random.TimeBetween 200ms and 600ms)
+      n.Tell
+
+# Believe a rumor the first time it is heard, keep it on disk, and start telling it
+define [n: Node] Learn [t: text]
+  if (n.Known is "")
+    set n.Known to t
+    disk.Write t at "known" on n
+    n.Tell
+
+# After a restart the fields are fresh, but the disk remembers
+define [n: Node] start
+  set n.Peers to (disk.Read "peers" on n or {})
+  set n.Known to (disk.Read "known" on n or "")
+  if (n.Known is not "")
+    n.Tell
+
+# Peers are kept on disk too
+when [n: Node] (sim.Delivered Join)
+  set n.Peers to Join.Peers
+  disk.Write n.Peers at "peers" on n
+
+when [n: Node] (sim.Delivered Rumor)
+  n.Learn Rumor.Text
+
+# Confirm every telling, even of a rumor already known
+when [n: Node] (net.Received Rumor from sender)
+  n.Learn Rumor.Text
+  net.Send (message Ack with Text Rumor.Text) from n to sender
+
+when [n: Node] (net.Received Ack from sender)
+  if (sender is not in n.Acked)
+    set n.Acked to (lists.Append sender to n.Acked)
+
+# A rule only looks, so it may not make a node tell
+define Careless
+  each n in (sim.NodesRunning rumor)
+    n.Tell
+  result true
+
+# True while the running nodes know at most one rumor between them
+define Agree
+  set texts to {}
+  each n in (sim.NodesRunning rumor)
+    if ((n.Known is not "") and (n.Known is not in texts))
+      set texts to (lists.Append n.Known to texts)
+  result ((lists.Size texts) at most 1)
+
+# Must hold after every step of the run
+always Agree
+
+always Careless

@@ -13,8 +13,10 @@ define main
   after 5s
     if ((a.pingpong.Rounds at most 0) or (b.pingpong.Rounds at most 0))
       lesson.Note "Somebody never played."
+    if (a.pingpong.Done and b.pingpong.Done)
+      lesson.Note "Both nodes stopped after ten rounds."
     else
-      if (a.pingpong.Done and b.pingpong.Done)
-        lesson.Note "Both nodes stopped after ten rounds."
+      if (a.pingpong.Done is b.pingpong.Done)
+        lesson.Note "Neither node is done yet."
       else
-        lesson.Note "Someone is still playing."
+        lesson.Note "Only one node is done."

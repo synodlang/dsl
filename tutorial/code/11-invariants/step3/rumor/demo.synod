@@ -1,0 +1,24 @@
+# package main
+use example.com/tutorial/rumor
+use std/lesson
+use std/net
+use std/sim
+
+define main
+  sim.Seed 4
+  set nodes to (sim.Cluster of 6 running rumor)
+  set left to {(item 0 of nodes), (item 1 of nodes), (item 2 of nodes)}
+  set right to {(item 3 of nodes), (item 4 of nodes), (item 5 of nodes)}
+  rumor.Connect nodes
+  deliver (message rumor.Rumor with Text "The leader is n1") to (item 0 of nodes)
+  net.DropNext "Rumor" from (item 0 of nodes) to (item 1 of nodes)
+  after 300ms
+    net.Partition left from right
+  after 1s
+    lesson.Ask "Three of the six nodes crash. Does the rumor still reach the others?" choosing {"Yes: gossip does not need everyone", "No: it needs every node"}
+    sim.Crash (item 3 of nodes)
+    sim.Crash (item 4 of nodes)
+    sim.Crash (item 5 of nodes)
+  after 3s
+    net.Heal
+  sim.StopAt 10s

@@ -32,11 +32,11 @@ a at least b     a at most b
 (n.Peer is not sim.Nobody) and (not n.Done)
 ```
 
-Each side of `and` is one argument, so each comparison has its own parentheses; and there is no precedence to remember. In step 2 the serving node starts only if it has a partner and is not done, and a node that gets a `Ping` of round ten, or more, also marks itself done:
+Each side of `and` is one argument, so each comparison has its own parentheses; and there is no precedence to remember. In step 2 the serving node starts only if it has a partner, the `Start` names a real round (`more than 0`) and it is not done, and a node that gets a `Ping` of round ten, or more, also marks itself done:
 
 <!-- step 2 program=pingpong -->
 
-In step 3 the demo checks the result after five seconds and reports it with a caption. Inside the first `if`, `or` joins two comparisons: the game never started if either node played no round. The `else` block holds another `if`, because `else if` does not exist: you nest.
+In step 3 the demo checks the result after five seconds and reports it with captions. The first `if` uses `or` to join two comparisons: the game never started if either node played no round. The second compares two bools with a plain `is`: if the nodes are not both done, either neither is or only one is. The `else` block holds another `if`, because `else if` does not exist: you nest.
 
 <!-- step 3 program=pingpong -->
 

@@ -1,0 +1,35 @@
+# package rumorlook
+use example.com/tutorial/rumor
+use std/look
+use std/net
+use std/sim
+use std/theme
+
+# The color of a card that knows the rumor
+define Heard
+  result #F4A340
+
+# Quiet while a node knows nothing, Heard afterwards
+define Tint [t: text]
+  if (t is "")
+    result theme.Quiet
+  result Heard
+
+# Put the cards on a ring
+when sim.Started
+  look.Layout "ring"
+
+# One card for each node, whose color follows what the node knows
+when (sim.Added [n: rumor.Node])
+  draw (look.Card for n) as card for n
+    look.Fill card with (Tint n.rumor.Known)
+
+# A ball takes off from the sender's card and flies to the receiver's
+when (net.Sent m from a to b)
+  draw (look.Circle 6) as ball for (net.Id m)
+  look.Fill ball with theme.Accent
+  look.Flight ball from (card of a) to (card of b) for m
+
+# It lands and disappears
+when (net.Arrived m from a to b)
+  look.Remove (ball of (net.Id m))

@@ -1,0 +1,569 @@
+run example.com/tutorial/rumor seed 4
+end: stop at 10s, 6 nodes, 502 steps, 806 events
+always:
+  holds          rumor/rumor.synod:101: always Agree
+  broken 1x @1s  rumor/rumor.synod:112: always (Down less than 3)
+steps:
+@0s main
+  sim.Started
+  sim.Added n1 runs rumor: rumor.Peers {}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  sim.Added n2 runs rumor: rumor.Peers {}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  sim.Added n3 runs rumor: rumor.Peers {}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  sim.Added n4 runs rumor: rumor.Peers {}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  sim.Added n5 runs rumor: rumor.Peers {}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  sim.Added n6 runs rumor: rumor.Peers {}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  sim.Injected rumor.Join{Peers {n2, n3, n4, n5, n6}} into n1
+  sim.Injected rumor.Join{Peers {n1, n3, n4, n5, n6}} into n2
+  sim.Injected rumor.Join{Peers {n1, n2, n4, n5, n6}} into n3
+  sim.Injected rumor.Join{Peers {n1, n2, n3, n5, n6}} into n4
+  sim.Injected rumor.Join{Peers {n1, n2, n3, n4, n6}} into n5
+  sim.Injected rumor.Join{Peers {n1, n2, n3, n4, n5}} into n6
+  sim.Injected rumor.Rumor{Text "The leader is n1"} into n1
+@0s deliver n1
+  sim.Changed rumor.Peers of n1 from {} to {n2, n3, n4, n5, n6}
+  disk.Written "peers" on n1
+@0s deliver n2
+  sim.Changed rumor.Peers of n2 from {} to {n1, n3, n4, n5, n6}
+  disk.Written "peers" on n2
+@0s deliver n3
+  sim.Changed rumor.Peers of n3 from {} to {n1, n2, n4, n5, n6}
+  disk.Written "peers" on n3
+@0s deliver n4
+  sim.Changed rumor.Peers of n4 from {} to {n1, n2, n3, n5, n6}
+  disk.Written "peers" on n4
+@0s deliver n5
+  sim.Changed rumor.Peers of n5 from {} to {n1, n2, n3, n4, n6}
+  disk.Written "peers" on n5
+@0s deliver n6
+  sim.Changed rumor.Peers of n6 from {} to {n1, n2, n3, n4, n5}
+  disk.Written "peers" on n6
+@0s deliver n1
+  sim.Changed rumor.Known of n1 from "" to "The leader is n1"
+  disk.Written "known" on n1
+  net.Sent #1 rumor.Rumor{Text "The leader is n1"} from n1 to n2
+@19.807ms drop n2
+  net.Dropped #1 rumor.Rumor{Text "The leader is n1"} from n1 to n2 (targeted)
+@300ms timer main
+  net.Partitioned {n1, n2, n3} from {n4, n5, n6}
+@300ms timer n1
+  sim.Fired n1
+  net.Sent #2 rumor.Rumor{Text "The leader is n1"} from n1 to n2
+@328.767ms receive n2
+  net.Arrived #2 rumor.Rumor{Text "The leader is n1"} from n1 to n2
+  sim.Changed rumor.Known of n2 from "" to "The leader is n1"
+  disk.Written "known" on n2
+  net.Sent #3 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+  net.Sent #4 rumor.Ack{Text "The leader is n1"} from n2 to n1
+@339.129ms receive n1
+  net.Arrived #4 rumor.Ack{Text "The leader is n1"} from n2 to n1
+  sim.Changed rumor.Acked of n1 from {} to {n2}
+@344.723ms drop n4
+  net.Dropped #3 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@418.334ms timer n1
+  sim.Fired n1
+  net.Sent #5 rumor.Rumor{Text "The leader is n1"} from n1 to n5
+@444.977ms drop n5
+  net.Dropped #5 rumor.Rumor{Text "The leader is n1"} from n1 to n5 (partition)
+@600ms timer n1
+  sim.Fired n1
+@628.767ms timer n2
+  sim.Fired n2
+  net.Sent #6 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@642.279ms drop n4
+  net.Dropped #6 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@718.334ms timer n1
+  sim.Fired n1
+  net.Sent #7 rumor.Rumor{Text "The leader is n1"} from n1 to n5
+@742.815ms drop n5
+  net.Dropped #7 rumor.Rumor{Text "The leader is n1"} from n1 to n5 (partition)
+@807.124ms timer n1
+  sim.Fired n1
+  net.Sent #8 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@833.406ms drop n4
+  net.Dropped #8 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (partition)
+@904.844ms timer n2
+  sim.Fired n2
+  net.Sent #9 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@924.797ms drop n4
+  net.Dropped #9 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@928.767ms timer n2
+  sim.Fired n2
+  net.Sent #10 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@945.793ms drop n4
+  net.Dropped #10 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@1s timer main
+  sim.Emitted lesson.Asked{Question "Three of the six nodes crash. Does the rumor still reach the others?", Choices {"Yes: gossip does not need everyone", "No: it needs every node"}} by nobody
+  sim.Crashed n4
+  sim.Crashed n5
+  sim.Crashed n6
+  sim.Broken rumor/rumor.synod:112: always (Down less than 3)
+@1018.334ms timer n1
+  sim.Fired n1
+  net.Sent #11 rumor.Rumor{Text "The leader is n1"} from n1 to n5
+@1035.491ms drop n5
+  net.Dropped #11 rumor.Rumor{Text "The leader is n1"} from n1 to n5 (partition)
+@1105.959ms timer n2
+  sim.Fired n2
+  net.Sent #12 rumor.Rumor{Text "The leader is n1"} from n2 to n1
+@1107.124ms timer n1
+  sim.Fired n1
+  net.Sent #13 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@1130.836ms drop n4
+  net.Dropped #13 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (partition)
+@1134.983ms receive n1
+  net.Arrived #12 rumor.Rumor{Text "The leader is n1"} from n2 to n1
+  net.Sent #14 rumor.Ack{Text "The leader is n1"} from n1 to n2
+@1153.394ms receive n2
+  net.Arrived #14 rumor.Ack{Text "The leader is n1"} from n1 to n2
+  sim.Changed rumor.Acked of n2 from {} to {n1}
+@1204.844ms timer n2
+  sim.Fired n2
+  net.Sent #15 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@1228.767ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 0 to 1
+@1231.702ms drop n4
+  net.Dropped #15 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@1318.334ms timer n1
+  sim.Fired n1
+  sim.Changed rumor.GaveUp of n1 from 0 to 1
+@1357.701ms timer n2
+  sim.Fired n2
+  net.Sent #16 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@1385.603ms drop n4
+  net.Dropped #16 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@1386.003ms timer n1
+  sim.Fired n1
+  net.Sent #17 rumor.Rumor{Text "The leader is n1"} from n1 to n3
+@1405.959ms timer n2
+  sim.Fired n2
+@1407.095ms receive n3
+  net.Arrived #17 rumor.Rumor{Text "The leader is n1"} from n1 to n3
+  sim.Changed rumor.Known of n3 from "" to "The leader is n1"
+  disk.Written "known" on n3
+  net.Sent #18 rumor.Rumor{Text "The leader is n1"} from n3 to n6
+  net.Sent #19 rumor.Ack{Text "The leader is n1"} from n3 to n1
+@1407.124ms timer n1
+  sim.Fired n1
+  net.Sent #20 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@1424.566ms drop n6
+  net.Dropped #18 rumor.Rumor{Text "The leader is n1"} from n3 to n6 (partition)
+@1434.674ms drop n4
+  net.Dropped #20 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (partition)
+@1435.511ms receive n1
+  net.Arrived #19 rumor.Ack{Text "The leader is n1"} from n3 to n1
+  sim.Changed rumor.Acked of n1 from {n2} to {n2, n3}
+@1504.844ms timer n2
+  sim.Fired n2
+  net.Sent #21 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@1527.169ms drop n4
+  net.Dropped #21 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@1610.702ms timer n2
+  sim.Fired n2
+  net.Sent #22 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@1623.476ms drop n5
+  net.Dropped #22 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (partition)
+@1657.701ms timer n2
+  sim.Fired n2
+  net.Sent #23 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@1686.003ms timer n1
+  sim.Fired n1
+@1687.412ms drop n4
+  net.Dropped #23 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@1707.095ms timer n3
+  sim.Fired n3
+  net.Sent #24 rumor.Rumor{Text "The leader is n1"} from n3 to n6
+@1707.124ms timer n1
+  sim.Fired n1
+  sim.Changed rumor.GaveUp of n1 from 1 to 2
+@1733.853ms drop n6
+  net.Dropped #24 rumor.Rumor{Text "The leader is n1"} from n3 to n6 (partition)
+@1784.311ms timer n1
+  sim.Fired n1
+  net.Sent #25 rumor.Rumor{Text "The leader is n1"} from n1 to n6
+@1795.442ms drop n6
+  net.Dropped #25 rumor.Rumor{Text "The leader is n1"} from n1 to n6 (partition)
+@1804.844ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 1 to 2
+@1910.702ms timer n2
+  sim.Fired n2
+  net.Sent #26 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@1936.069ms timer n2
+  sim.Fired n2
+  net.Sent #27 rumor.Rumor{Text "The leader is n1"} from n2 to n3
+@1938.991ms drop n5
+  net.Dropped #26 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (partition)
+@1950.411ms receive n3
+  net.Arrived #27 rumor.Rumor{Text "The leader is n1"} from n2 to n3
+  net.Sent #28 rumor.Ack{Text "The leader is n1"} from n3 to n2
+@1957.701ms timer n2
+  sim.Fired n2
+  net.Sent #29 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@1965.975ms timer n3
+  sim.Fired n3
+  net.Sent #30 rumor.Rumor{Text "The leader is n1"} from n3 to n1
+@1970.949ms receive n2
+  net.Arrived #28 rumor.Ack{Text "The leader is n1"} from n3 to n2
+  sim.Changed rumor.Acked of n2 from {n1} to {n1, n3}
+@1976.587ms drop n4
+  net.Dropped #29 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@1979.681ms receive n1
+  net.Arrived #30 rumor.Rumor{Text "The leader is n1"} from n3 to n1
+  net.Sent #31 rumor.Ack{Text "The leader is n1"} from n1 to n3
+@2003.742ms receive n3
+  net.Arrived #31 rumor.Ack{Text "The leader is n1"} from n1 to n3
+  sim.Changed rumor.Acked of n3 from {} to {n1}
+@2007.095ms timer n3
+  sim.Fired n3
+  net.Sent #32 rumor.Rumor{Text "The leader is n1"} from n3 to n6
+@2024.816ms drop n6
+  net.Dropped #32 rumor.Rumor{Text "The leader is n1"} from n3 to n6 (partition)
+@2084.311ms timer n1
+  sim.Fired n1
+  net.Sent #33 rumor.Rumor{Text "The leader is n1"} from n1 to n6
+@2101.354ms drop n6
+  net.Dropped #33 rumor.Rumor{Text "The leader is n1"} from n1 to n6 (partition)
+@2210.702ms timer n2
+  sim.Fired n2
+  net.Sent #34 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@2232.349ms drop n5
+  net.Dropped #34 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (partition)
+@2236.069ms timer n2
+  sim.Fired n2
+@2257.701ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 2 to 3
+@2265.975ms timer n3
+  sim.Fired n3
+@2281.695ms timer n3
+  sim.Fired n3
+  net.Sent #35 rumor.Rumor{Text "The leader is n1"} from n3 to n6
+@2307.095ms timer n3
+  sim.Fired n3
+  sim.Changed rumor.GaveUp of n3 from 0 to 1
+@2309.542ms drop n6
+  net.Dropped #35 rumor.Rumor{Text "The leader is n1"} from n3 to n6 (partition)
+@2350.156ms timer n1
+  sim.Fired n1
+  net.Sent #36 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@2370.946ms drop n4
+  net.Dropped #36 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (partition)
+@2384.311ms timer n1
+  sim.Fired n1
+  net.Sent #37 rumor.Rumor{Text "The leader is n1"} from n1 to n6
+@2411.646ms drop n6
+  net.Dropped #37 rumor.Rumor{Text "The leader is n1"} from n1 to n6 (partition)
+@2504.239ms timer n2
+  sim.Fired n2
+  net.Sent #38 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@2510.702ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 3 to 4
+@2533.496ms drop n4
+  net.Dropped #38 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@2581.695ms timer n3
+  sim.Fired n3
+  net.Sent #39 rumor.Rumor{Text "The leader is n1"} from n3 to n6
+@2606.447ms drop n6
+  net.Dropped #39 rumor.Rumor{Text "The leader is n1"} from n3 to n6 (partition)
+@2650.156ms timer n1
+  sim.Fired n1
+  net.Sent #40 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@2668.288ms drop n4
+  net.Dropped #40 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (partition)
+@2684.311ms timer n1
+  sim.Fired n1
+  sim.Changed rumor.GaveUp of n1 from 2 to 3
+@2757.415ms timer n1
+  sim.Fired n1
+  net.Sent #41 rumor.Rumor{Text "The leader is n1"} from n1 to n5
+@2761.888ms timer n2
+  sim.Fired n2
+  net.Sent #42 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@2775.145ms drop n5
+  net.Dropped #42 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (partition)
+@2787.042ms drop n5
+  net.Dropped #41 rumor.Rumor{Text "The leader is n1"} from n1 to n5 (partition)
+@2804.239ms timer n2
+  sim.Fired n2
+  net.Sent #43 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@2818.711ms drop n4
+  net.Dropped #43 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (partition)
+@2874.186ms timer n3
+  sim.Fired n3
+  net.Sent #44 rumor.Rumor{Text "The leader is n1"} from n3 to n4
+@2881.695ms timer n3
+  sim.Fired n3
+  net.Sent #45 rumor.Rumor{Text "The leader is n1"} from n3 to n6
+@2896.382ms drop n4
+  net.Dropped #44 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (partition)
+@2898.187ms drop n6
+  net.Dropped #45 rumor.Rumor{Text "The leader is n1"} from n3 to n6 (partition)
+@2950.156ms timer n1
+  sim.Fired n1
+  net.Sent #46 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@2978.555ms drop n4
+  net.Dropped #46 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (partition)
+@3s timer main
+  net.Healed
+@3024.41ms timer n2
+  sim.Fired n2
+  net.Sent #47 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@3044.057ms receive n5
+  net.Dropped #47 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (crashed)
+@3057.415ms timer n1
+  sim.Fired n1
+  net.Sent #48 rumor.Rumor{Text "The leader is n1"} from n1 to n5
+@3061.888ms timer n2
+  sim.Fired n2
+  net.Sent #49 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@3085.362ms receive n5
+  net.Dropped #48 rumor.Rumor{Text "The leader is n1"} from n1 to n5 (crashed)
+@3091.713ms receive n5
+  net.Dropped #49 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (crashed)
+@3104.239ms timer n2
+  sim.Fired n2
+  net.Sent #50 rumor.Rumor{Text "The leader is n1"} from n2 to n4
+@3118.429ms timer n3
+  sim.Fired n3
+  net.Sent #51 rumor.Rumor{Text "The leader is n1"} from n3 to n5
+@3130.37ms receive n5
+  net.Dropped #51 rumor.Rumor{Text "The leader is n1"} from n3 to n5 (crashed)
+@3130.776ms receive n4
+  net.Dropped #50 rumor.Rumor{Text "The leader is n1"} from n2 to n4 (crashed)
+@3174.186ms timer n3
+  sim.Fired n3
+  net.Sent #52 rumor.Rumor{Text "The leader is n1"} from n3 to n4
+@3181.695ms timer n3
+  sim.Fired n3
+  sim.Changed rumor.GaveUp of n3 from 1 to 2
+@3203.737ms receive n4
+  net.Dropped #52 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (crashed)
+@3250.156ms timer n1
+  sim.Fired n1
+  sim.Changed rumor.GaveUp of n1 from 3 to 4
+@3298.208ms timer n1
+  sim.Fired n1
+  net.Sent #53 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@3322.901ms receive n4
+  net.Dropped #53 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@3324.41ms timer n2
+  sim.Fired n2
+  net.Sent #54 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@3351.581ms receive n5
+  net.Dropped #54 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (crashed)
+@3357.415ms timer n1
+  sim.Fired n1
+  net.Sent #55 rumor.Rumor{Text "The leader is n1"} from n1 to n5
+@3361.888ms timer n2
+  sim.Fired n2
+  net.Sent #56 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@3373.658ms receive n5
+  net.Dropped #55 rumor.Rumor{Text "The leader is n1"} from n1 to n5 (crashed)
+@3377.584ms receive n5
+  net.Dropped #56 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (crashed)
+@3390.17ms timer n3
+  sim.Fired n3
+  net.Sent #57 rumor.Rumor{Text "The leader is n1"} from n3 to n2
+@3404.239ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 4 to 5
+@3408.531ms receive n2
+  net.Arrived #57 rumor.Rumor{Text "The leader is n1"} from n3 to n2
+  net.Sent #58 rumor.Ack{Text "The leader is n1"} from n2 to n3
+@3418.429ms timer n3
+  sim.Fired n3
+  net.Sent #59 rumor.Rumor{Text "The leader is n1"} from n3 to n5
+@3434.286ms receive n3
+  net.Arrived #58 rumor.Ack{Text "The leader is n1"} from n2 to n3
+  sim.Changed rumor.Acked of n3 from {n1} to {n1, n2}
+@3444.768ms receive n5
+  net.Dropped #59 rumor.Rumor{Text "The leader is n1"} from n3 to n5 (crashed)
+@3474.186ms timer n3
+  sim.Fired n3
+  net.Sent #60 rumor.Rumor{Text "The leader is n1"} from n3 to n4
+@3486.101ms receive n4
+  net.Dropped #60 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (crashed)
+@3598.208ms timer n1
+  sim.Fired n1
+  net.Sent #61 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@3609.538ms timer n2
+  sim.Fired n2
+  net.Sent #62 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@3620.999ms receive n4
+  net.Dropped #61 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@3624.41ms timer n2
+  sim.Fired n2
+  net.Sent #63 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+… 291 steps omitted (full trace: out/trace.jsonl)
+@8940.319ms receive n4
+  net.Dropped #187 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (crashed)
+@9004.852ms timer n3
+  sim.Fired n3
+  net.Sent #188 rumor.Rumor{Text "The leader is n1"} from n3 to n6
+@9016.829ms timer n1
+  sim.Fired n1
+  net.Sent #189 rumor.Rumor{Text "The leader is n1"} from n1 to n6
+@9027.297ms receive n6
+  net.Dropped #188 rumor.Rumor{Text "The leader is n1"} from n3 to n6 (crashed)
+@9035.207ms receive n6
+  net.Dropped #189 rumor.Rumor{Text "The leader is n1"} from n1 to n6 (crashed)
+@9068.194ms timer n3
+  sim.Fired n3
+  net.Sent #190 rumor.Rumor{Text "The leader is n1"} from n3 to n4
+@9091.061ms receive n4
+  net.Dropped #190 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (crashed)
+@9098.967ms timer n3
+  sim.Fired n3
+  sim.Changed rumor.GaveUp of n3 from 15 to 16
+@9109.27ms timer n1
+  sim.Fired n1
+  sim.Changed rumor.GaveUp of n1 from 18 to 19
+@9125.126ms timer n2
+  sim.Fired n2
+  net.Sent #191 rumor.Rumor{Text "The leader is n1"} from n2 to n6
+@9134.772ms timer n2
+  sim.Fired n2
+  net.Sent #192 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@9144.786ms timer n2
+  sim.Fired n2
+  net.Sent #193 rumor.Rumor{Text "The leader is n1"} from n2 to n6
+@9146.138ms receive n6
+  net.Dropped #191 rumor.Rumor{Text "The leader is n1"} from n2 to n6 (crashed)
+@9152.49ms receive n5
+  net.Dropped #192 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (crashed)
+@9164.625ms receive n6
+  net.Dropped #193 rumor.Rumor{Text "The leader is n1"} from n2 to n6 (crashed)
+@9176.304ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 19 to 20
+@9201.809ms timer n1
+  sim.Fired n1
+  net.Sent #194 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@9219.599ms receive n4
+  net.Dropped #194 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@9221.395ms timer n3
+  sim.Fired n3
+  net.Sent #195 rumor.Rumor{Text "The leader is n1"} from n3 to n4
+@9242.006ms receive n4
+  net.Dropped #195 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (crashed)
+@9304.852ms timer n3
+  sim.Fired n3
+  sim.Changed rumor.GaveUp of n3 from 16 to 17
+@9316.829ms timer n1
+  sim.Fired n1
+  net.Sent #196 rumor.Rumor{Text "The leader is n1"} from n1 to n6
+@9335.683ms receive n6
+  net.Dropped #196 rumor.Rumor{Text "The leader is n1"} from n1 to n6 (crashed)
+@9350.273ms timer n1
+  sim.Fired n1
+  net.Sent #197 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@9368.194ms timer n3
+  sim.Fired n3
+  net.Sent #198 rumor.Rumor{Text "The leader is n1"} from n3 to n4
+@9374.258ms receive n4
+  net.Dropped #197 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@9380.901ms receive n4
+  net.Dropped #198 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (crashed)
+@9425.126ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 20 to 21
+@9434.772ms timer n2
+  sim.Fired n2
+  net.Sent #199 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@9444.786ms timer n2
+  sim.Fired n2
+  net.Sent #200 rumor.Rumor{Text "The leader is n1"} from n2 to n6
+@9451.037ms receive n5
+  net.Dropped #199 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (crashed)
+@9462.599ms receive n6
+  net.Dropped #200 rumor.Rumor{Text "The leader is n1"} from n2 to n6 (crashed)
+@9489.429ms timer n2
+  sim.Fired n2
+  net.Sent #201 rumor.Rumor{Text "The leader is n1"} from n2 to n6
+@9501.809ms timer n1
+  sim.Fired n1
+  sim.Changed rumor.GaveUp of n1 from 19 to 20
+@9505.974ms receive n6
+  net.Dropped #201 rumor.Rumor{Text "The leader is n1"} from n2 to n6 (crashed)
+@9521.395ms timer n3
+  sim.Fired n3
+  sim.Changed rumor.GaveUp of n3 from 17 to 18
+@9588.708ms timer n1
+  sim.Fired n1
+  net.Sent #202 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@9612.133ms receive n4
+  net.Dropped #202 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@9616.829ms timer n1
+  sim.Fired n1
+  net.Sent #203 rumor.Rumor{Text "The leader is n1"} from n1 to n6
+@9627.169ms receive n6
+  net.Dropped #203 rumor.Rumor{Text "The leader is n1"} from n1 to n6 (crashed)
+@9650.273ms timer n1
+  sim.Fired n1
+  net.Sent #204 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@9662.279ms timer n3
+  sim.Fired n3
+  net.Sent #205 rumor.Rumor{Text "The leader is n1"} from n3 to n5
+@9668.194ms timer n3
+  sim.Fired n3
+  net.Sent #206 rumor.Rumor{Text "The leader is n1"} from n3 to n4
+@9669.461ms receive n4
+  net.Dropped #204 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@9673.066ms receive n5
+  net.Dropped #205 rumor.Rumor{Text "The leader is n1"} from n3 to n5 (crashed)
+@9697.65ms receive n4
+  net.Dropped #206 rumor.Rumor{Text "The leader is n1"} from n3 to n4 (crashed)
+@9734.772ms timer n2
+  sim.Fired n2
+  net.Sent #207 rumor.Rumor{Text "The leader is n1"} from n2 to n5
+@9744.786ms timer n2
+  sim.Fired n2
+  sim.Changed rumor.GaveUp of n2 from 21 to 22
+@9763.24ms receive n5
+  net.Dropped #207 rumor.Rumor{Text "The leader is n1"} from n2 to n5 (crashed)
+@9789.429ms timer n2
+  sim.Fired n2
+  net.Sent #208 rumor.Rumor{Text "The leader is n1"} from n2 to n6
+@9799.902ms receive n6
+  net.Dropped #208 rumor.Rumor{Text "The leader is n1"} from n2 to n6 (crashed)
+@9831.299ms timer n2
+  sim.Fired n2
+  net.Sent #209 rumor.Rumor{Text "The leader is n1"} from n2 to n6
+@9854.924ms receive n6
+  net.Dropped #209 rumor.Rumor{Text "The leader is n1"} from n2 to n6 (crashed)
+@9888.708ms timer n1
+  sim.Fired n1
+  net.Sent #210 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@9903.982ms receive n4
+  net.Dropped #210 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@9916.829ms timer n1
+  sim.Fired n1
+  sim.Changed rumor.GaveUp of n1 from 20 to 21
+@9934.471ms timer n1
+  sim.Fired n1
+  net.Sent #211 rumor.Rumor{Text "The leader is n1"} from n1 to n5
+@9949.66ms receive n5
+  net.Dropped #211 rumor.Rumor{Text "The leader is n1"} from n1 to n5 (crashed)
+@9950.273ms timer n1
+  sim.Fired n1
+  net.Sent #212 rumor.Rumor{Text "The leader is n1"} from n1 to n4
+@9962.279ms timer n3
+  sim.Fired n3
+  net.Sent #213 rumor.Rumor{Text "The leader is n1"} from n3 to n5
+@9968.194ms timer n3
+  sim.Fired n3
+  sim.Changed rumor.GaveUp of n3 from 18 to 19
+@9980.155ms receive n4
+  net.Dropped #212 rumor.Rumor{Text "The leader is n1"} from n1 to n4 (crashed)
+@9984.777ms receive n5
+  net.Dropped #213 rumor.Rumor{Text "The leader is n1"} from n3 to n5 (crashed)
+  sim.Ended stop
+final:
+  n1 up  rumor.Peers {n2, n3, n4, n5, n6}, rumor.Known "The leader is n1", rumor.Acked {n2, n3}, rumor.GaveUp 21
+  n2 up  rumor.Peers {n1, n3, n4, n5, n6}, rumor.Known "The leader is n1", rumor.Acked {n1, n3}, rumor.GaveUp 22
+  n3 up  rumor.Peers {n1, n2, n4, n5, n6}, rumor.Known "The leader is n1", rumor.Acked {n1, n2}, rumor.GaveUp 19
+  n4 down  rumor.Peers {n1, n2, n3, n5, n6}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  n5 down  rumor.Peers {n1, n2, n3, n4, n6}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
+  n6 down  rumor.Peers {n1, n2, n3, n4, n5}, rumor.Known "", rumor.Acked {}, rumor.GaveUp 0
