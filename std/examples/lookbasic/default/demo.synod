@@ -1,0 +1,10 @@
+# package main
+# Shows std/look/basic, the default look: importing it explicitly gives the same scene as importing no look at all
+use example.com/library/look/pingpong
+use std/look/basic
+use std/sim
+
+define main
+  set nodes to (sim.Cluster of 2 running pingpong)
+  deliver (message pingpong.Start with Peer (item 1 of nodes)) to (item 0 of nodes)
+  sim.StopAt 1s

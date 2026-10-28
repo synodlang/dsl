@@ -1,0 +1,23 @@
+# package memory
+use std/disk
+use std/look
+use std/sim
+
+Remember has
+  set Value to 0
+
+Node has
+  set Loaded to 0
+
+# Write the value to disk, so it outlives a crash
+when [n: Node] (sim.Delivered Remember)
+  disk.Write Remember.Value at "value" on n
+  set n.Loaded to Remember.Value
+
+# After a restart the fields are fresh; the disk still holds the value
+define [n: Node] start
+  set n.Loaded to (disk.Read "value" on n or 0)
+
+# Written is a trace event: a look can react to it
+when (disk.Written k on n)
+  draw (look.Label k) as saved for n

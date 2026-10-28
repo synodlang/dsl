@@ -1,0 +1,18 @@
+# package main
+# Shows maps.Size, maps.Keys, maps.Without and maps.KeysByValue on a map of scores
+use std/lesson
+use std/maps
+use std/sim
+use std/text
+
+define main
+  set scores to {}
+  set item "ana" of scores to 30
+  set item "bo" of scores to 10
+  set item "cy" of scores to 20
+  set best to (maps.KeysByValue scores)
+  set without to (maps.Without "bo" from scores)
+  lesson.Note (text.Join {"players ", (text.From (maps.Size scores)), ": ", (text.Join {(item 0 of (maps.Keys scores)), ", ", (item 1 of (maps.Keys scores)), ", ", (item 2 of (maps.Keys scores))})})
+  lesson.Note (text.Join {"lowest score first: ", (text.Join {(item 0 of best), ", ", (item 1 of best), ", ", (item 2 of best)})})
+  lesson.Note (text.Join {"after removing bo: ", (text.From (maps.Size without))})
+  sim.StopAt 1s

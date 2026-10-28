@@ -1,0 +1,10 @@
+# package main
+# Shows look.Circle, Rect, Label, Line, Group, Fill, Stroke, Center, Place (above, below, beside) and Card in a small look
+use example.com/library/look/pingpong
+use example.com/library/look/shapes
+use std/sim
+
+define main
+  set nodes to (sim.Cluster of 2 running pingpong)
+  deliver (message pingpong.Start with Peer (item 1 of nodes)) to (item 0 of nodes)
+  sim.StopAt 1s

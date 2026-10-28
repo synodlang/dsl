@@ -1,0 +1,28 @@
+# package shapes
+use std/look
+use std/sim
+use std/theme
+
+# Shapes at rest: circle, rect, label and line, a group, fill and stroke, relative placement
+when sim.Started
+  draw (look.Rect 1592 by 992) as ground
+  look.Fill ground with theme.Paper
+  look.Stroke ground with theme.Line
+  draw (look.Circle 40) as disc
+  look.Fill disc with theme.Accent
+  look.Stroke disc with theme.Ink
+  look.Place disc beside look.Center
+  draw (look.Label "disc") as caption
+  look.Place caption below disc
+  draw (look.Rect 80 by 40) as plate
+  look.Fill plate with theme.Good
+  look.Place plate above disc
+  draw (look.Line from disc to plate) as wire
+  draw (look.Circle 6) as dot
+  draw (look.Label "dot") as dotname
+  look.Place dotname beside dot
+  draw (look.Group {dot, dotname}) as pair
+  look.Place pair below caption
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n

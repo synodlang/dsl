@@ -1,0 +1,20 @@
+# package flight
+use std/look
+use std/net
+use std/sim
+use std/theme
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+
+# A ball flies from sender to receiver and lands when the message arrives
+when (net.Sent m from a to b)
+  draw (look.Circle 6) as ball for (net.Id m)
+  look.Fill ball with theme.Accent
+  draw (look.Label (net.Type m)) as tag for (net.Id m)
+  look.Place tag above ball
+  look.Flight ball from (card of a) to (card of b) for m
+
+when (net.Arrived m from a to b)
+  look.Remove (ball of (net.Id m))
+  look.Remove (tag of (net.Id m))

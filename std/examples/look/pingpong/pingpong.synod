@@ -1,0 +1,27 @@
+# package pingpong
+use std/net
+use std/sim
+
+Ping has
+  set Round to 0
+
+Pong has
+  set Round to 0
+
+Start has
+  set Peer to sim.Nobody
+
+Node has
+  set Score to 0
+
+# A node that gets Ping answers with Pong to the sender
+when [n: Node] (net.Received Ping from a)
+  net.Send (message Pong with Round Ping.Round) from n to a
+
+# The node that gets Pong counts it
+when [n: Node] (net.Received Pong from a)
+  set n.Score to (n.Score plus 1)
+
+# Start makes a node ping its peer
+when [n: Node] (sim.Delivered Start)
+  net.Send (message Ping with Round 1) from n to Start.Peer

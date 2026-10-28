@@ -1,0 +1,13 @@
+# package main
+# Shows disk.Write, disk.Read and the disk.Written event: a node keeps a value across a crash
+use example.com/library/disk/memory
+use std/sim
+
+define main
+  set n to (sim.Spawn memory)
+  deliver (message memory.Remember with Value 42) to n
+  after 1s
+    sim.Crash n
+  after 2s
+    sim.Restart n
+  sim.StopAt 3s

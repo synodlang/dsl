@@ -1,0 +1,11 @@
+# package main
+# Shows text.From, text.Join and text.Size: turn values into text, join pieces, count characters
+use std/lesson
+use std/sim
+use std/text
+
+define main
+  set line to (text.Join {"seven is ", (text.From 7), ", and ", (text.From true)})
+  lesson.Note line
+  lesson.Note (text.Join {"that line has ", (text.From (text.Size line)), " characters"})
+  sim.StopAt 1s

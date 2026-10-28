@@ -1,0 +1,14 @@
+# package main
+# Shows lists.Append, lists.Extend, lists.Without and lists.Size: each gives a new list
+use std/lesson
+use std/lists
+use std/sim
+use std/text
+
+define main
+  set base to {"a", "b"}
+  set longer to (lists.Append "c" to base)
+  set both to (lists.Extend longer with {"d", "e"})
+  set fewer to (lists.Without "b" from both)
+  lesson.Note (text.Join {"base ", (text.From (lists.Size base)), ", longer ", (text.From (lists.Size longer)), ", both ", (text.From (lists.Size both)), ", fewer ", (text.From (lists.Size fewer))})
+  sim.StopAt 1s

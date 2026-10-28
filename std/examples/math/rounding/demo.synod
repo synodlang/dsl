@@ -1,0 +1,12 @@
+# package main
+# Shows math.Floor, math.Ceil, math.Min, math.Max and math.Remainder on a few numbers
+use std/lesson
+use std/math
+use std/sim
+use std/text
+
+define main
+  lesson.Note (text.Join {"floor 2.7 = ", (text.From (math.Floor 2.7)), ", ceil 2.2 = ", (text.From (math.Ceil 2.2))})
+  lesson.Note (text.Join {"min 4 9 = ", (text.From (math.Min of 4 and 9)), ", max 4 9 = ", (text.From (math.Max of 4 and 9))})
+  lesson.Note (text.Join {"remainder of -1 by 5 = ", (text.From (math.Remainder of -1 by 5))})
+  sim.StopAt 1s

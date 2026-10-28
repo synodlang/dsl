@@ -1,0 +1,12 @@
+# package main
+# Shows look.Layout, Pulse, Effect, Travel, Tween, Orbit, Fade and Remove: motion reacting to a message
+use example.com/library/look/motion
+use example.com/library/look/pingpong
+use std/net
+use std/sim
+
+define main
+  set nodes to (sim.Cluster of 2 running pingpong)
+  net.Latency between 50ms and 60ms
+  deliver (message pingpong.Start with Peer (item 1 of nodes)) to (item 0 of nodes)
+  sim.StopAt 1s

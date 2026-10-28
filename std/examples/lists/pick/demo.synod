@@ -1,0 +1,14 @@
+# package main
+# Shows lists.Range, lists.Take and lists.Sort: build a list of numbers, sort a list, keep the first items
+use std/lesson
+use std/lists
+use std/sim
+use std/text
+
+define main
+  set days to (lists.Range 1 to 7)
+  set firstThree to (lists.Take 3 from days)
+  set sorted to (lists.Sort {"pear", "apple", "fig"})
+  lesson.Note (text.Join {"days ", (text.From (lists.Size days)), ", first ", (text.From (item 2 of firstThree))})
+  lesson.Note (text.Join {"sorted: ", (item 0 of sorted), " ", (item 1 of sorted), " ", (item 2 of sorted)})
+  sim.StopAt 1s

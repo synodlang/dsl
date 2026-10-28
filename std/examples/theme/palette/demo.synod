@@ -1,0 +1,7 @@
+# package main
+# Shows every theme color (Paper, Ink, Line, Quiet, Accent, Good, Warning, Critical) as a swatch
+use example.com/library/theme/palette
+use std/sim
+
+define main
+  sim.StopAt 1s

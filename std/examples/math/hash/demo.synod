@@ -1,0 +1,11 @@
+# package main
+# Shows math.Hash: the same text always gives the same number in [0, 1), and it never uses the random seed
+use std/lesson
+use std/math
+use std/sim
+use std/text
+
+define main
+  lesson.Note (text.Join {"hash of key = ", (text.From (math.Hash "key"))})
+  lesson.Note (text.Join {"again: ", (text.From (math.Hash "key"))})
+  sim.StopAt 1s

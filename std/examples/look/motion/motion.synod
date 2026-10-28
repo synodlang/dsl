@@ -1,0 +1,26 @@
+# package motion
+use example.com/library/look/pingpong
+use std/look
+use std/net
+use std/sim
+use std/theme
+
+when sim.Started
+  look.Layout "row"
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+
+# Each Ping: the card pulses and glows, a mark travels, then orbits and fades away
+when (net.Sent pingpong.Ping from a to b)
+  look.Pulse (card of a)
+  look.Effect "glow" on (card of a)
+  draw (look.Circle 8) as mark
+  look.Fill mark with theme.Warning
+  look.Travel mark from (card of a) to (card of b) over 200ms
+  after 200ms
+    look.Tween "scale" of mark to 2 over 200ms
+    look.Orbit mark around (card of b) at 0.25
+    look.Fade mark to 0
+    after 300ms
+      look.Remove mark

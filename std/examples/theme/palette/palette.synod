@@ -1,0 +1,27 @@
+# package palette
+use std/look
+use std/sim
+use std/theme
+
+# One swatch per theme color, in a row
+when sim.Started
+  draw (look.Rect 1592 by 992) as ground
+  look.Fill ground with theme.Paper
+  look.Stroke ground with theme.Line
+  draw (look.Rect 100 by 100) as ink
+  look.Fill ink with theme.Ink
+  draw (look.Rect 100 by 100) as quiet
+  look.Fill quiet with theme.Quiet
+  look.Place quiet beside ink
+  draw (look.Rect 100 by 100) as accent
+  look.Fill accent with theme.Accent
+  look.Place accent beside quiet
+  draw (look.Rect 100 by 100) as good
+  look.Fill good with theme.Good
+  look.Place good beside accent
+  draw (look.Rect 100 by 100) as warning
+  look.Fill warning with theme.Warning
+  look.Place warning beside good
+  draw (look.Rect 100 by 100) as critical
+  look.Fill critical with theme.Critical
+  look.Place critical beside warning
