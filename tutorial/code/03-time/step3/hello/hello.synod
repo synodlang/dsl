@@ -1,0 +1,20 @@
+# package main
+use std/lesson
+use std/text
+use std/time
+
+# Say hello, then work out the bill.
+define main
+  set apples to 3
+  set price to 4
+  set tip to 1
+  set coupon to 2
+  set people to 2
+  set total to ((apples times price) plus tip)
+  set share to ((total minus coupon) divided by people)
+  lesson.Note "Hello, Synod"
+  lesson.Note (text.Join {"Total: ", (text.From total)})
+  after 2s
+    lesson.Note (text.Join {"At ", (text.From time.Now), " each pays ", (text.From share)})
+  after 4s
+    lesson.Ask "Who pays the tip?"

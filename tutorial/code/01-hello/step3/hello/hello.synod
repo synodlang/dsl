@@ -1,0 +1,7 @@
+# package main
+use std/lesson
+
+# Say hello.
+define main
+  lesson.Note "Hello, Synod"
+  lesson.Note "Every line reads as a sentence."

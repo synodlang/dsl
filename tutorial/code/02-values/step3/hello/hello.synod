@@ -1,0 +1,11 @@
+# package main
+use std/lesson
+use std/text
+
+# Say hello, then work out the bill.
+define main
+  set apples to 3
+  set price to 4
+  set total to (apples times price)
+  lesson.Note "Hello, Synod"
+  lesson.Note (text.Join {"Total: ", (text.From total)})

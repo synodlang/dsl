@@ -38,4 +38,79 @@ jobs:
           echo "Checked $count file(s)."
           exit $status
 
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read pins
+        id: pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          . tutorial/versions.env
+          {
+            echo "synod_version=$SYNOD_VERSION"
+            echo "sha=$SYNOD_LINUX_AMD64_SHA256"
+            echo "commit=$COMPILER_COMMIT"
+            echo "examples_version=$EXAMPLES_VERSION"
+            echo "examples_commit=$EXAMPLES_COMMIT"
+          } >> "$GITHUB_OUTPUT"
+          if [ "$SYNOD_LINUX_AMD64_SHA256" = TODO ] || [ "$COMPILER_COMMIT" = TODO ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::tutorial/versions.env is not pinned yet; docs check skipped."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install synod
+        if: steps.pins.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          v='${{ steps.pins.outputs.synod_version }}'
+          asset="synod-$v-linux-amd64.tar.gz"
+          curl -fsSL -o "$asset" "https://github.com/synodlang/compiler/releases/download/$v/$asset"
+          echo '${{ steps.pins.outputs.sha }}  '"$asset" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/synod-bin"
+          tar -xzf "$asset" -C "$RUNNER_TEMP/synod-bin"
+          bin=$(find "$RUNNER_TEMP/synod-bin" -type f -name synod | head -n 1)
+          chmod +x "$bin"
+          dirname "$bin" >> "$GITHUB_PATH"
+      - name: Check out the compiler
+        if: steps.pins.outputs.run == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: synodlang/compiler
+          ref: ${{ steps.pins.outputs.synod_version }}
+          path: _compiler
+      - name: Verify the compiler commit
+        if: steps.pins.outputs.run == 'true'
+        shell: bash
+        run: |
+          test "$(git -C _compiler rev-parse HEAD)" = '${{ steps.pins.outputs.commit }}'
+      - name: Check out the examples
+        if: steps.pins.outputs.run == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: synodlang/examples
+          ref: ${{ steps.pins.outputs.examples_version }}
+          path: _examples
+      - name: Verify the examples commit
+        if: steps.pins.outputs.run == 'true'
+        shell: bash
+        run: |
+          test "$(git -C _examples rev-parse HEAD)" = '${{ steps.pins.outputs.examples_commit }}'
+      - uses: actions/setup-go@v7
+        if: steps.pins.outputs.run == 'true'
+        with:
+          go-version-file: _compiler/go.mod
+      - name: Run doccheck
+        if: steps.pins.outputs.run == 'true'
+        working-directory: _compiler
+        shell: bash
+        run: |
+          go run ./internal/forms/cmd/doccheck -synod synod \
+            -tutorial "$GITHUB_WORKSPACE/tutorial" \
+            -library "$GITHUB_WORKSPACE/std/examples" \
+            -examples "$GITHUB_WORKSPACE/_examples"
+
   # Later: spec link check and a conformance run once the compiler is released.

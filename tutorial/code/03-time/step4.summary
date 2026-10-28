@@ -1,0 +1,13 @@
+run hello seed 1
+end: empty at 4s, 0 nodes, 3 steps, 6 events
+steps:
+@0s main
+  sim.Started
+  sim.Emitted lesson.Noted{Text "Hello, Synod"} by nobody
+  sim.Emitted lesson.Noted{Text "Total: 13"} by nobody
+@2s timer main
+  sim.Emitted lesson.Noted{Text "At 2s each pays 5.5"} by nobody
+@4s timer main
+  sim.Emitted lesson.Asked{Question "Who pays the tip?", Choices {"Ana", "Ben"}} by nobody
+  sim.Ended empty
+final:
