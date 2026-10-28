@@ -1,0 +1,14 @@
+# package main
+# Shows lesson.Note (a caption), lesson.Ask (a question) and lesson.Ask choosing (a multiple-choice question)
+use std/lesson
+use std/sim
+
+define main
+  lesson.Note "Three captions and questions follow."
+  after 1s
+    lesson.Ask "What will the next caption say?"
+  after 2s
+    lesson.Ask "Which comes first?" choosing {"The chicken", "The egg"}
+  after 3s
+    lesson.Note "There is no right answer here."
+  sim.StopAt 4s

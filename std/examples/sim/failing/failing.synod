@@ -1,0 +1,17 @@
+# package failing
+use std/look
+use std/sim
+use std/time
+
+Node has
+  set Count to 0
+
+define [n: Node] start
+  time.Every 1s
+    set n.Count to (n.Count plus 1)
+    if (n.Count is 2)
+      set n.Count to (n.Count divided by 0)
+
+# Failed is the last fact of a run that stopped on a run-time error
+when (sim.Failed error)
+  draw (look.Label error) as banner

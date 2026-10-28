@@ -1,0 +1,28 @@
+# package lifecycle
+use std/look
+use std/sim
+
+Node has
+  set Hits to 0
+
+when sim.Started
+  look.Layout "row"
+  draw (look.Label "A node's life: added, crashed, restarted, removed") as title
+  look.Place title above look.Center
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+  look.Pulse card
+
+when (sim.Crashed n)
+  look.Fade (card of n) to 0.3
+
+when (sim.Restarted n)
+  look.Fade (card of n) to 1
+
+when (sim.Removed n)
+  look.Remove (card of n)
+
+when sim.Ended
+  draw (look.Label "The run is over") as footer
+  look.Place footer below look.Center

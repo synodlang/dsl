@@ -1,0 +1,12 @@
+# package main
+# Shows random.Between, random.Pick, random.TimeBetween and random.Chance; try another seed with --seed
+use example.com/library/random/dice
+use std/random
+use std/sim
+
+define main
+  sim.Seed 42
+  set group to (sim.Cluster of 3 running dice)
+  after (random.TimeBetween 1s and 2s)
+    sim.Crash (random.Pick group)
+  sim.StopAt 4s

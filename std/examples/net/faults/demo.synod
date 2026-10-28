@@ -1,0 +1,23 @@
+# package main
+# Shows net.Loss, net.DropNext, net.Partition, net.Heal and the events net.Dropped, net.Partitioned and net.Healed
+use example.com/library/net/faults
+use std/lesson
+use std/net
+use std/sim
+
+define main
+  set a to (sim.Spawn faults)
+  set b to (sim.Spawn faults)
+  set a.faults.Peer to b
+  set b.faults.Peer to a
+  after 1s
+    net.DropNext "Beat" from a to b
+    lesson.Note "The next Beat from n1 to n2 is dropped."
+  after 2s
+    net.Partition {a} from {b}
+    lesson.Note "The network splits in two."
+  after 3s
+    net.Heal
+    net.Loss 0.5
+    lesson.Note "Half of all messages are lost."
+  sim.StopAt 5s

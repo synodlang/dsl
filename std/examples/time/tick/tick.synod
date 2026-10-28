@@ -1,0 +1,12 @@
+# package tick
+use std/time
+
+Node has
+  set Ticks to 0
+  set LastTick to 0s
+
+# time.Every repeats its block; time.Now reads the simulated clock
+define [n: Node] start
+  time.Every 1s
+    set n.Ticks to (n.Ticks plus 1)
+    set n.LastTick to time.Now

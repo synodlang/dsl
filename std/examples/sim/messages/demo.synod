@@ -1,0 +1,10 @@
+# package main
+# Shows deliver, sim.Delivered, sim.Injected, sim.Fired, sim.Changed, sim.Emitted, sim.Nobody and sim.StateRows
+use example.com/library/sim/messages
+use std/sim
+
+define main
+  set a to (sim.Spawn messages)
+  deliver (message messages.Request with Text "hello") to a
+  emit (message messages.Said with Text "from main") by sim.Nobody
+  sim.StopAt 2s

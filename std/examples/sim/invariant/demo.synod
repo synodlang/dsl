@@ -1,0 +1,9 @@
+# package main
+# Shows the event sim.Broken, recorded when an always rule turns false
+use example.com/library/sim/invariant
+use std/sim
+
+define main
+  set a to (sim.Spawn invariant)
+  set a.invariant.Count to 0
+  sim.StopAt 6s

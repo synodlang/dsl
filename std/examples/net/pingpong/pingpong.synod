@@ -1,0 +1,47 @@
+# package pingpong
+use std/look
+use std/net
+use std/sim
+use std/text
+use std/theme
+use std/time
+
+Ping has
+  set Round to 0
+
+Pong has
+  set Round to 0
+
+Node has
+  set Peer to sim.Nobody
+  set Rounds to 0
+
+define [n: Node] start
+  time.Every 1s
+    if (n.Peer is not sim.Nobody)
+      net.Send (message Ping with Round n.Rounds) from n to n.Peer
+
+# net.Received runs on the receiving node, with the sender bound
+when [n: Node] (net.Received Ping from sender)
+  net.Send (message Pong with Round Ping.Round) from n to sender
+
+when [n: Node] (net.Received Pong from sender)
+  set n.Rounds to (n.Rounds plus 1)
+
+when sim.Started
+  look.Layout "row"
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+
+# Each message is a dot that flies from the sender to the receiver
+when (net.Sent m from a to b)
+  draw (look.Circle 6) as dot
+  look.Fill dot with theme.Accent
+  look.Flight dot from (card of a) to (card of b) for m
+
+# net.Id and net.Type name the message in the look
+when (net.Arrived m from a to b)
+  draw (look.Label (text.Join {(net.Type m), " #", (text.From (net.Id m))})) as tag
+  look.Place tag above (card of b)
+  look.Remove tag

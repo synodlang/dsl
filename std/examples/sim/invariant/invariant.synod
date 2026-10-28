@@ -1,0 +1,25 @@
+# package invariant
+use std/look
+use std/sim
+use std/time
+
+Node has
+  set Count to 0
+
+define [n: Node] start
+  time.Every 1s
+    set n.Count to (n.Count plus 1)
+
+# The rule: no running node ever counts past three
+define Calm
+  each n in (sim.NodesRunning invariant)
+    if (n.Count more than 3)
+      result false
+  result true
+
+always Calm
+
+# Broken is recorded once, when the rule turns false
+when (sim.Broken rule)
+  draw (look.Label rule) as alarm
+  look.Place alarm above look.Center

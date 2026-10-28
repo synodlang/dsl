@@ -1,0 +1,15 @@
+# package main
+# Shows time.Every (a node ticks every second) and time.Now (the simulated clock, read in main and in the node)
+use example.com/library/time/tick
+use std/lesson
+use std/sim
+use std/text
+use std/time
+
+define main
+  set a to (sim.Spawn tick)
+  after 3500ms
+    lesson.Note (text.Join {"Ticks so far: ", (text.From a.tick.Ticks), ", clock: ", (text.From time.Now)})
+  time.Every 2s
+    lesson.Note "A main tick, every two seconds"
+  sim.StopAt 5s

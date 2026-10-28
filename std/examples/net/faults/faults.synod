@@ -1,0 +1,46 @@
+# package faults
+use std/look
+use std/net
+use std/sim
+use std/theme
+use std/time
+
+Beat has
+  set N to 0
+
+Alert has
+  set N to 0
+
+Node has
+  set Seen to 0
+  set Peer to sim.Nobody
+
+define [n: Node] start
+  time.Every 500ms
+    if (n.Peer is not sim.Nobody)
+      net.Send (message Beat with N n.Seen) from n to n.Peer
+
+when [n: Node] (net.Received Beat from sender)
+  set n.Seen to (n.Seen plus 1)
+
+when sim.Started
+  look.Layout "row"
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+
+# A dropped message stops halfway; the reason tells why
+when (net.Dropped m from a to b because why)
+  draw (look.Label why) as reason
+  look.Place reason above (card of b)
+  look.Remove reason
+
+when (net.Partitioned left from right)
+  draw (look.Label "partitioned") as banner
+  look.Place banner above look.Center
+  look.Fill banner with theme.Critical
+
+when net.Healed
+  draw (look.Label "healed") as banner
+  look.Place banner above look.Center
+  look.Fill banner with theme.Good

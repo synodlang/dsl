@@ -1,0 +1,12 @@
+# package main
+# Shows net.Send, the net.Received event, net.Latency and the trace events net.Sent and net.Arrived with net.Id and net.Type
+use example.com/library/net/pingpong
+use std/net
+use std/sim
+
+define main
+  net.Latency between 100ms and 300ms
+  set a to (sim.Spawn pingpong)
+  set b to (sim.Spawn pingpong)
+  set a.pingpong.Peer to b
+  sim.StopAt 5s

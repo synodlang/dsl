@@ -1,0 +1,17 @@
+# package main
+# Shows sim.Seed, sim.Cluster of, sim.Nodes, sim.NodesRunning, sim.IsUp, sim.Id, sim.Name and sim.StopAt
+use example.com/library/sim/nodes
+use std/lesson
+use std/lists
+use std/sim
+use std/text
+
+define main
+  sim.Seed 7
+  set group to (sim.Cluster of 3 running nodes)
+  sim.Crash (item 1 of group)
+  after 1s
+    lesson.Note (text.Join {"Nodes of the package: ", (text.From (lists.Size (sim.NodesRunning nodes)))})
+    each n in sim.Nodes
+      lesson.Note (text.Join {(sim.Name n), " is number ", (text.From (sim.Id n)), ", up: ", (text.From (sim.IsUp n))})
+  sim.StopAt 3s

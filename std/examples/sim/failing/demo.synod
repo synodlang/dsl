@@ -1,0 +1,9 @@
+# package main
+# Shows the event sim.Failed: the run stops with an error and the look shows it (this example exits with code 1 on purpose)
+use example.com/library/sim/failing
+use std/sim
+
+define main
+  set a to (sim.Spawn failing)
+  set a.failing.Count to 0
+  sim.StopAt 5s

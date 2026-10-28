@@ -1,0 +1,42 @@
+# package messages
+use std/look
+use std/sim
+
+Request has
+  set Text to ""
+
+Said has
+  set Text to ""
+
+Node has
+  set Seen to 0
+
+# Delivered runs on the node that receives a message injected by main
+when [n: Node] (sim.Delivered Request)
+  set n.Seen to (n.Seen plus 1)
+
+# An after timer firing on a node is a Fired fact
+define [n: Node] start
+  after 500ms
+    set n.Seen to (n.Seen plus 10)
+
+when (sim.Injected r into n)
+  look.Effect "glow" on (card of n)
+
+when (sim.Fired on n)
+  look.Pulse (card of n)
+
+# Changing an exported field is recorded as Changed
+when (sim.Changed f of n from old to new)
+  look.Pulse (card of n)
+
+when (sim.Emitted Said by n)
+  draw (look.Label Said.Text) as caption
+  look.Place caption above look.Center
+
+# StateRows lists every exported field of the node as text
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+  each row in (sim.StateRows n)
+    draw (look.Label row) as line
+    look.Place line below (card of n)

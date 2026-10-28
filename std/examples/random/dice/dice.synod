@@ -1,0 +1,17 @@
+# package dice
+use std/random
+
+Node has
+  set Roll to 0
+  set Pick to ""
+  set Lucky to false
+  set Wait to 0s
+
+# Each draw comes from the run's seed, so the same seed gives the same run
+define [n: Node] start
+  set n.Roll to (random.Between 1 and 6)
+  set n.Pick to (random.Pick {"red", "green", "blue"})
+  set n.Lucky to (random.Chance 0.25)
+  set n.Wait to (random.TimeBetween 1s and 3s)
+  after n.Wait
+    set n.Roll to (random.Between 1 and 6)

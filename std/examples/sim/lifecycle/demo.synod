@@ -1,0 +1,15 @@
+# package main
+# Shows sim.Spawn, sim.Crash, sim.Restart, sim.Remove and the events Started, Added, Crashed, Restarted, Removed and Ended
+use example.com/library/sim/lifecycle
+use std/sim
+
+define main
+  set a to (sim.Spawn lifecycle)
+  set b to (sim.Spawn lifecycle)
+  after 1s
+    sim.Crash a
+  after 2s
+    sim.Restart a
+  after 3s
+    sim.Remove b
+  sim.StopAt 4s
