@@ -236,7 +236,7 @@ editor is M9; the prompt bar (M10) sits above the editor, see "Claude" below.
     that link sent at `T`. If it is missing the app says "Break it had no
     effect", with Undo. A rule broken in the new run but not in the previous one
     (compared by its `rule` text) is shown: a red banner "Your change broke:
-    <rule> at <simulated time>" with "Jump there" (to the `sim.Broken` fact), a
+    `<rule> at <simulated time>`" with "Jump there" (to the `sim.Broken` fact), a
     Problems row, the rule's `path:line` opened in the editor with a red line
     highlight, and a pulsing timeline marker. The previous good run is kept for
     "Compare with before".
@@ -316,7 +316,11 @@ owns.
 
 ## Project files
 
-A workspace is a folder with `synod.mod`. The app never stores Synod code
+A workspace is a folder with `synod.mod`. The welcome screen and the File menu
+offer "New Workspace…" (⇧⌘N): the app asks for a folder and a module path and
+runs the bundled `synod new <dir> --module <path>` (no shell, decision 94), then
+opens the new module; `synod new` refuses a non-empty folder, so nothing is
+overwritten. The app never stores Synod code
 anywhere else, so everything works with Git and the CLI. Claude Code, run
 from the prompt bar at the user's request, changes the workspace through the
 editor's own tools (decisions 96 and 99). The app writes nothing into the

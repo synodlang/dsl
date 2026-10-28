@@ -6,6 +6,25 @@ GitHub release page.
 
 ## Unreleased
 
+## v0.2.14 — 2026-10-28
+
+The tutorial, its guides and the Library examples are written, and the coverage and example rules are refined to match.
+
+### Added
+
+- `tutorial/`: the 15 chapters with their step folders, golden summaries and "Why it looks like this" programs, and `tutorial/coverage.md`.
+- `tutorial/guides/`: install, use the Mac app, write a look, publish a package, and use Synod with Claude or another agent.
+- `std/examples/`: a runnable Library example for every exported std phrase, and the generated index `std/examples/README.md`.
+- A `docs` job in CI that installs the pinned `synod` and runs `doccheck` on the tutorial and the Library examples.
+
+### Changed
+
+- Decision 104: coverage rows are named `<kind>:<id>`, package rows reference `std/README.md § std/<p>`, every item is used in a step of its chapter, and `form:define-native` and `type:value` are the prose-only items.
+- Decision 105: a Library example is a folder with a main file; a folder without one is a helper package; an `expect` file names the one diagnostic code the example's run fails with.
+- `implementation/11-documentation.md` has the chapter table as written (the Why programs, the `service`, `checks` and `gossip` packages of chapter 14 and the 7 steps of chapter 15).
+- `implementation/06-mac-app.md`: the welcome screen and File menu offer New Workspace… (⇧⌘N), which runs `synod new`.
+- `README.md` lists `tutorial/` and `std/examples/`.
+
 ## v0.2.13 — 2026-10-25
 
 M11 (the site, the tutorial and the Library examples) is specified, and gaps G37 to G45 are closed.

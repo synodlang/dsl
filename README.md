@@ -137,6 +137,8 @@ a trace into an animation, and everything after it are still to come.
 | --- | --- |
 | `spec/` | The language specification, normative |
 | `std/README.md` | The standard library catalog, normative |
+| `tutorial/` | The tutorial (15 chapters, each step a complete runnable folder) and its guides in `tutorial/guides/` (decisions 103 and 104) |
+| `std/examples/` | The Library examples: a runnable example for every exported std phrase (decision 105) |
 | `implementation/` | How each repository is built: architecture, compiler, runtime, scene builder, file formats, CLI, Mac app, Claude integration, agent skills, site, roadmap, documentation |
 | `assets/icon.svg` | The language icon |
 | `CHANGELOG.md` | What changed in each release of the spec, the catalog and the guides |
