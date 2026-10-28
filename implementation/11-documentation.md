@@ -177,9 +177,9 @@ package ids equal the spec tables and the `## std/` headings of
 `dsl/tutorial/coverage.md` has one row per catalog item, named `<kind>:<id>` (`form:`,
 `type:`, `context:`, `package:`, because ids repeat across kinds), with its chapter, and
 may add rows `phrase:<pattern>` for std phrases. A package row's reference is
-`std/README.md § std/<p>`. Every item whose row names chapter N is used in at least
-one step of chapter N; two items are marked prose-only, `form:define-native` and
-`type:value`, which chapters teach in prose. `internal/forms/cmd/doccheck`, run
+`std/README.md § std/<p>`. The catalog marks each item as shown or as taught in
+prose (`form:define-native` and `type:value` are taught in prose), and every shown
+item whose row names chapter N is used in at least one step of chapter N. `internal/forms/cmd/doccheck`, run
 as `go run ./internal/forms/cmd/doccheck -synod <bin> -tutorial <dsl>/tutorial
 -library <dsl>/std/examples -examples <examples checkout> [-update]`, fails when:
 
@@ -190,7 +190,7 @@ as `go run ./internal/forms/cmd/doccheck -synod <bin> -tutorial <dsl>/tutorial
   its golden (`-update` rewrites the goldens);
 - a `why-<slug>` program does not fail with the code in `expect`;
 - a chapter uses a form, type, context or std phrase before the chapter that
-  introduces it, or no step of the chapter named in a row uses its item;
+  introduces it, or no step of the chapter named in a shown item's row uses it;
 - step 1 of chapter 4 differs from `synod new tutorial --module example.com/tutorial`,
   the last step of chapter 15 differs from `examples/raft` at `EXAMPLES_VERSION`
   (`raftlook` and `demo.synod` after replacing the examples module path by
@@ -200,9 +200,9 @@ as `go run ./internal/forms/cmd/doccheck -synod <bin> -tutorial <dsl>/tutorial
 
 `dsl/std/examples/<package>/<name>/` is one example: a folder with a main file
 (an example may use several phrases). A folder without a main file is a helper
-package that some example imports. An example folder may hold a file `expect`
-with one diagnostic code; its run then fails with exactly that code (as
-`sim/failing` shows `sim.Failed`), and every other example runs. `doccheck` takes every exported std phrase,
+package that some example imports. An example folder that holds a file `expect`
+with one diagnostic code fails its run with exactly that code (as `sim/failing`
+shows `sim.Failed`), and an example folder without `expect` runs to its end. `doccheck` takes every exported std phrase,
 events included, from `synod doc --json` and fails when none of the examples of its
 package uses it, or when an example fails `fmt --check`, `check` or `run`, or runs differently from
 its `expect` (decision 105). `dsl/std/examples/README.md`, `| Phrase | Examples |`, is generated
