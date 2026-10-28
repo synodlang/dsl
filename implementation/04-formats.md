@@ -100,28 +100,38 @@ in the trace, one shape per line.
 ```
 
 Line 1 ends with `"shapes":[`; each shape is one line, separated by `,\n`;
-then `\n],"markers":[`, one marker per line, `\n],"trace":[`, one entry per
-line, and `\n]}\n`. An empty array is `[]` with no newline inside.
+then `\n],"markers":[`, one marker per line, then, only when `camera` is
+present, `\n],"camera":[` and one camera key per line, then `\n],"trace":[`,
+one entry per line, and `\n]}\n`. An empty array is `[]` with no newline
+inside. Line 1 holds `format`, `duration`, `canvas`, `theme` and, when it is
+not empty, `style`, in that order.
 
 - **Key order.** A shape: `id`, `kind`, `node`, `msg`, `props`, `keys`, then
   `end`. `node` and `msg` are omitted when not set (below). `end` is
   the presentation time the shape is deleted, and is omitted when it lives to
   the end of the scene. Inside a key: `at`, then `x`, `y`, `scale`,
-  `opacity`, `rotation`, `fill`, `stroke`, `text`, `effect`. A marker: `at`,
+  `opacity`, `rotation`, `fill`, `stroke`, `text`, `effect`, then (0.3) `curve`,
+  `trail`, `dash`, `draw`, `halo`, `icon`, `count`, `role`, `face`. A marker: `at`,
   `kind`, `text`, then `choices` (only on `pause`, and only when not empty). The theme: Paper, Ink, Line, Quiet, Accent, Good, Warning,
-  Critical, then any other used colors sorted by byte order.
+  Critical, then any other used colors sorted by byte order (`Message1` to
+  `Message4` appear only when a look used them, with their bare names).
 - **First key.** The first key of every shape except a line sets `x`, `y` and
   `opacity`; a line's first key sets `opacity` and `stroke` (`"Line"`), no
   position. Every shape's first key also sets `scale` if not 1; `rotation` if not 0; `fill` and `stroke` when set; `text`
   for labels. Later keys set only the properties that change, strictly
-  increasing in `at`. Between two keys the player interpolates with the house
-  curve (smootherstep); colors interpolate in OKLab; `text` and `effect` hold
-  (step). `effect` is `"glow"` or `"none"`. A group's members' `x` and `y`
-  are relative to it.
+  increasing in `at`. Between two keys the player interpolates numbers with the
+  curve of their track (below), colors in OKLab, `icon` pointwise; `text`,
+  `effect`, `curve`, `trail`, `dash`, `role` and `face` hold (step). `effect`
+  is `"glow"`, `"indicate"`, `"flash"`, `"circumscribe"`, `"ripple"`,
+  `"sweep"` or `"none"`; the builder writes `"none"` at the effect's start
+  plus its duration scaled by pace. A group's members' `x` and `y` are
+  relative to it.
 - **Shapes.** `kind`: `circle` (`props` `{"r"}`), `rect`
   (`{"w","h","radius"}`), `label` (`{}`), `line` (`{"from","to"}`, shape ids;
   its ends follow those shapes, so it has no position keys), `group`
-  (`{"items":[ids]}`). `id` is `s` and 12 lowercase hex digits
+  (`{"items":[ids]}`), and, since 0.3, `icon` (`{"size":32}`; its first key
+  sets `icon`, a name of the icon set) and `counter` (`{}`; its first key
+  sets `count`). `id` is `s` and 12 lowercase hex digits
   (`03-scene-builder.md`). A `line` or `group` may refer to the singleton
   `look.Center`, written as an empty group only then.
 - **Node and message.** `node` is the name of the node (`"n3"`) a shape is
@@ -146,6 +156,51 @@ line, and `\n]}\n`. An empty array is `[]` with no newline inside.
 - `trace` maps each trace `seq` to its presentation slot, so a host can show
   simulated time (taking `t` from the trace by `seq`) and jump to a fact.
 
+- **Style** (0.3). `style` is an object after `theme` on line 1 with the keys
+  below in this order; a key is omitted when its value equals the one of
+  `std/theme/default` (the default column) and the whole object is omitted
+  when it would be empty. Readers use the default for a missing key.
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `sans`, `mono` | `"Inter"`, `"JetBrains Mono"` | family of face `sans` and `mono` (decision 118) |
+| `titleSize`, `labelSize`, `valueSize`, `captionSize` | 28, 16, 15, 20 | text size of each role, in scene units |
+| `titleWeight`, `labelWeight` | 600, 500 | weight of role `title`; of the other three roles |
+| `tracking` | 0 | letter spacing in em |
+| `stroke` | 2 | width of outlines and lines, in scene units |
+| `glow` | 24 | blur of the glow effect and of `halo 1`, in scene units |
+| `shadow` | 0 | alpha of the drop shadow, 0 to 1 |
+| `vignette` | 0 | alpha of the vignette at the corners, 0 to 1 |
+| `sketch` | 0 | amount of hand-drawn wobble, 0 to 1 |
+| `drift` | 0 | amplitude of the idle camera drift, in scene units |
+| `easing` | `"smooth"` | `"smooth"` or `"spring"` |
+
+- **Camera** (0.3). `camera` is an array of keys `{"at","x","y","zoom"}`, one
+  per line, strictly increasing in `at`, each with all three values; it is
+  omitted when no `look.Focus` ran. Before the first key the camera is at
+  `x` 800, `y` 500, `zoom` 1.
+- **Key properties** (0.3). Each is written only when it changes, and its
+  default holds before the first key:
+
+| Property | Track | Default | Notes |
+| --- | --- | --- | --- |
+| `draw`, `halo`, `count` | number, smootherstep | `draw` 1, `halo` 0, `count` 0 | `draw` 0 to 1, `halo` 0 to 1, `count` a whole number |
+| `icon` | morph, smootherstep | none | a name of the icon set (`icons.json`) |
+| `curve`, `trail`, `dash`, `role`, `face` | step | `curve` 0, `trail` 0, `dash` `[]`, `role` `"label"`, `face` `"sans"` | `trail` in ms; `dash` is `[on, off]` in scene units; `role` is `"title"`, `"label"`, `"value"` or `"caption"`; `face` is `"sans"` or `"mono"` |
+
+  A reader that does not know a property, a kind or a top-level key ignores it
+  (format rule), so a 0.2 reader loads a 0.3 scene, draws an unknown `effect`
+  as none and skips an `icon` or `counter` shape.
+- **Icon set.** `implementation/icons.json` holds the 16 icons of `std/look`
+  (`server`, `database`, `disk`, `user`, `client`, `clock`, `lock`, `mail`,
+  `check`, `cross`, `warning`, `crown`, `bolt`, `cloud`, `key`, `eye`) as
+  `{"format":"synod-icons/1","icons":{name:[contour, …]}}`. An icon has one to
+  four contours; a contour is an open polyline of exactly 32 points `[x, y]`
+  in a 1×1 box (origin top-left, y down), rounded to 4 decimals; a closed
+  shape repeats its first point as its last. A reader draws an icon of `size`
+  s by mapping `(x, y)` to `((x − 0.5)·s, (y − 0.5)·s)` around its center. The
+  player ships a copy, checked against this file by a test.
+
 ### Drawing a scene (readers)
 
 Readers draw a scene by these rules, so every conforming reader draws the
@@ -157,18 +212,22 @@ frames, clamped to `[0, duration]`.
 - **Tracks.** Each property is its own track of the keys that set it. Before
   the first key of a property, its default holds: `x` and `y` 800 and 500,
   `scale` 1, `opacity` 1, `rotation` 0, `fill` and `stroke` none, `text`
-  empty, `effect` `"none"`; a line's `stroke` defaults to `Line` and a label's
+  empty, `effect` `"none"`, and the defaults of the 0.3 properties above; a line's `stroke` defaults to `Line` and a label's
   `fill` to `Ink`. At and after the last key the last value holds; at a key's
   `at` its value holds.
-- **Numbers.** Between two keys of a property, `v = a + (b − a)·S(u)`,
-  `u = (at − a.at)/(b.at − a.at)`, `S(u) = u³(u(6u − 15) + 10)`. `opacity` is
-  clamped to 0 to 1 and `scale` to 0 or more. `rotation` is in degrees,
-  clockwise (y points down).
+- **Numbers.** Between two keys of a property, `v = a + (b − a)·F(u)`,
+  `u = (at − a.at)/(b.at − a.at)`, with `F = E` for `x`, `y`, `scale`,
+  `rotation` and the camera, and `F = S` for every other numeric property.
+  `S(u) = u³(u(6u − 15) + 10)` (smootherstep). `E = S` when `style.easing` is
+  `"smooth"`; when it is `"spring"`, `E(u) = 1 + (c + 1)(u − 1)³ + c(u − 1)²`
+  with `c = 1.70158` (back-out; `E(0) = 0`, `E(1) = 1`, it overshoots). `opacity`
+  is clamped to 0 to 1, `scale` to 0 or more, `draw` and `halo` to 0 to 1.
+  `rotation` is in degrees, clockwise (y points down).
 - **Colors.** Between two colors, convert the hex values (sRGB) to OKLab,
   interpolate L, a, b with `S(u)`, convert back, clamp and round to 8 bits.
   Between none and a color, or a color and none, the value steps at the later
-  key. A name missing from `theme` draws as `Ink`.
-- **Steps.** `text` and `effect` hold the value of the last key with
+  key. A name missing from `theme` draws as `Ink`. Colors always use `S`.
+- **Steps.** `text`, `effect`, `curve`, `trail`, `dash`, `role` and `face` hold the value of the last key with
   `key.at ≤ at`. An instant change is written as a key one ms earlier that
   holds the old value, so no reader glides.
 - **Groups.** Membership is fixed for the whole scene: the builder writes every
@@ -182,21 +241,122 @@ frames, clamped to `[0, duration]`.
   `r`; a `rect` is `w` by `h` with corner radius `min(radius, w/2, h/2)`; a
   `label` is centered on `(x, y)` in both directions. The fill and the stroke
   are drawn only when set; the stroke is 2 scene units wide, in the shape's
-  transform. A label has no stroke.
+  transform. A label has no stroke. (0.3) Outlines and lines are `style.stroke` wide
+  instead of 2 units. An `icon` of size `s` is stroked with the shape's
+  `stroke` (else `Ink`), with round caps and joins, and has no fill. A `counter`
+  is drawn as a label is.
+- **Text.** (0.3) A label or counter has a role and a face. Its size is
+  `style.<role>Size` scene units; its weight is `style.titleWeight` for role
+  `title` and `style.labelWeight` for the others; its family is `style.sans`
+  or `style.mono` by face; letters are `style.tracking` em apart (a reader
+  without letter spacing draws 0). The size has no effect on hit testing or
+  on the sizes the builder uses for layout (8 units per character, 18 high).
 - **Lines.** A `line` joins the world centers of `from` and `to`, 2 units
   wide with round caps, in its own `stroke` at its own `opacity` times its
   group's. It is drawn only while both ends are drawn, and is never clipped
   to its ends.
-- **Glow.** While `effect` is `"glow"`, the shape is drawn with a blur of 24
-  scene units, colored by its `fill`, else its `stroke`, else `Ink`. An
-  `effect` value other than `"glow"` draws as `"none"`, so new effects can be
-  added within format 1.
+- **Glow.** While `effect` is `"glow"`, the shape is drawn with a blur of
+  `style.glow` scene units, colored by its `fill`, else its `stroke`, else
+  `Ink`. An `effect` value the reader does not know draws as `"none"`, so new
+  effects can be added within format 1.
+- **Effects** (0.3). For `effect` values other than `"glow"` and `"none"`,
+  with `p = (at − on)/(off − on)` where `on` is the key that set the value
+  and `off` the next key of `effect`, the reader adds the drawing below on top
+  of the shape. The effect color is the shape's `fill`, else its `stroke`,
+  else `Ink`; `indicate` uses `Warning`. Every effect is multiplied by the
+  shape's world opacity. The box of a shape is its `Place` size times its
+  world scale (circle `2r` by `2r`, rect `w` by `h`, label 8 per character by
+  18, icon `size` by `size`, counter 8 per column by 18); the box of a group
+  is the union of the boxes of its drawn members, and the effect color of a
+  group is that of its first member with a fill, else a stroke, else `Ink`.
+  - `indicate`: the shape is scaled by `1 + 0.2·b` and its fill is mixed in
+    OKLab toward `Warning` by `b`, with `b = 4p(1 − p)`.
+  - `flash`: 12 rays at angles `k·30°`, each a line of 24 units, 2 units wide,
+    from radius `R0 = half the box diagonal + 6` outward, at opacity `1 − p`.
+  - `circumscribe`: an outline 8 units outside the box (a circle for a
+    circle), 2 units wide, drawn on from its top center clockwise to the
+    fraction `min(1, 2p)`, at opacity 1 while `p < 0.5` and `2(1 − p)` after.
+  - `ripple`: a ring of radius `r0 + 60p` and opacity `1 − p`, where `r0` is
+    half the longer side of the box.
+  - `sweep`: a segment of 20% of the length, 4 units wide, in `Ink`, centered
+    at the fraction `1.2p − 0.1` (clipped to 0 to 1) along a `line`, or along
+    the outline of the box from its top center clockwise for any other shape.
+- **Curve** (0.3). When the `x` and `y` keys A and B of a shape (the
+  consecutive keys of both tracks, at the same `at`) bound a segment, the
+  shape moves along a quadratic Bézier from A to B. Its control point is the
+  midpoint of AB plus `c·|AB|` along the left normal `(dy, −dx)/|AB|`
+  (y down), where `c` is the `curve` held at `A.at`, and its parameter is
+  `F(u)` of the numbers rule. With `c = 0`, or when the keys of `x` and `y`
+  do not coincide, the move is straight.
+- **Trail** (0.3). With `trail = T > 0` ms held at `at`, 8 ghosts are drawn
+  before the shape, oldest first: ghost `j` (1 to 8) is the shape as it was
+  at `at − j·T/8` (position, scale, rotation, fill, stroke and opacity; no
+  effect or halo), drawn at `0.5·opacity·(1 − j/9)`; a ghost before the
+  shape's first key is skipped.
+- **Draw** (0.3). With `draw = d`: a circle or rect draws its outline from its
+  top center clockwise to the fraction `min(1, 2d)` of its perimeter (analytic:
+  `2πr`, `2(w + h)` and corners by `radius`) and multiplies its fill alpha by
+  `max(0, 2d − 1)`; a `line` draws from its `from` end toward its `to` end to
+  the fraction `d`; an `icon` draws each contour to the fraction `d` of its
+  own length; a label or counter shows its first `ceil(d·n)` code points
+  (digits for a counter).
+- **Dash** (0.3). `dash = [on, off]` strokes an outline or line with dashes of
+  `on` and gaps of `off` scene units, starting at the start of its path;
+  `on` 0 or an empty list is solid.
+- **Halo** (0.3). With `halo = h` the shape is drawn with a shadow blur of
+  `style.glow · h`, colored as the glow is. It combines with the glow effect
+  by taking the larger blur. A glow or halo replaces the drop shadow.
+- **Shadow** (0.3). A circle or rect with a fill, and an icon, is drawn with
+  a shadow of offset (0, 6), blur 16 and color `rgba(0, 0, 0, style.shadow)`.
+- **Sketch** (0.3). With `style.sketch = s > 0`, every outline (circle, rect,
+  line, icon contour, effect stroke) is a polygon whose vertices lie every
+  12 local units along its path (`max(4, ceil(length/12))` of them, evenly
+  spaced; a closed outline does not repeat its first vertex). Vertex `i` is
+  moved along the perpendicular of the chord from vertex `i − 1` to `i + 1` by
+  `s·1.6·n(i)`, where `n(i)` is value noise at `i/3`: the lattice value at
+  integer `k` is `2·m(k) − 1` with `m` the first output of mulberry32 started
+  at `(seed + imul(k, 0x9E3779B1)) mod 2³²`, and values between lattice points
+  are linear in `w = smoothstep(frac)`; on a closed outline the lattice index
+  wraps modulo `ceil(count/3)`. The seed is `FNV-1a-32` of the shape's `id`
+  (its 13 ASCII bytes), `seed2 = seed XOR 0x9E3779B9` for the second pass.
+  An outline is drawn twice, first with `seed` at full alpha, then with
+  `seed2` at alpha 0.6; a fill uses the first polygon. A line's ends overshoot
+  by `4s` along its direction. The wobble depends on the shape and not on
+  `at`, so it does not boil; labels and counters do not wobble.
+- **Counter** (0.3). A counter draws `round(count)` as digit columns, the
+  rightmost column k = 0 first. Column `k` is drawn while `k = 0` or
+  `round(|count|) ≥ 10^k`; it is `0.6·size` wide, the row is centered on
+  `(x, y)`, a minus sign precedes a negative number. With `q = |count|/10^k`
+  the column shows glyph `floor(q) mod 10` moved up by `frac(q)` of the
+  line height (`1.2·size`) and glyph `(floor(q) + 1) mod 10` entering below
+  it, clipped to the line. So a column rolls continuously as `count` moves.
+- **Icon morph** (0.3). Between two keys with `icon` names A and B, contour `i`
+  of the drawn icon is `a_i + (b_i − a_i)·S(u)` pointwise, for each of the 32
+  points; a contour that one icon lacks collapses to the center `(0.5, 0.5)`.
+  An unknown name draws nothing.
+- **Vignette** (0.3). After everything else, in canvas space (not moved by the
+  camera) and clipped to the canvas, a radial gradient centered on the canvas,
+  transparent up to `0.35·d` and `rgba(0, 0, 0, style.vignette)` from `0.75·d`
+  outward, linear between, where `d` is the canvas diagonal.
 - **Order.** Shapes are drawn in file order, later over earlier.
 - **Unknown kinds.** A shape whose `kind` is unknown is skipped, with the
   lines and groups that refer only to it.
 - **View.** The `canvas` is scaled by `min(width/w, height/h)` and centered
   in the reader's area (letterbox). The area is filled with `Paper`
   and the canvas rectangle clips what is drawn.
+- **Camera and drift** (0.3). Shapes are drawn through the world view
+  `translate(800, 500) · scale(zoom) · translate(−cx', −cy')` inside the
+  letterbox, where `zoom` and `(cx, cy)` are the camera at `at` (its keys use
+  `F = E`) and `cx' = cx + D·sin(2π·at/19000)`, `cy' = cy + 0.6·D·sin(2π·at/23000)`
+  with `D = style.drift`. With no camera keys and `D = 0` the view is the
+  identity.
+- **Determinism** (0.3). Display lists are exact: the same scene and `at` give
+  the same list of operations and numbers in every reader, because every
+  function above is a polynomial, a fixed hash or a stated constant; `sin` is
+  needed only for rotation, effects and drift. Pixels may differ slightly
+  between engines (blur, gradient and font rasterization), so pixel tests use
+  a tolerance and video exports compare by PSNR. The builder writes none of
+  the per-frame details; it only writes keys, rounded as above.
 - **Markers** are not drawn on the stage; a host shows them on its timeline.
 
 ### Hit testing (readers)
@@ -206,9 +366,11 @@ these rules (decision 84), so every reader gives the same answer. It needs no
 font metrics.
 
 - The test runs on the frame last drawn. `(x, y)` is in CSS px of the reader's
-  area; it is mapped through the inverse of the letterbox view and the inverse
-  world transform of each shape.
-- **Candidates** are drawn `circle` and `rect` shapes. A candidate's `node` is
+  area; it is mapped through the inverse of the letterbox view, then of the
+  camera view with drift, then of the world transform of each shape.
+- **Candidates** are drawn `circle`, `rect`, `icon` and `counter` shapes (an
+  icon is its square of side `size`, a counter its box of 8 units per column
+  by 18), which hit like a shape with a fill. A candidate's `node` is
   its own, else the nearest enclosing group's; `msg` is resolved the same way
   and separately. A shape with neither never hits.
 - **Slop** is 4 CSS px. A shape with a fill hits inside its geometry plus the
@@ -219,6 +381,13 @@ font metrics.
 - The result has the shape's `id` and `kind`, and its resolved `node` and `msg`
   (each `null` when not set). A host may also ask for the box of a node: the
   union of the bounding boxes of its drawn circles and rects, without slop.
+
+### Palette of a GIF export (hosts)
+
+The one global palette of decision 88 is built from the scene's `theme` colors
+(every name in the object, in OKLab). From 0.3 it also holds `Paper` with its
+OKLab lightness `L` multiplied by 0.5 and by 0.25 whenever `style.vignette` or
+`style.shadow` is above 0, so vignette and shadow tones have entries.
 
 ## check.json (`synod check --json`)
 
@@ -312,6 +481,7 @@ Keys are written in this order: `format`, `diagnostics`, `scope`, `packages`.
 - `diagnostics` are the diagnostic objects of `synod-check/1`; with any, `synod doc` exits 1.
 - `packages` lists the documented packages. `path` is the import path (`std/net`, or the module path plus the folder); `qualifier` is how the reader writes the package (the alias under `use … as`); `title` is `""` when the package has none; `activates` is true when the package has observers or invariants, which importing it activates.
 - A phrase has `pattern` (printed by the compiler, qualified as written outside the package), `items` (the pattern's items: `{"word"}` or `{"hole","type"}`), `blocks` (`[{"word":"otherwise","hole":"b"}]`, with `""` for an unnamed block hole), `receiver` (`{"name":"n","type":"Node"}` or null), `gives` (`—` for an action, else the Gives text of `std/README.md`), `contexts` (std only, else `null`), `kind` (`phrase`, `node-event` or `trace-event`), `native`, `exported`, `doc` (the doc comment, `spec/06` §6.4; `""` when none) and `def` (the declaration's position).
+- A theme package (0.3) has, after `title`, the keys `"kind":"theme"` and `"values"`, and `phrases` `[]`: `values` lists its definitions in file order as `{"name","type","value","doc","def"}`, with `type` `color`, `number` or `text` and `value` the literal as JSON (a color as its hex text). A package that is not a theme has neither key. Readers ignore keys they do not know.
 - A record is `{"name","doc","fields":[{"name","type","exported"}]}`; `node` is `{"doc","fields":[…]}`, or null when the package has no `Node has`.
 - `scope` is null, or with `--scope <file>` (needs `--json`):
 

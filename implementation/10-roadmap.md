@@ -399,3 +399,156 @@ end to end; the Gatekeeper first launch of the release.
 8. The home page loops the prebuilt Raft scene; no recordings or videos.
 9. Code on the site is highlighted from `synod-check/1` tokens only.
 10. Fonts are self-hosted; the site loads no font service.
+
+## M12 — Synod 0.3: themes, richer drawing, looks
+
+Synod 0.3 is a new language version: a `# theme` header is a new language
+feature, so decision 61 raises MINOR, spec first. Every repository releases
+v0.3.0 and the docs go to `/docs/v0.3/` (decision 107); `/docs/v0.2/` stays.
+`scene.json` stays `synod-scene/1` (decision 119): keys are only added and are
+omitted at their defaults, so a program under the default theme that uses no
+new feature writes the bytes of 0.2 and every existing golden holds.
+
+**Scope.**
+
+- Themes (decisions 112 to 117): `# theme <word>` packages, the theme table of
+  `spec/09` §9.5, `std/theme` as the look-context interface, `std/theme/default`,
+  selection by the main file's `use`, the codes `theme-outside-main`,
+  `extra-theme` and `bad-theme`.
+- Drawing: `look.Icon` (16-icon set, `implementation/icons.json`),
+  `Counter`, `Role`, `Face`, `Dash`, `Bend`, `Trail`, `Focus`, `MessageColor`,
+  `Frame`, `Reveal`, `PopIn`, `Enter`; the effects `glow`, `indicate`,
+  `flash`, `circumscribe`, `ripple` and `sweep`; the scene keys, kinds,
+  `style` and `camera` of `04-formats.md`; reader rules for sketch, halo,
+  shadow, vignette, curves, trails, drift (decision 120).
+- Fonts (decision 118): Inter, JetBrains Mono, Source Serif 4 and Shantell
+  Sans as a player release asset; `player.fontsReady()`.
+- Looks and themes beyond std (decision 122): the module
+  `github.com/synodlang/looks` with the looks `lumen` and `doodle` and the
+  themes `solarized/light`, `solarized/dark`, `terminal`, `sketch` and `chalk`.
+  No package, document or font uses the 3Blue1Brown or xkcd names or marks;
+  the xkcd font (CC BY-NC 3.0) is not shipped.
+
+**Gaps found while planning.**
+
+- G46: the `look.Effect` Meaning in the catalog and `internal/scene/natives.go`
+  accept `"blur"` and `"trail"` while `spec/09` §9.3 says glow only. The effect
+  set is now `glow`, `indicate`, `flash`, `circumscribe`, `ripple` and `sweep`;
+  trails are `look.Trail`.
+- G47: decision 72 fixed every label at 16 px, weight 500. Roles replace it
+  (decision 117).
+- G48: decision 20 said one house curve. It is now one easing per program, the
+  theme's `Easing` (decision 116).
+- G49: the player bundled no fonts and used the system sans, so glyphs differed
+  per host. The font asset fixes it (decision 118).
+- G50: shape ids hash the line and column of the creating handler of
+  `std/look/basic`, so any edit that moves its lines changes every golden.
+  The rule: edits of basic keep every line and column and new handlers are
+  appended (`03-scene-builder.md`).
+- G51: hit testing knew no camera. It inverts the camera and the drift
+  (decision 84, `04-formats.md`).
+- G52: `synod.wasm` embeds only std (decision 71). Site pages of looks pass the
+  vendored files in `files`, and `deps.json` gains a `looks` pin (decision 106).
+- G53: the Mac app works offline, so it bundles `looks` at a pinned commit, as
+  it bundles examples, with `vendor/` filled for the bundled demos
+  (decision 76).
+- G54: `synod doc` and `synod-doc/1` needed a theme form: a package with
+  `"kind":"theme"` and a `values` list (`04-formats.md`). Keys are only added.
+- G55: the GIF palette (decision 88) comes from the scene's theme colors, which
+  has no entries for vignette and shadow tones. It also holds `Paper` at 0.5
+  and 0.25 lightness steps when `style.vignette` or `style.shadow` is above 0.
+
+**Working rules.**
+
+- GitHub Actions minutes are limited. All work is built and tested on the
+  laptop: `go test ./...`, `SYNOD_REQUIRE_DSL=1 SYNOD_DSL=<dsl> go test
+  ./internal/spectest`, `doccheck`, `npm run check` and the Docker pixel run of
+  the player, the byte compares below. Each repository is pushed and tagged
+  once, at the end, in the release order below; CI runs once per repository.
+- Spec first: the `dsl` text is reviewed and committed before code.
+- Work packages have disjoint files within a phase. Sonnet agents write code,
+  Haiku agents run the checks.
+
+**Phases.**
+
+- Phase 0, spec (`dsl`): `spec/09` (§9.3, §9.5, §9.7), `spec/06` (§6.3, new
+  §6.7), `spec/02`, `spec/10`, `spec/11`; `spec/decisions.md` (112 to 122,
+  amended 20, 43, 72, 76, 84, 88, 106), this roadmap,
+  `03-scene-builder.md`, `04-formats.md`, `icons.json`; `std/README.md` and
+  `06`, `08`, `09`, `11` of `implementation/`.
+- Phase 1, in parallel: std (`theme`, `theme/default`, `look`, `card`,
+  `motion`; basic edits keep lines); compiler front end (header kinds, load,
+  `check/theme.go`, resolve, format, codes and explain texts, natives,
+  `ir.Program.Theme`, doc theme form, forms catalog); compiler scene builder
+  (`style.go`, `camera.go`, natives, world, emit, scene JSON, new goldens);
+  player (load, compile, evaluate, hit, render, sketch, effects, icons,
+  camera, ease, hash, `fontsReady`, fonts asset).
+- Phase 2: the `looks` repository, `examples` (`synod 0.3`; goldens
+  unchanged), dsl docs (tutorial chapter 12 step 5 and `why-bad-theme`,
+  `std/examples/look/*`, `theme/values`, coverage), agent-skills.
+- Phase 3: mac-app (pins, fonts, `fontsReady` in exports, PSNR tests, GIF
+  palette; no theme picker, deferred to M13 as a source edit of the main
+  file's `use` line), then the site (`deps.json` v0.3 with the `looks` pin and
+  fonts hash, Looks & Themes page with the look × theme gallery, `/docs/v0.3/`,
+  Tribute credits for Manim and Solarized, both MIT, as inspiration only).
+
+**Release order**, each after the one before it, each repository once:
+`dsl` v0.3.0 (spec, tutorial and Library examples), `player` v0.3.0,
+`std` v0.3.0, `compiler` v0.3.0 (embeds std v0.3.0, docs CI pinned to `dsl`
+v0.3.0), `agent-skills` v0.3.0, `looks` v0.3.0, `examples` v0.3.0,
+`mac-app` v0.3.0, then the site v0.3.0 (`latest: v0.3`). The CI of `dsl` and
+`compiler` pins each other's v0.3.0 tag; the pins are written before the push
+and the one CI run of each is read after the last tag exists.
+
+**Accept:**
+
+1. Byte identity: every example scene under the default theme equals the
+   scene of compiler v0.2.7, so all existing golden scenes hold unchanged.
+2. Trace identity: every example × every theme (`default`, `solarized/light`,
+   `solarized/dark`, `terminal`, `sketch`, `chalk`) gives an identical
+   `trace.jsonl`, checked with `cmp`.
+3. The new scene goldens (one per new phrase, kind, key property and effect ×
+   the default theme, and the looks × themes demos) are byte-identical for
+   native and `synod.wasm` (the M6 test).
+4. Theme rules: `# theme` and `# package` in one folder is `bad-header`; a
+   theme with a missing or repeated name, a wrong type or a value outside its
+   domain is `bad-theme` naming the first fault; a theme imported by a library
+   file is `theme-outside-main`; a second theme is `extra-theme`;
+   `use std/theme/default` in a main file is `non-canonical` and `synod fmt`
+   removes it; `terminal.Paper` is `unknown-phrase`. Each code has a `synod
+   explain` example that the compiler checks (decision 93).
+5. `std` passes `synod fmt --check`; every doc comment of the new phrases
+   equals its catalog Meaning (decision 91); `look.Effect` rejects `"blur"` and
+   `"trail"` with `bad-argument`.
+6. `internal/forms` has `form:header-theme` (chapter 12) and
+   `package:std/theme/default` (prose, chapter 12); `doccheck` passes; chapter
+   12 step 5 and `why-bad-theme` run as specified; every new std phrase has a
+   Library example (decision 105) and the index is regenerated.
+7. The scene builder: `look.Focus`, `Bend`, `Trail`, `Dash`, `Role`, `Face`,
+   `Icon` and `Counter` write the keys of `04-formats.md`; the busy rule of
+   `03-scene-builder.md` holds (tween of `draw`, `halo`, `icon` and `count`
+   busy; effects, camera and step properties not).
+8. Player: 0.2 scenes still load and draw; display-list goldens exist for each
+   new key, kind, effect, `sketch`, `halo`, `shadow`, `vignette`, `camera` with
+   `drift`, and spring easing; `hitTest` inverts camera and drift; the player's
+   copy of `icons.json` equals `dsl/implementation/icons.json`;
+   `npm run check` and the Docker pixel run pass; p99 of a frame is at most
+   4 ms on the stress scene with `sketch: 1` and trails.
+9. Fonts: the player release carries `synod-player-fonts-<tag>.tar.gz` with
+   the four families and one OFL text each, listed in `SHA256SUMS`; every
+   upstream licence was checked before vendoring and its source URL and
+   commit recorded; `player.fontsReady()` resolves once the scene's families
+   are loaded.
+10. The `looks` repository: every look × theme demo runs with equal traces;
+    scene goldens; `LICENSE` (Apache-2.0) and `NOTICE` (Solarized, MIT).
+11. The Mac app pins `synod` v0.3.0, the player with its fonts asset and the
+    `looks` commit; exports await `fontsReady`; PSNR tests of the handmade
+    scenes for vignette, sketch, effects and camera pass; the GIF palette
+    follows G55; there is no theme picker.
+12. The site serves `/docs/v0.3/` with its own `synod.wasm` and player and
+    keeps `/docs/v0.2/`; `deps.json` pins `looks` and the fonts hash; the
+    Looks & Themes page shows the look × theme gallery; fonts are self-hosted.
+13. Decisions 112 to 122 contain none of the words "except", "unless", "other
+    than" and "apart from"; no spec or catalog text offers `"blur"`.
+14. Every repository was built and tested on the laptop before its single push
+    and tag.

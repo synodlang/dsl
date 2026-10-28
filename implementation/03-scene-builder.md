@@ -113,16 +113,24 @@ are deleted, with nested instances, before it re-runs.
 
 ## The world
 
-Shapes (circle, rect, label, line, group) with a timeline per property
-(`x`, `y`, `scale`, `opacity`, `rotation`, `fill`, `stroke`, `text`,
-`effect`). `tween(p, v, t0, d)` removes keys of `p` after `t0`, writes the
+Shapes (circle, rect, label, line, group, icon, counter) with a timeline per
+property (`x`, `y`, `scale`, `opacity`, `rotation`, `fill`, `stroke`, `text`,
+`effect`, and since 0.3 `curve`, `trail`, `dash`, `draw`, `halo`, `icon`,
+`count`, `role`, `face`). `tween(p, v, t0, d)` removes keys of `p` after `t0`, writes the
 interpolated value at `t0` if a running tween was cut (colors and text snap to
 the target) or a hold key if `p` has none there, writes `v` at `t0 + d`
 (`d = 0` overwrites `t0`), writes nothing for a tween to the current value,
 merges keys at the same time and keeps them sorted. Computed numbers are
 rounded to 0.01. The morph rule, replacement, tombstones, groups, Place
 constraints and sizes are as in `spec/09` §9.2 and §9.3. An effect writes
-`effect:"glow"` at now and `effect:"none"` at `now + scale(600)`. A shape
+its name (`"glow"`, `"indicate"`, `"flash"`, `"circumscribe"`, `"ripple"` or
+`"sweep"`) at now and `effect:"none"` at `now + scale(duration)`, with the
+durations 600, 600, 500, 900, 700 and 800 ms; `"blur"` and `"trail"` are not
+effects (G46). `look.Bend`, `Trail`, `Dash`, `Role` and `Face` write step keys
+at now. Every property of 0.3 is written only when it differs from its
+default, and a style key only when it differs from `std/theme/default`, so a
+program under the default theme that uses no new feature writes the bytes of
+0.2. A shape
 created and deleted in the same instant and never referenced is not written.
 
 **Layout.** Members are shapes attached under `card` to nodes not removed,
@@ -144,6 +152,22 @@ the pending flight; unlanded flights are finalized at the end.
 `look.Center` is written, as an empty group, only if a line or group refers
 to it.
 
+**Camera.** `look.Focus s zoom z over d` computes the world position of `s`
+at its start, as `Tween` of `"x"` and `"y"` does, and writes a camera key at
+now (holding the current camera, if any key is needed there) and one at
+`now + scale(d)` with that position and `z`. Camera keys are written in
+order; a later `Focus` removes the camera keys after its start like a tween
+does for shape keys. A scene with no `Focus` has no `camera`.
+
+**Theme.** The theme is evaluated once at compile time into
+`ir.Program.Theme` (decision 114): every value of the program's theme, the
+values of `std/theme/default` when the main file imports none. The scene
+builder reads it for the `style` object (omitting keys equal to the default),
+for the baked values (`CornerRadius`, `NodeShape`, `NodeFill`, `LinkOpacity`,
+`Margin`, `Fill` as a factor of layout radius and spacing) and for the colors
+(`theme.Accent` and the others are named bare, as before). A theme never
+changes a fact: the trace is the same under every theme.
+
 ## Ids
 
 A shape's key is `<path>:<line>:<col>#<run>.<ordinal>`: the activation site
@@ -154,14 +178,33 @@ created earlier in the same activation, called phrases included. The id is
 assigned at encode time in creation order; on collision the key gets `#2`,
 `#3`, …, appended.
 
+## Busy rule (`spec/09` §9.6, rule 4)
+
+A tween of `draw`, `halo`, `icon` or `count` is busy until it finishes, like
+one of `x` or `opacity`. An effect, a camera move and the step properties
+`curve`, `trail`, `dash`, `role` and `face` are not busy: they do not delay a
+look's `after` or the end of a handler.
+
 ## Colors
 
 A color value is named after the zero-hole phrase being executed when its
 literal is read: `Accent` for `std/theme` phrases, `<qualifier>.<Name>` for
 others (`raftlook.Hot`), with the hex from the literal. The scene's `theme`
 lists the eight theme colors in catalog order, then other used names sorted by
-byte order. If `std/theme` is not in the IR a constant table is used, kept in
+byte order; `look.MessageColor m` reads `Message((FNV-1a-32(type name of m)
+mod 4) + 1)` and so names `Message1` to `Message4` bare, only when used. If `std/theme` is not in the IR a constant table is used, kept in
 step with `std/theme/theme.synod` by a test.
+
+## Stable ids (G50)
+
+The id of a shape hashes the line and column of its creating handler, so any
+edit of `std/look/basic` that moves a line changes every scene and golden.
+From M12 the rule is: an edit of `std/look/basic` keeps the line and column of
+every existing handler and of every statement that creates a shape; a new
+handler is appended after the last one. The same holds for the packages of
+`examples` that draw (`raftlook`, `ringlook`). A check compares the scenes of
+every example between the previous release and the branch, byte for byte,
+under the default theme.
 
 ## Markers
 
