@@ -29,7 +29,7 @@ list         = "{" [ item { "," item } ] "}" ;
 - **Comments and layout.** Comments are not part of the grammar above:
   each attaches to the line that follows it (or to the line it trails) and
   never forms a block or a statement. A file may start with the package
-  header (`spec/06` §6.1), which is also a comment. `use` lines stand only at
+  or theme header (`spec/06` §6.1, §6.7), which is also a comment. `use` lines stand only at
   the top level (`use` nested in a block is a `syntax` error), and `()` is a
   `syntax` error.
 - An **item** is the unit an inline hole receives: one token, one

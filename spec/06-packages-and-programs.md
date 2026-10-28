@@ -12,6 +12,9 @@ Synod follows Go.
   ```synod
   # package gossip
   ```
+  A **theme** file (§6.7) has the header `# theme <word>` instead, the word
+  being the folder name. All library files of a folder have one header
+  kind.
 - Package discovery skips folders named `vendor` or `testdata`, and
   folders starting with `.` or `_`.
 - Inside a package, its own names are bare. Outside, they are always qualified.
@@ -73,9 +76,10 @@ use std/net
   use github.com/b/raft as braft
   ```
   An `@version` on a `use` path must equal the version the build selects.
-- An import is used when the file refers to the package, or when the
-  package contains observers or invariants: importing it activates them
-  (`use github.com/synodlang/examples/raftlook`). Unused imports and
+- An import is used when the file refers to the package, when the
+  package contains observers or invariants (importing it activates them,
+  `use github.com/synodlang/examples/raftlook`), or when the package is a
+  theme (importing it selects it, §6.7). Unused imports and
   import cycles are errors.
 - An import path must name a library package: a folder that holds a
   library file. A missing folder, or a folder holding only a main file,
@@ -132,3 +136,57 @@ define main
   the program's import graph, is active.
 - If no package in the graph uses `std/look`, the scene builder uses
   `std/look/basic` automatically, so every program animates.
+
+## 6.7 Themes
+
+A **theme** is a library package that holds the skin of a program: its
+colors, type and a few look settings (`spec/09` §9.5).
+
+- **Header.** A theme file starts with `# theme <word>`, the word being the
+  folder name. All library files of a folder share one header kind, and
+  mixing kinds is `bad-header`. A folder may also hold a main file, a demo
+  of its theme (§6.5).
+- **Contents.** A theme file holds only definitions `define <Name>` whose
+  block is exactly one `result` of a literal; doc comments are allowed.
+  It has no `use`, `has`, `when`, `always`, receiver or `native`. The
+  theme defines each name of the theme table (`spec/09` §9.5) exactly once,
+  and each literal has the name's type and lies in its domain. Anything else
+  is `bad-theme`.
+- **No exports.** A theme exports no phrase: `terminal.Paper` for a theme
+  `terminal` is `unknown-phrase`. Theme values are reached only as
+  `theme.<Name>`, the phrases of `std/theme`, in look context.
+- **Selection.** The theme of a program is the theme its main file imports,
+  else `std/theme/default`. Only a main file imports a theme, and at most
+  one: a library file importing a theme is `theme-outside-main`, a second
+  theme in a main file is `extra-theme`. Importing a theme selects it, so
+  the import is used (§6.3). `std/theme/default` is a theme like any other:
+  a main file that imports it is `non-canonical`, and `synod fmt` removes
+  the line, so the default has one spelling.
+- **The interface.** `std/theme` is an ordinary package whose phrases are
+  natives, one per name of the theme table, returning the value of the
+  program's theme (`# package theme`, `define Paper native "theme.Paper"`).
+  They are look-context only, so no node, main or check code reads a theme
+  and the trace of a run is identical under every theme.
+- **The default.** `std/theme/default` is a theme that holds the default
+  value of every name; copy it to write a new theme.
+
+```
+# theme sunrise
+# scene ground
+define Paper
+  result #FFF4E0
+
+# scene ink
+define Ink
+  result #2B2B2B
+```
+
+```
+# package main
+use github.com/synodlang/examples/raft
+use github.com/synodlang/looks/lumen
+use github.com/synodlang/looks/terminal
+```
+
+The theme above is cut to two names for the page; a theme file holds all of
+them. The second block selects the theme `terminal` for the program.

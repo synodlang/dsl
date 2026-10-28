@@ -70,8 +70,8 @@ the source line of the failure.
 | --- | --- |
 | `syntax` | the structure grammar cannot parse the line; a comma outside list items, `message … with` settings and `each` names; a continuation line that follows no block; a number, text, comment or `use` written wrongly (`.5`, `+1`, `x-1`, a control character in text, `#todo`, a nested `use`, `()`); a duration that is not a whole number of microseconds, or a number out of 64-bit float range; a bad `synod.mod` line (an unknown directive, a repeated `module` or `synod`, a `synod` version newer than the compiler's) |
 | `indent` | bad indentation (tabs, odd widths, unexpected indent) |
-| `non-canonical` | parseable but not canonical (including CR LF line endings, a byte order mark, unsorted `require` lines, settings out of field order, a name that must start lower-case, and a package's own qualifier used inside it); `synod fmt` fixes it, when the package loads for the rows that need declarations (settings order, names, own qualifier) |
-| `bad-header` | missing `# package` header, or a name that is neither the folder name nor `main`, starts upper-case or is a reserved word |
+| `non-canonical` | parseable but not canonical (including CR LF line endings, a byte order mark, unsorted `require` lines, settings out of field order, a name that must start lower-case, a package's own qualifier used inside it, and `use std/theme/default` in a main file); `synod fmt` fixes it, when the package loads for the rows that need declarations (settings order, names, own qualifier) |
+| `bad-header` | missing header; a header that is neither `# package <word>` nor `# theme <word>`; a package name that is neither the folder name nor `main`, a theme name that is not the folder name, or a name that starts upper-case or is a reserved word; library files of one folder whose headers are not all of one kind |
 | `unknown-phrase` | no phrase matches the sentence by shape (types never decide, `spec/03` §3.3); no event phrase matches after `when`, or an event phrase stands elsewhere; a record has no such field; a `message … with` setting of more than two items |
 | `ambiguous-phrase` | more than one phrase matches by shape |
 | `duplicate-name` | a name defined twice in one package namespace (`spec/03` §3.2), including a second `start`, a record type named like a built-in type, two imports of one path or with one qualifier, a repeated hole name, and a field set twice in `message … with` |
@@ -85,7 +85,7 @@ the source line of the failure.
 | `missing-result` | a value phrase has a path without `result` |
 | `value-as-statement` / `action-as-value` | phrase kind used in the wrong place |
 | `unexported` | using a lower-case name from another package |
-| `unused-name` / `unused-import` | a local or `each` name is never read (setting it again is not a use); an import is never referred to and its package has no observers or invariants |
+| `unused-name` / `unused-import` | a local or `each` name is never read (setting it again is not a use); an import is never referred to and its package has no observers or invariants and is not a theme |
 | `unneeded-alias` | `use … as` without a collision of last segments (two imports, or an import and the importing package's own name) |
 | `unknown-import` / `import-cycle` | an import path names no library package (a missing folder, or one holding only a main file, an unknown `std/` package, a module that is not required or not in `vendor/`, a version that differs from the selected one, `github.com/synodlang/std/…`, a last segment that is not a word); imports form a cycle |
 | `missing-main` / `extra-main` | a main file without `define main`, or `synod run` on a folder without a main file; a second main file in a folder, a second `define main`, or `define main` in a library file |
@@ -93,6 +93,7 @@ the source line of the failure.
 | `foreign-state` | node-context code reaches a node field or receiver phrase through anything but its receiver, or names a node other than the receiver after `from`, `on` or `by` |
 | `color-literal` | a color literal outside a naming phrase |
 | `native-outside-std` | `native` used outside `std/` |
+| `theme-outside-main` / `extra-theme` / `bad-theme` | a library file imports a theme; a main file imports a second theme (`std/theme/default` counts as one); a theme file holds anything but theme definitions (`spec/06` §6.7), lacks or repeats a name of the theme table (`spec/09` §9.5), or has a value of the wrong type or outside its domain |
 
 ## 11.3 Run-time errors
 
@@ -134,6 +135,6 @@ at the fact being drawn, the partial scene is written with a `failed` marker
 | Code | Look cases |
 | --- | --- |
 | `missing-key` | `card of n` or `tag of k` with no shape attached under that name to that key: `no shape is attached to <key> under "<name>"`; `item k of m` with a missing key |
-| `bad-argument` | `Tween` with a property other than the eight, or a value of the wrong kind or range (`"opacity"` outside 0..1, negative `"scale"`); a negative duration or `after` delay; `look.Flight` on a message not bound by a net event (`look.Flight needs a message bound by a net event`); `look.Layout` with another kind; `look.Effect` with another name; a second group for a shape; a `Place` cycle; a negative radius or size |
+| `bad-argument` | `Tween` with a property other than the twelve, a value of the wrong kind or range (`"opacity"`, `"draw"` or `"halo"` outside 0..1, negative `"scale"` or `"count"`, an unknown icon name), `"icon"` on a shape that is not an icon, or `"count"` on one that is not a counter; a negative duration or `after` delay; `look.Flight` on a message not bound by a net event (`look.Flight needs a message bound by a net event`); `look.Layout` with another kind; `look.Effect` with another name; `look.Icon` with a name outside the icon set; `look.Counter` of a negative number; `look.Role` or `look.Face` with another value or on a shape that is not a label or counter; `look.Dash` with a negative length; `look.Bend` outside −1..1; `look.Trail` outside 0s..2s; `look.Focus` with zoom outside 0.5..4; a second group for a shape; a `Place` cycle; a negative radius or size |
 | `run-limit` | more than 100000 timer firings at one instant; call depth over 500; more than 1000000 shapes; more than 10000000 keys |
 | `index-range`, `division-by-zero`, `number-range` | as in the table above |
