@@ -7,12 +7,6 @@ Show a sentence the program computes.
 ## New in this chapter
 
 <!-- new -->
-- Locals: `set price to 4` ([spec/02 §2.3](../spec/02-grammar.md))
-- Numbers ([spec/01 §1.5](../spec/01-lexical.md)) and the type `number` ([spec/04 §4.1](../spec/04-types-and-values.md))
-- `plus`, `minus`, `times`, `divided by` ([spec/04 §4.5](../spec/04-types-and-values.md))
-- Parentheses: one item per hole ([spec/02 §2.3](../spec/02-grammar.md))
-- Lists `{…}` and the type `list of T` ([spec/04 §4.2](../spec/04-types-and-values.md), [§4.4](../spec/04-types-and-values.md))
-- `text.From` and `text.Join` from `std/text` ([std/README.md](../std/README.md))
 
 ## Steps
 

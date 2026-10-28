@@ -7,12 +7,6 @@ Show a sentence on the stage.
 ## New in this chapter
 
 <!-- new -->
-- The file header `# package main` ([spec/06 §6.1](../spec/06-packages-and-programs.md))
-- Comments, blocks and indentation ([spec/01 §1.2](../spec/01-lexical.md), [§1.3](../spec/01-lexical.md))
-- `use` and text values ([spec/06 §6.3](../spec/06-packages-and-programs.md), [spec/01 §1.6](../spec/01-lexical.md))
-- `define main`, the program's start ([spec/06 §6.5](../spec/06-packages-and-programs.md)), and the main context ([spec/05 §5.4](../spec/05-state-and-contexts.md))
-- `lesson.Note` from `std/lesson` ([std/README.md](../std/README.md))
-- Canonical form and `synod fmt` ([spec/10](../spec/10-canonical-form.md))
 
 ## Steps
 

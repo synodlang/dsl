@@ -7,10 +7,6 @@ Show sentences at different moments, and ask the viewer a question.
 ## New in this chapter
 
 <!-- new -->
-- Durations `2s` and `150ms` ([spec/01 §1.5](../spec/01-lexical.md)) and the type `time` ([spec/04 §4.1](../spec/04-types-and-values.md))
-- `after` blocks ([spec/07 §7.4](../spec/07-execution-model.md))
-- `time.Now` from `std/time` and `sim.StopAt` from `std/sim` ([std/README.md](../std/README.md))
-- `lesson.Ask` and `lesson.Ask … choosing` ([spec/09 §9.6](../spec/09-visual-layer.md), decision 82)
 
 ## Steps
 
