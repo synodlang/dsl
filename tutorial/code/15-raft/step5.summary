@@ -1,0 +1,596 @@
+run example.com/tutorial/raft seed 3
+end: stop at 3s, 5 nodes, 602 steps, 857 events
+always:
+  holds          raft/raft.synod:54: always LeadersAgree
+steps:
+@0s main
+  sim.Started
+  sim.Added n1 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n2 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n3 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n4 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n5 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Changed raft.Peers of n1 from {} to {n2, n3, n4, n5}
+  sim.Changed raft.Peers of n2 from {} to {n1, n3, n4, n5}
+  sim.Changed raft.Peers of n3 from {} to {n1, n2, n4, n5}
+  sim.Changed raft.Peers of n4 from {} to {n1, n2, n3, n5}
+  sim.Changed raft.Peers of n5 from {} to {n1, n2, n3, n4}
+@50ms timer n1
+  sim.Fired n1
+@50ms timer n2
+  sim.Fired n2
+@50ms timer n3
+  sim.Fired n3
+@50ms timer n4
+  sim.Fired n4
+@50ms timer n5
+  sim.Fired n5
+@100ms timer n1
+  sim.Fired n1
+@100ms timer n2
+  sim.Fired n2
+@100ms timer n3
+  sim.Fired n3
+@100ms timer n4
+  sim.Fired n4
+@100ms timer n5
+  sim.Fired n5
+@150ms timer n1
+  sim.Fired n1
+@150ms timer n2
+  sim.Fired n2
+@150ms timer n3
+  sim.Fired n3
+@150ms timer n4
+  sim.Fired n4
+@150ms timer n5
+  sim.Fired n5
+@166.838ms timer n3
+  sim.Fired n3
+  sim.Changed raft.Role of n3 from "follower" to "candidate"
+  sim.Changed raft.Term of n3 from 0 to 1
+  sim.Changed raft.VotedFor of n3 from nobody to n3
+  net.Sent #1 raft.RequestVote{term 1} from n3 to n1
+  net.Sent #2 raft.RequestVote{term 1} from n3 to n2
+  net.Sent #3 raft.RequestVote{term 1} from n3 to n4
+  net.Sent #4 raft.RequestVote{term 1} from n3 to n5
+@172.67ms receive n4
+  net.Arrived #3 raft.RequestVote{term 1} from n3 to n4
+  sim.Changed raft.Term of n4 from 0 to 1
+  sim.Changed raft.VotedFor of n4 from nobody to n3
+  net.Sent #5 raft.Vote{term 1, granted true} from n4 to n3
+@173.065ms receive n1
+  net.Arrived #1 raft.RequestVote{term 1} from n3 to n1
+  sim.Changed raft.Term of n1 from 0 to 1
+  sim.Changed raft.VotedFor of n1 from nobody to n3
+  net.Sent #6 raft.Vote{term 1, granted true} from n1 to n3
+@173.646ms receive n5
+  net.Arrived #4 raft.RequestVote{term 1} from n3 to n5
+  sim.Changed raft.Term of n5 from 0 to 1
+  sim.Changed raft.VotedFor of n5 from nobody to n3
+  net.Sent #7 raft.Vote{term 1, granted true} from n5 to n3
+@174.436ms receive n2
+  net.Arrived #2 raft.RequestVote{term 1} from n3 to n2
+  sim.Changed raft.Term of n2 from 0 to 1
+  sim.Changed raft.VotedFor of n2 from nobody to n3
+  net.Sent #8 raft.Vote{term 1, granted true} from n2 to n3
+@179.985ms receive n3
+  net.Arrived #6 raft.Vote{term 1, granted true} from n1 to n3
+@187.283ms receive n3
+  net.Arrived #5 raft.Vote{term 1, granted true} from n4 to n3
+  sim.Changed raft.Role of n3 from "candidate" to "leader"
+  sim.Emitted raft.Elected{Term 1} by n3
+@187.794ms receive n3
+  net.Arrived #7 raft.Vote{term 1, granted true} from n5 to n3
+@188.649ms receive n3
+  net.Arrived #8 raft.Vote{term 1, granted true} from n2 to n3
+@200ms timer n1
+  sim.Fired n1
+@200ms timer n2
+  sim.Fired n2
+@200ms timer n3
+  sim.Fired n3
+  net.Sent #9 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #10 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #11 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #12 raft.Heartbeat{term 1} from n3 to n5
+@200ms timer n4
+  sim.Fired n4
+@200ms timer n5
+  sim.Fired n5
+@206.936ms receive n4
+  net.Arrived #11 raft.Heartbeat{term 1} from n3 to n4
+@207.595ms receive n5
+  net.Arrived #12 raft.Heartbeat{term 1} from n3 to n5
+@209.442ms receive n2
+  net.Arrived #10 raft.Heartbeat{term 1} from n3 to n2
+@212.444ms receive n1
+  net.Arrived #9 raft.Heartbeat{term 1} from n3 to n1
+@220.397ms timer n5
+  sim.Fired n5
+@250ms timer n1
+  sim.Fired n1
+@250ms timer n2
+  sim.Fired n2
+@250ms timer n3
+  sim.Fired n3
+  net.Sent #13 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #14 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #15 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #16 raft.Heartbeat{term 1} from n3 to n5
+@250ms timer n4
+  sim.Fired n4
+@250ms timer n5
+  sim.Fired n5
+@256.003ms timer n4
+  sim.Fired n4
+@256.013ms receive n5
+  net.Arrived #16 raft.Heartbeat{term 1} from n3 to n5
+@256.384ms receive n1
+  net.Arrived #13 raft.Heartbeat{term 1} from n3 to n1
+@257.096ms receive n4
+  net.Arrived #15 raft.Heartbeat{term 1} from n3 to n4
+@264.449ms receive n2
+  net.Arrived #14 raft.Heartbeat{term 1} from n3 to n2
+@293.314ms timer n2
+  sim.Fired n2
+@294.32ms timer n1
+  sim.Fired n1
+@300ms timer n1
+  sim.Fired n1
+@300ms timer n2
+  sim.Fired n2
+@300ms timer n3
+  sim.Fired n3
+  net.Sent #17 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #18 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #19 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #20 raft.Heartbeat{term 1} from n3 to n5
+@300ms timer n4
+  sim.Fired n4
+@300ms timer n5
+  sim.Fired n5
+@313.153ms receive n4
+  net.Arrived #19 raft.Heartbeat{term 1} from n3 to n4
+@314.13ms receive n5
+  net.Arrived #20 raft.Heartbeat{term 1} from n3 to n5
+@314.161ms receive n1
+  net.Arrived #17 raft.Heartbeat{term 1} from n3 to n1
+@314.225ms receive n2
+  net.Arrived #18 raft.Heartbeat{term 1} from n3 to n2
+@350ms timer n1
+  sim.Fired n1
+@350ms timer n2
+  sim.Fired n2
+@350ms timer n3
+  sim.Fired n3
+  net.Sent #21 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #22 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #23 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #24 raft.Heartbeat{term 1} from n3 to n5
+@350ms timer n4
+  sim.Fired n4
+@350ms timer n5
+  sim.Fired n5
+@356.513ms timer n3
+  sim.Fired n3
+@358.303ms receive n1
+  net.Arrived #21 raft.Heartbeat{term 1} from n3 to n1
+@359.212ms receive n2
+  net.Arrived #22 raft.Heartbeat{term 1} from n3 to n2
+@360.519ms receive n5
+  net.Arrived #24 raft.Heartbeat{term 1} from n3 to n5
+@361.726ms receive n4
+  net.Arrived #23 raft.Heartbeat{term 1} from n3 to n4
+@400ms timer n1
+  sim.Fired n1
+@400ms timer n2
+  sim.Fired n2
+@400ms timer n3
+  sim.Fired n3
+  net.Sent #25 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #26 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #27 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #28 raft.Heartbeat{term 1} from n3 to n5
+@400ms timer n4
+  sim.Fired n4
+@400ms timer n5
+  sim.Fired n5
+@405.518ms receive n5
+  net.Arrived #28 raft.Heartbeat{term 1} from n3 to n5
+@406.107ms receive n4
+  net.Arrived #27 raft.Heartbeat{term 1} from n3 to n4
+@407.11ms receive n1
+  net.Arrived #25 raft.Heartbeat{term 1} from n3 to n1
+@414.696ms receive n2
+  net.Arrived #26 raft.Heartbeat{term 1} from n3 to n2
+@445.731ms timer n1
+  sim.Fired n1
+@450ms timer n1
+  sim.Fired n1
+@450ms timer n2
+  sim.Fired n2
+@450ms timer n3
+  sim.Fired n3
+  net.Sent #29 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #30 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #31 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #32 raft.Heartbeat{term 1} from n3 to n5
+@450ms timer n4
+  sim.Fired n4
+@450ms timer n5
+  sim.Fired n5
+@455.95ms receive n2
+  net.Arrived #30 raft.Heartbeat{term 1} from n3 to n2
+@461.057ms receive n1
+  net.Arrived #29 raft.Heartbeat{term 1} from n3 to n1
+@461.644ms receive n4
+  net.Arrived #31 raft.Heartbeat{term 1} from n3 to n4
+@462.104ms receive n5
+  net.Arrived #32 raft.Heartbeat{term 1} from n3 to n5
+@500ms timer n1
+  sim.Fired n1
+@500ms timer n2
+  sim.Fired n2
+@500ms timer n3
+  sim.Fired n3
+  net.Sent #33 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #34 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #35 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #36 raft.Heartbeat{term 1} from n3 to n5
+@500ms timer n4
+  sim.Fired n4
+@500ms timer n5
+  sim.Fired n5
+@506.403ms receive n5
+  net.Arrived #36 raft.Heartbeat{term 1} from n3 to n5
+@506.771ms receive n4
+  net.Arrived #35 raft.Heartbeat{term 1} from n3 to n4
+@508.943ms receive n2
+  net.Arrived #34 raft.Heartbeat{term 1} from n3 to n2
+@509.778ms timer n5
+  sim.Fired n5
+@510.065ms receive n1
+  net.Arrived #33 raft.Heartbeat{term 1} from n3 to n1
+@525.748ms timer n2
+  sim.Fired n2
+@526.114ms timer n4
+  sim.Fired n4
+@530.757ms timer n3
+  sim.Fired n3
+@550ms timer n1
+  sim.Fired n1
+@550ms timer n2
+  sim.Fired n2
+@550ms timer n3
+  sim.Fired n3
+  net.Sent #37 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #38 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #39 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #40 raft.Heartbeat{term 1} from n3 to n5
+@550ms timer n4
+  sim.Fired n4
+@550ms timer n5
+  sim.Fired n5
+@555.277ms receive n5
+  net.Arrived #40 raft.Heartbeat{term 1} from n3 to n5
+@555.817ms receive n4
+  net.Arrived #39 raft.Heartbeat{term 1} from n3 to n4
+@556.332ms receive n2
+  net.Arrived #38 raft.Heartbeat{term 1} from n3 to n2
+@557.429ms receive n1
+  net.Arrived #37 raft.Heartbeat{term 1} from n3 to n1
+@600ms timer n1
+  sim.Fired n1
+@600ms timer n2
+  sim.Fired n2
+@600ms timer n3
+  sim.Fired n3
+  net.Sent #41 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #42 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #43 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #44 raft.Heartbeat{term 1} from n3 to n5
+@600ms timer n4
+  sim.Fired n4
+@600ms timer n5
+  sim.Fired n5
+@605.644ms receive n4
+  net.Arrived #43 raft.Heartbeat{term 1} from n3 to n4
+@606.187ms receive n1
+  net.Arrived #41 raft.Heartbeat{term 1} from n3 to n1
+@607.894ms receive n5
+  net.Arrived #44 raft.Heartbeat{term 1} from n3 to n5
+@610.425ms receive n2
+  net.Arrived #42 raft.Heartbeat{term 1} from n3 to n2
+@650ms timer n1
+  sim.Fired n1
+@650ms timer n2
+  sim.Fired n2
+@650ms timer n3
+  sim.Fired n3
+  net.Sent #45 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #46 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #47 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #48 raft.Heartbeat{term 1} from n3 to n5
+@650ms timer n4
+  sim.Fired n4
+@650ms timer n5
+  sim.Fired n5
+@655.617ms receive n2
+  net.Arrived #46 raft.Heartbeat{term 1} from n3 to n2
+@655.944ms receive n1
+  net.Arrived #45 raft.Heartbeat{term 1} from n3 to n1
+@660.77ms receive n5
+  net.Arrived #48 raft.Heartbeat{term 1} from n3 to n5
+@662.75ms receive n4
+  net.Arrived #47 raft.Heartbeat{term 1} from n3 to n4
+@700ms timer n1
+  sim.Fired n1
+@700ms timer n2
+  sim.Fired n2
+@700ms timer n3
+  sim.Fired n3
+  net.Sent #49 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #50 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #51 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #52 raft.Heartbeat{term 1} from n3 to n5
+@700ms timer n4
+  sim.Fired n4
+@700ms timer n5
+  sim.Fired n5
+@700.045ms timer n2
+  sim.Fired n2
+@708.615ms receive n4
+  net.Arrived #51 raft.Heartbeat{term 1} from n3 to n4
+@711.637ms receive n1
+  net.Arrived #49 raft.Heartbeat{term 1} from n3 to n1
+@713.011ms receive n2
+  net.Arrived #50 raft.Heartbeat{term 1} from n3 to n2
+@714.981ms receive n5
+  net.Arrived #52 raft.Heartbeat{term 1} from n3 to n5
+@729.659ms timer n3
+  sim.Fired n3
+@733.437ms timer n1
+  sim.Fired n1
+@750ms timer n1
+  sim.Fired n1
+@750ms timer n2
+  sim.Fired n2
+@750ms timer n3
+  sim.Fired n3
+  net.Sent #53 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #54 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #55 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #56 raft.Heartbeat{term 1} from n3 to n5
+@750ms timer n4
+  sim.Fired n4
+@750ms timer n5
+  sim.Fired n5
+@756.001ms receive n5
+  net.Arrived #56 raft.Heartbeat{term 1} from n3 to n5
+@756.563ms receive n2
+  net.Arrived #54 raft.Heartbeat{term 1} from n3 to n2
+@758.193ms receive n4
+  net.Arrived #55 raft.Heartbeat{term 1} from n3 to n4
+@760.213ms receive n1
+  net.Arrived #53 raft.Heartbeat{term 1} from n3 to n1
+@789.586ms timer n5
+  sim.Fired n5
+@800ms timer n1
+  sim.Fired n1
+@800ms timer n2
+  sim.Fired n2
+@800ms timer n3
+  sim.Fired n3
+  net.Sent #57 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #58 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #59 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #60 raft.Heartbeat{term 1} from n3 to n5
+@800ms timer n4
+  sim.Fired n4
+@800ms timer n5
+  sim.Fired n5
+@805.564ms receive n1
+  net.Arrived #57 raft.Heartbeat{term 1} from n3 to n1
+@806.534ms receive n2
+  net.Arrived #58 raft.Heartbeat{term 1} from n3 to n2
+@809.845ms receive n4
+  net.Arrived #59 raft.Heartbeat{term 1} from n3 to n4
+@811.448ms receive n5
+  net.Arrived #60 raft.Heartbeat{term 1} from n3 to n5
+@817.898ms timer n4
+  sim.Fired n4
+@850ms timer n1
+  sim.Fired n1
+@850ms timer n2
+  sim.Fired n2
+@850ms timer n3
+  sim.Fired n3
+  net.Sent #61 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #62 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #63 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #64 raft.Heartbeat{term 1} from n3 to n5
+@850ms timer n4
+  sim.Fired n4
+@850ms timer n5
+  sim.Fired n5
+@856.608ms receive n2
+  net.Arrived #62 raft.Heartbeat{term 1} from n3 to n2
+… 363 steps omitted (full trace: out/trace.jsonl)
+@2650ms timer n4
+  sim.Fired n4
+@2650ms timer n5
+  sim.Fired n5
+@2658.62ms receive n1
+  net.Arrived #205 raft.Heartbeat{term 1} from n3 to n1
+@2660.359ms receive n4
+  net.Arrived #207 raft.Heartbeat{term 1} from n3 to n4
+@2662.825ms receive n2
+  net.Arrived #206 raft.Heartbeat{term 1} from n3 to n2
+@2663.536ms receive n5
+  net.Arrived #208 raft.Heartbeat{term 1} from n3 to n5
+@2700ms timer n1
+  sim.Fired n1
+@2700ms timer n2
+  sim.Fired n2
+@2700ms timer n3
+  sim.Fired n3
+  net.Sent #209 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #210 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #211 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #212 raft.Heartbeat{term 1} from n3 to n5
+@2700ms timer n4
+  sim.Fired n4
+@2700ms timer n5
+  sim.Fired n5
+@2706.31ms receive n5
+  net.Arrived #212 raft.Heartbeat{term 1} from n3 to n5
+@2706.558ms receive n1
+  net.Arrived #209 raft.Heartbeat{term 1} from n3 to n1
+@2706.987ms receive n2
+  net.Arrived #210 raft.Heartbeat{term 1} from n3 to n2
+@2711.379ms receive n4
+  net.Arrived #211 raft.Heartbeat{term 1} from n3 to n4
+@2750ms timer n1
+  sim.Fired n1
+@2750ms timer n2
+  sim.Fired n2
+@2750ms timer n3
+  sim.Fired n3
+  net.Sent #213 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #214 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #215 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #216 raft.Heartbeat{term 1} from n3 to n5
+@2750ms timer n4
+  sim.Fired n4
+@2750ms timer n5
+  sim.Fired n5
+@2756.66ms receive n2
+  net.Arrived #214 raft.Heartbeat{term 1} from n3 to n2
+@2760.867ms receive n1
+  net.Arrived #213 raft.Heartbeat{term 1} from n3 to n1
+@2762.047ms receive n4
+  net.Arrived #215 raft.Heartbeat{term 1} from n3 to n4
+@2764.454ms receive n5
+  net.Arrived #216 raft.Heartbeat{term 1} from n3 to n5
+@2770.26ms timer n2
+  sim.Fired n2
+@2797.137ms timer n3
+  sim.Fired n3
+@2800ms timer n1
+  sim.Fired n1
+@2800ms timer n2
+  sim.Fired n2
+@2800ms timer n3
+  sim.Fired n3
+  net.Sent #217 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #218 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #219 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #220 raft.Heartbeat{term 1} from n3 to n5
+@2800ms timer n4
+  sim.Fired n4
+@2800ms timer n5
+  sim.Fired n5
+@2807.851ms receive n1
+  net.Arrived #217 raft.Heartbeat{term 1} from n3 to n1
+@2807.877ms receive n2
+  net.Arrived #218 raft.Heartbeat{term 1} from n3 to n2
+@2810.315ms receive n5
+  net.Arrived #220 raft.Heartbeat{term 1} from n3 to n5
+@2811.562ms timer n5
+  sim.Fired n5
+@2813.029ms receive n4
+  net.Arrived #219 raft.Heartbeat{term 1} from n3 to n4
+@2815.429ms timer n1
+  sim.Fired n1
+@2850ms timer n1
+  sim.Fired n1
+@2850ms timer n2
+  sim.Fired n2
+@2850ms timer n3
+  sim.Fired n3
+  net.Sent #221 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #222 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #223 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #224 raft.Heartbeat{term 1} from n3 to n5
+@2850ms timer n4
+  sim.Fired n4
+@2850ms timer n5
+  sim.Fired n5
+@2855.155ms receive n2
+  net.Arrived #222 raft.Heartbeat{term 1} from n3 to n2
+@2861.425ms receive n4
+  net.Arrived #223 raft.Heartbeat{term 1} from n3 to n4
+@2863.57ms receive n1
+  net.Arrived #221 raft.Heartbeat{term 1} from n3 to n1
+@2864.172ms receive n5
+  net.Arrived #224 raft.Heartbeat{term 1} from n3 to n5
+@2864.485ms timer n4
+  sim.Fired n4
+@2900ms timer n1
+  sim.Fired n1
+@2900ms timer n2
+  sim.Fired n2
+@2900ms timer n3
+  sim.Fired n3
+  net.Sent #225 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #226 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #227 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #228 raft.Heartbeat{term 1} from n3 to n5
+@2900ms timer n4
+  sim.Fired n4
+@2900ms timer n5
+  sim.Fired n5
+@2908.812ms receive n5
+  net.Arrived #228 raft.Heartbeat{term 1} from n3 to n5
+@2908.895ms receive n4
+  net.Arrived #227 raft.Heartbeat{term 1} from n3 to n4
+@2909.216ms receive n1
+  net.Arrived #225 raft.Heartbeat{term 1} from n3 to n1
+@2909.617ms receive n2
+  net.Arrived #226 raft.Heartbeat{term 1} from n3 to n2
+@2941.558ms timer n2
+  sim.Fired n2
+@2950ms timer n1
+  sim.Fired n1
+@2950ms timer n2
+  sim.Fired n2
+@2950ms timer n3
+  sim.Fired n3
+  net.Sent #229 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #230 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #231 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #232 raft.Heartbeat{term 1} from n3 to n5
+@2950ms timer n4
+  sim.Fired n4
+@2950ms timer n5
+  sim.Fired n5
+@2957.251ms receive n5
+  net.Arrived #232 raft.Heartbeat{term 1} from n3 to n5
+@2957.846ms receive n1
+  net.Arrived #229 raft.Heartbeat{term 1} from n3 to n1
+@2959.477ms receive n4
+  net.Arrived #231 raft.Heartbeat{term 1} from n3 to n4
+@2959.581ms receive n2
+  net.Arrived #230 raft.Heartbeat{term 1} from n3 to n2
+@3s timer n1
+  sim.Fired n1
+@3s timer n2
+  sim.Fired n2
+@3s timer n3
+  sim.Fired n3
+  net.Sent #233 raft.Heartbeat{term 1} from n3 to n1
+  net.Sent #234 raft.Heartbeat{term 1} from n3 to n2
+  net.Sent #235 raft.Heartbeat{term 1} from n3 to n4
+  net.Sent #236 raft.Heartbeat{term 1} from n3 to n5
+@3s timer n4
+  sim.Fired n4
+@3s timer n5
+  sim.Fired n5
+  sim.Ended stop
+final:
+  n1 up  raft.Role "follower", raft.Term 1, raft.VotedFor n3, raft.Peers {n2, n3, n4, n5}
+  n2 up  raft.Role "follower", raft.Term 1, raft.VotedFor n3, raft.Peers {n1, n3, n4, n5}
+  n3 up  raft.Role "leader", raft.Term 1, raft.VotedFor n3, raft.Peers {n1, n2, n4, n5}
+  n4 up  raft.Role "follower", raft.Term 1, raft.VotedFor n3, raft.Peers {n1, n2, n3, n5}
+  n5 up  raft.Role "follower", raft.Term 1, raft.VotedFor n3, raft.Peers {n1, n2, n3, n4}

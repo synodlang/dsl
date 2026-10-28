@@ -1,0 +1,23 @@
+run example.com/tutorial/raft seed 3
+end: empty at 0s, 5 nodes, 6 steps, 12 events
+steps:
+@0s main
+  sim.Started
+  sim.Added n1 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n2 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n3 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n4 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n5 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Changed raft.Peers of n1 from {} to {n2, n3, n4, n5}
+  sim.Changed raft.Peers of n2 from {} to {n1, n3, n4, n5}
+  sim.Changed raft.Peers of n3 from {} to {n1, n2, n4, n5}
+  sim.Changed raft.Peers of n4 from {} to {n1, n2, n3, n5}
+  sim.Changed raft.Peers of n5 from {} to {n1, n2, n3, n4}
+@0s start n5
+  sim.Ended empty
+final:
+  n1 up  raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {n2, n3, n4, n5}
+  n2 up  raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {n1, n3, n4, n5}
+  n3 up  raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {n1, n2, n4, n5}
+  n4 up  raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {n1, n2, n3, n5}
+  n5 up  raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {n1, n2, n3, n4}

@@ -1,0 +1,45 @@
+# package raft
+use std/lists
+use std/net
+use std/random
+use std/sim
+use std/time
+
+RequestVote has
+  set term to 0
+
+Node has
+  set Role to "follower"
+  set Term to 0
+  set VotedFor to sim.Nobody
+  set Peers to {}
+  set votes to 0
+  set lastHeard to 0s
+
+define Meet [ns: list of Node]
+  each n in ns
+    set n.Peers to (lists.Without n from ns)
+
+define [n: Node] BecomeFollower [t: number]
+  set n.Term to t
+  set n.Role to "follower"
+  set n.VotedFor to sim.Nobody
+
+define [n: Node] StartElection
+  set n.Role to "candidate"
+  set n.Term to (n.Term plus 1)
+  set n.VotedFor to n
+  set n.votes to 1
+  set n.lastHeard to time.Now
+  each p in n.Peers
+    net.Send (message RequestVote with term n.Term) from n to p
+
+# A randomized timeout keeps candidates from colliding forever
+define [n: Node] WatchElection
+  after (random.TimeBetween 150ms and 300ms)
+    if ((n.Role is not "leader") and ((time.Now minus n.lastHeard) at least 150ms))
+      n.StartElection
+    n.WatchElection
+
+define [n: Node] start
+  n.WatchElection

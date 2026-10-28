@@ -1,0 +1,11 @@
+# package main
+use example.com/tutorial/raft
+use std/net
+use std/sim
+
+define main
+  sim.Seed 3
+  net.Latency between 5ms and 15ms
+  set nodes to (sim.Cluster of 5 running raft)
+  raft.Meet nodes
+  sim.StopAt 3s

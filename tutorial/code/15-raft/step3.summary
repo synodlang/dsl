@@ -1,0 +1,487 @@
+run example.com/tutorial/raft seed 3
+end: stop at 3s, 5 nodes, 207 steps, 582 events
+steps:
+@0s main
+  sim.Started
+  sim.Added n1 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n2 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n3 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n4 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Added n5 runs raft: raft.Role "follower", raft.Term 0, raft.VotedFor nobody, raft.Peers {}
+  sim.Changed raft.Peers of n1 from {} to {n2, n3, n4, n5}
+  sim.Changed raft.Peers of n2 from {} to {n1, n3, n4, n5}
+  sim.Changed raft.Peers of n3 from {} to {n1, n2, n4, n5}
+  sim.Changed raft.Peers of n4 from {} to {n1, n2, n3, n5}
+  sim.Changed raft.Peers of n5 from {} to {n1, n2, n3, n4}
+@166.838ms timer n3
+  sim.Fired n3
+  sim.Changed raft.Role of n3 from "follower" to "candidate"
+  sim.Changed raft.Term of n3 from 0 to 1
+  sim.Changed raft.VotedFor of n3 from nobody to n3
+  net.Sent #1 raft.RequestVote{term 1} from n3 to n1
+  net.Sent #2 raft.RequestVote{term 1} from n3 to n2
+  net.Sent #3 raft.RequestVote{term 1} from n3 to n4
+  net.Sent #4 raft.RequestVote{term 1} from n3 to n5
+@172.67ms receive n4
+  net.Arrived #3 raft.RequestVote{term 1} from n3 to n4
+  sim.Changed raft.Term of n4 from 0 to 1
+  sim.Changed raft.VotedFor of n4 from nobody to n3
+  net.Sent #5 raft.Vote{term 1, granted true} from n4 to n3
+@173.065ms receive n1
+  net.Arrived #1 raft.RequestVote{term 1} from n3 to n1
+  sim.Changed raft.Term of n1 from 0 to 1
+  sim.Changed raft.VotedFor of n1 from nobody to n3
+  net.Sent #6 raft.Vote{term 1, granted true} from n1 to n3
+@173.646ms receive n5
+  net.Arrived #4 raft.RequestVote{term 1} from n3 to n5
+  sim.Changed raft.Term of n5 from 0 to 1
+  sim.Changed raft.VotedFor of n5 from nobody to n3
+  net.Sent #7 raft.Vote{term 1, granted true} from n5 to n3
+@174.436ms receive n2
+  net.Arrived #2 raft.RequestVote{term 1} from n3 to n2
+  sim.Changed raft.Term of n2 from 0 to 1
+  sim.Changed raft.VotedFor of n2 from nobody to n3
+  net.Sent #8 raft.Vote{term 1, granted true} from n2 to n3
+@179.985ms receive n3
+  net.Arrived #6 raft.Vote{term 1, granted true} from n1 to n3
+@187.283ms receive n3
+  net.Arrived #5 raft.Vote{term 1, granted true} from n4 to n3
+  sim.Changed raft.Role of n3 from "candidate" to "leader"
+@187.794ms receive n3
+  net.Arrived #7 raft.Vote{term 1, granted true} from n5 to n3
+@188.649ms receive n3
+  net.Arrived #8 raft.Vote{term 1, granted true} from n2 to n3
+@220.397ms timer n5
+  sim.Fired n5
+@256.003ms timer n4
+  sim.Fired n4
+@293.314ms timer n2
+  sim.Fired n2
+@294.32ms timer n1
+  sim.Fired n1
+@356.513ms timer n3
+  sim.Fired n3
+@472.355ms timer n2
+  sim.Fired n2
+  sim.Changed raft.Role of n2 from "follower" to "candidate"
+  sim.Changed raft.Term of n2 from 1 to 2
+  sim.Changed raft.VotedFor of n2 from n3 to n2
+  net.Sent #9 raft.RequestVote{term 2} from n2 to n1
+  net.Sent #10 raft.RequestVote{term 2} from n2 to n3
+  net.Sent #11 raft.RequestVote{term 2} from n2 to n4
+  net.Sent #12 raft.RequestVote{term 2} from n2 to n5
+@472.64ms timer n4
+  sim.Fired n4
+  sim.Changed raft.Role of n4 from "follower" to "candidate"
+  sim.Changed raft.Term of n4 from 1 to 2
+  sim.Changed raft.VotedFor of n4 from n3 to n4
+  net.Sent #13 raft.RequestVote{term 2} from n4 to n1
+  net.Sent #14 raft.RequestVote{term 2} from n4 to n2
+  net.Sent #15 raft.RequestVote{term 2} from n4 to n3
+  net.Sent #16 raft.RequestVote{term 2} from n4 to n5
+@477.734ms receive n2
+  net.Arrived #14 raft.RequestVote{term 2} from n4 to n2
+  net.Sent #17 raft.Vote{term 2, granted false} from n2 to n4
+@478.368ms receive n5
+  net.Arrived #12 raft.RequestVote{term 2} from n2 to n5
+  sim.Changed raft.Term of n5 from 1 to 2
+  sim.Changed raft.VotedFor of n5 from n3 to nobody
+  sim.Changed raft.VotedFor of n5 from nobody to n2
+  net.Sent #18 raft.Vote{term 2, granted true} from n5 to n2
+@478.739ms receive n1
+  net.Arrived #9 raft.RequestVote{term 2} from n2 to n1
+  sim.Changed raft.Term of n1 from 1 to 2
+  sim.Changed raft.VotedFor of n1 from n3 to nobody
+  sim.Changed raft.VotedFor of n1 from nobody to n2
+  net.Sent #19 raft.Vote{term 2, granted true} from n1 to n2
+@479.451ms receive n4
+  net.Arrived #11 raft.RequestVote{term 2} from n2 to n4
+  net.Sent #20 raft.Vote{term 2, granted false} from n4 to n2
+@482.069ms timer n5
+  sim.Fired n5
+@483.135ms receive n1
+  net.Arrived #13 raft.RequestVote{term 2} from n4 to n1
+  net.Sent #21 raft.Vote{term 2, granted false} from n1 to n4
+@483.253ms timer n1
+  sim.Fired n1
+@486.671ms receive n2
+  net.Arrived #18 raft.Vote{term 2, granted true} from n5 to n2
+@486.801ms receive n3
+  net.Arrived #15 raft.RequestVote{term 2} from n4 to n3
+  sim.Changed raft.Term of n3 from 1 to 2
+  sim.Changed raft.Role of n3 from "leader" to "follower"
+  sim.Changed raft.VotedFor of n3 from n3 to nobody
+  sim.Changed raft.VotedFor of n3 from nobody to n4
+  net.Sent #22 raft.Vote{term 2, granted true} from n3 to n4
+@486.804ms receive n3
+  net.Arrived #10 raft.RequestVote{term 2} from n2 to n3
+  net.Sent #23 raft.Vote{term 2, granted false} from n3 to n2
+@486.865ms receive n5
+  net.Arrived #16 raft.RequestVote{term 2} from n4 to n5
+  net.Sent #24 raft.Vote{term 2, granted false} from n5 to n4
+@487.951ms receive n2
+  net.Arrived #19 raft.Vote{term 2, granted true} from n1 to n2
+  sim.Changed raft.Role of n2 from "candidate" to "leader"
+@489.751ms receive n4
+  net.Arrived #21 raft.Vote{term 2, granted false} from n1 to n4
+@491.177ms receive n2
+  net.Arrived #20 raft.Vote{term 2, granted false} from n4 to n2
+@491.864ms receive n4
+  net.Arrived #17 raft.Vote{term 2, granted false} from n2 to n4
+@492.383ms receive n4
+  net.Arrived #24 raft.Vote{term 2, granted false} from n5 to n4
+@492.911ms receive n2
+  net.Arrived #23 raft.Vote{term 2, granted false} from n3 to n2
+@501.497ms receive n4
+  net.Arrived #22 raft.Vote{term 2, granted true} from n3 to n4
+@645.894ms timer n3
+  sim.Fired n3
+  sim.Changed raft.Role of n3 from "follower" to "candidate"
+  sim.Changed raft.Term of n3 from 2 to 3
+  sim.Changed raft.VotedFor of n3 from n4 to n3
+  net.Sent #25 raft.RequestVote{term 3} from n3 to n1
+  net.Sent #26 raft.RequestVote{term 3} from n3 to n2
+  net.Sent #27 raft.RequestVote{term 3} from n3 to n4
+  net.Sent #28 raft.RequestVote{term 3} from n3 to n5
+@651.844ms receive n4
+  net.Arrived #27 raft.RequestVote{term 3} from n3 to n4
+  sim.Changed raft.Term of n4 from 2 to 3
+  sim.Changed raft.Role of n4 from "candidate" to "follower"
+  sim.Changed raft.VotedFor of n4 from n4 to nobody
+  sim.Changed raft.VotedFor of n4 from nobody to n3
+  net.Sent #29 raft.Vote{term 3, granted true} from n4 to n3
+@656.951ms receive n2
+  net.Arrived #26 raft.RequestVote{term 3} from n3 to n2
+  sim.Changed raft.Term of n2 from 2 to 3
+  sim.Changed raft.Role of n2 from "leader" to "follower"
+  sim.Changed raft.VotedFor of n2 from n2 to nobody
+  sim.Changed raft.VotedFor of n2 from nobody to n3
+  net.Sent #30 raft.Vote{term 3, granted true} from n2 to n3
+@657.538ms receive n5
+  net.Arrived #28 raft.RequestVote{term 3} from n3 to n5
+  sim.Changed raft.Term of n5 from 2 to 3
+  sim.Changed raft.VotedFor of n5 from n2 to nobody
+  sim.Changed raft.VotedFor of n5 from nobody to n3
+  net.Sent #31 raft.Vote{term 3, granted true} from n5 to n3
+@660.074ms receive n1
+  net.Arrived #25 raft.RequestVote{term 3} from n3 to n1
+  sim.Changed raft.Term of n1 from 2 to 3
+  sim.Changed raft.VotedFor of n1 from n2 to nobody
+  sim.Changed raft.VotedFor of n1 from nobody to n3
+  net.Sent #32 raft.Vote{term 3, granted true} from n1 to n3
+@661.909ms receive n3
+  net.Arrived #29 raft.Vote{term 3, granted true} from n4 to n3
+@664.309ms receive n3
+  net.Arrived #31 raft.Vote{term 3, granted true} from n5 to n3
+  sim.Changed raft.Role of n3 from "candidate" to "leader"
+@664.909ms timer n1
+  sim.Fired n1
+@665.894ms receive n3
+  net.Arrived #30 raft.Vote{term 3, granted true} from n2 to n3
+@666.477ms receive n3
+  net.Arrived #32 raft.Vote{term 3, granted true} from n1 to n3
+@714.868ms timer n5
+  sim.Fired n5
+@742.466ms timer n2
+  sim.Fired n2
+@744.945ms timer n4
+  sim.Fired n4
+@889.165ms timer n5
+  sim.Fired n5
+  sim.Changed raft.Role of n5 from "follower" to "candidate"
+  sim.Changed raft.Term of n5 from 3 to 4
+  sim.Changed raft.VotedFor of n5 from n3 to n5
+  net.Sent #33 raft.RequestVote{term 4} from n5 to n1
+  net.Sent #34 raft.RequestVote{term 4} from n5 to n2
+  net.Sent #35 raft.RequestVote{term 4} from n5 to n3
+  net.Sent #36 raft.RequestVote{term 4} from n5 to n4
+@894.442ms receive n4
+  net.Arrived #36 raft.RequestVote{term 4} from n5 to n4
+  sim.Changed raft.Term of n4 from 3 to 4
+  sim.Changed raft.VotedFor of n4 from n3 to nobody
+  sim.Changed raft.VotedFor of n4 from nobody to n5
+  net.Sent #37 raft.Vote{term 4, granted true} from n4 to n5
+@894.982ms receive n3
+  net.Arrived #35 raft.RequestVote{term 4} from n5 to n3
+  sim.Changed raft.Term of n3 from 3 to 4
+  sim.Changed raft.Role of n3 from "leader" to "follower"
+  sim.Changed raft.VotedFor of n3 from n3 to nobody
+  sim.Changed raft.VotedFor of n3 from nobody to n5
+  net.Sent #38 raft.Vote{term 4, granted true} from n3 to n5
+@895.497ms receive n2
+  net.Arrived #34 raft.RequestVote{term 4} from n5 to n2
+  sim.Changed raft.Term of n2 from 3 to 4
+  sim.Changed raft.VotedFor of n2 from n3 to nobody
+  sim.Changed raft.VotedFor of n2 from nobody to n5
+  net.Sent #39 raft.Vote{term 4, granted true} from n2 to n5
+@896.594ms receive n1
+  net.Arrived #33 raft.RequestVote{term 4} from n5 to n1
+  sim.Changed raft.Term of n1 from 3 to 4
+  sim.Changed raft.VotedFor of n1 from n3 to nobody
+  sim.Changed raft.VotedFor of n1 from nobody to n5
+  net.Sent #40 raft.Vote{term 4, granted true} from n1 to n5
+@900.626ms receive n5
+  net.Arrived #38 raft.Vote{term 4, granted true} from n3 to n5
+@902.461ms timer n3
+  sim.Fired n3
+@902.538ms receive n5
+  net.Arrived #40 raft.Vote{term 4, granted true} from n1 to n5
+  sim.Changed raft.Role of n5 from "candidate" to "leader"
+@903.391ms receive n5
+  net.Arrived #39 raft.Vote{term 4, granted true} from n2 to n5
+@904.867ms receive n5
+  net.Arrived #37 raft.Vote{term 4, granted true} from n4 to n5
+@943.847ms timer n4
+  sim.Fired n4
+@944.717ms timer n1
+  sim.Fired n1
+@1034.25ms timer n2
+  sim.Fired n2
+@1056.97ms timer n5
+  sim.Fired n5
+@1061.716ms timer n3
+  sim.Fired n3
+  sim.Changed raft.Role of n3 from "follower" to "candidate"
+  sim.Changed raft.Term of n3 from 4 to 5
+  sim.Changed raft.VotedFor of n3 from n5 to n3
+  net.Sent #41 raft.RequestVote{term 5} from n3 to n1
+  net.Sent #42 raft.RequestVote{term 5} from n3 to n2
+  net.Sent #43 raft.RequestVote{term 5} from n3 to n4
+  net.Sent #44 raft.RequestVote{term 5} from n3 to n5
+@1070.331ms receive n1
+  net.Arrived #41 raft.RequestVote{term 5} from n3 to n1
+  sim.Changed raft.Term of n1 from 4 to 5
+  sim.Changed raft.VotedFor of n1 from n5 to nobody
+  sim.Changed raft.VotedFor of n1 from nobody to n3
+  net.Sent #45 raft.Vote{term 5, granted true} from n1 to n3
+@1073.404ms receive n5
+  net.Arrived #44 raft.RequestVote{term 5} from n3 to n5
+  sim.Changed raft.Term of n5 from 4 to 5
+  sim.Changed raft.Role of n5 from "leader" to "follower"
+  sim.Changed raft.VotedFor of n5 from n5 to nobody
+  sim.Changed raft.VotedFor of n5 from nobody to n3
+  net.Sent #46 raft.Vote{term 5, granted true} from n5 to n3
+@1075.85ms receive n4
+  net.Arrived #43 raft.RequestVote{term 5} from n3 to n4
+  sim.Changed raft.Term of n4 from 4 to 5
+  sim.Changed raft.VotedFor of n4 from n5 to nobody
+  sim.Changed raft.VotedFor of n4 from nobody to n3
+  net.Sent #47 raft.Vote{term 5, granted true} from n4 to n3
+@1076.697ms receive n2
+  net.Arrived #42 raft.RequestVote{term 5} from n3 to n2
+  sim.Changed raft.Term of n2 from 4 to 5
+  sim.Changed raft.VotedFor of n2 from n5 to nobody
+  sim.Changed raft.VotedFor of n2 from nobody to n3
+  net.Sent #48 raft.Vote{term 5, granted true} from n2 to n3
+@1079.967ms receive n3
+  net.Arrived #46 raft.Vote{term 5, granted true} from n5 to n3
+@1080.544ms receive n3
+  net.Arrived #45 raft.Vote{term 5, granted true} from n1 to n3
+  sim.Changed raft.Role of n3 from "candidate" to "leader"
+@1082.698ms receive n3
+  net.Arrived #48 raft.Vote{term 5, granted true} from n2 to n3
+@1084.043ms receive n3
+  net.Arrived #47 raft.Vote{term 5, granted true} from n4 to n3
+@1181.28ms timer n1
+  sim.Fired n1
+@1210.11ms timer n4
+  sim.Fired n4
+@1221.479ms timer n3
+  sim.Fired n3
+@1283.817ms timer n2
+  sim.Fired n2
+  sim.Changed raft.Role of n2 from "follower" to "candidate"
+  sim.Changed raft.Term of n2 from 5 to 6
+  sim.Changed raft.VotedFor of n2 from n3 to n2
+  net.Sent #49 raft.RequestVote{term 6} from n2 to n1
+  net.Sent #50 raft.RequestVote{term 6} from n2 to n3
+  net.Sent #51 raft.RequestVote{term 6} from n2 to n4
+  net.Sent #52 raft.RequestVote{term 6} from n2 to n5
+@1293.662ms receive n1
+  net.Arrived #49 raft.RequestVote{term 6} from n2 to n1
+  sim.Changed raft.Term of n1 from 5 to 6
+  sim.Changed raft.VotedFor of n1 from n3 to nobody
+  sim.Changed raft.VotedFor of n1 from nobody to n2
+  net.Sent #53 raft.Vote{term 6, granted true} from n1 to n2
+@1295.265ms receive n3
+  net.Arrived #50 raft.RequestVote{term 6} from n2 to n3
+  sim.Changed raft.Term of n3 from 5 to 6
+  sim.Changed raft.Role of n3 from "leader" to "follower"
+  sim.Changed raft.VotedFor of n3 from n3 to nobody
+  sim.Changed raft.VotedFor of n3 from nobody to n2
+  net.Sent #54 raft.Vote{term 6, granted true} from n3 to n2
+@1296.01ms receive n5
+  net.Arrived #52 raft.RequestVote{term 6} from n2 to n5
+  sim.Changed raft.Term of n5 from 5 to 6
+  sim.Changed raft.VotedFor of n5 from n3 to nobody
+  sim.Changed raft.VotedFor of n5 from nobody to n2
+  net.Sent #55 raft.Vote{term 6, granted true} from n5 to n2
+@1296.193ms receive n4
+  net.Arrived #51 raft.RequestVote{term 6} from n2 to n4
+  sim.Changed raft.Term of n4 from 5 to 6
+  sim.Changed raft.VotedFor of n4 from n3 to nobody
+  sim.Changed raft.VotedFor of n4 from nobody to n2
+  net.Sent #56 raft.Vote{term 6, granted true} from n4 to n2
+@1302.468ms receive n2
+  net.Arrived #56 raft.Vote{term 6, granted true} from n4 to n2
+@1305.063ms receive n2
+  net.Arrived #53 raft.Vote{term 6, granted true} from n1 to n2
+  sim.Changed raft.Role of n2 from "candidate" to "leader"
+@1307.275ms receive n2
+  net.Arrived #54 raft.Vote{term 6, granted true} from n3 to n2
+@1310.186ms receive n2
+  net.Arrived #55 raft.Vote{term 6, granted true} from n5 to n2
+@1327.135ms timer n5
+  sim.Fired n5
+@1349.202ms timer n1
+  sim.Fired n1
+@1368.577ms timer n4
+  sim.Fired n4
+… 75 steps omitted (full trace: out/trace.jsonl)
+@2509.385ms receive n3
+  net.Sent #114 raft.Vote{term 12, granted true} from n3 to n5
+@2510.431ms receive n3
+  net.Arrived #110 raft.RequestVote{term 12} from n1 to n3
+  net.Sent #115 raft.Vote{term 12, granted false} from n3 to n1
+@2511.409ms receive n2
+  net.Arrived #106 raft.RequestVote{term 12} from n5 to n2
+  sim.Changed raft.Term of n2 from 11 to 12
+  sim.Changed raft.VotedFor of n2 from n4 to nobody
+  sim.Changed raft.VotedFor of n2 from nobody to n5
+  net.Sent #116 raft.Vote{term 12, granted true} from n2 to n5
+@2512.586ms receive n1
+  net.Arrived #105 raft.RequestVote{term 12} from n5 to n1
+  net.Sent #117 raft.Vote{term 12, granted false} from n1 to n5
+@2513.73ms receive n2
+  net.Arrived #109 raft.RequestVote{term 12} from n1 to n2
+  net.Sent #118 raft.Vote{term 12, granted false} from n2 to n1
+@2514.297ms receive n5
+  net.Arrived #112 raft.RequestVote{term 12} from n1 to n5
+  net.Sent #119 raft.Vote{term 12, granted false} from n5 to n1
+@2514.325ms receive n5
+  net.Arrived #113 raft.Vote{term 12, granted true} from n4 to n5
+@2514.617ms receive n4
+  net.Arrived #111 raft.RequestVote{term 12} from n1 to n4
+  net.Sent #120 raft.Vote{term 12, granted false} from n4 to n1
+@2517.039ms receive n5
+  net.Arrived #114 raft.Vote{term 12, granted true} from n3 to n5
+  sim.Changed raft.Role of n5 from "candidate" to "leader"
+@2520.059ms receive n1
+  net.Arrived #118 raft.Vote{term 12, granted false} from n2 to n1
+@2523.111ms receive n1
+  net.Arrived #115 raft.Vote{term 12, granted false} from n3 to n1
+@2525.098ms receive n5
+  net.Arrived #116 raft.Vote{term 12, granted true} from n2 to n5
+@2527.431ms receive n5
+  net.Arrived #117 raft.Vote{term 12, granted false} from n1 to n5
+@2528.294ms receive n1
+  net.Arrived #119 raft.Vote{term 12, granted false} from n5 to n1
+@2529.447ms receive n1
+  net.Arrived #120 raft.Vote{term 12, granted false} from n4 to n1
+@2540ms timer n4
+  sim.Fired n4
+@2621.107ms timer n3
+  sim.Fired n3
+@2665.213ms timer n1
+  sim.Fired n1
+  sim.Changed raft.Term of n1 from 12 to 13
+  net.Sent #121 raft.RequestVote{term 13} from n1 to n2
+  net.Sent #122 raft.RequestVote{term 13} from n1 to n3
+  net.Sent #123 raft.RequestVote{term 13} from n1 to n4
+  net.Sent #124 raft.RequestVote{term 13} from n1 to n5
+@2671.866ms receive n5
+  net.Arrived #124 raft.RequestVote{term 13} from n1 to n5
+  sim.Changed raft.Term of n5 from 12 to 13
+  sim.Changed raft.Role of n5 from "leader" to "follower"
+  sim.Changed raft.VotedFor of n5 from n5 to nobody
+  sim.Changed raft.VotedFor of n5 from nobody to n1
+  net.Sent #125 raft.Vote{term 13, granted true} from n5 to n1
+@2672.914ms receive n3
+  net.Arrived #122 raft.RequestVote{term 13} from n1 to n3
+  sim.Changed raft.Term of n3 from 12 to 13
+  sim.Changed raft.VotedFor of n3 from n5 to nobody
+  sim.Changed raft.VotedFor of n3 from nobody to n1
+  net.Sent #126 raft.Vote{term 13, granted true} from n3 to n1
+@2676.388ms receive n4
+  net.Arrived #123 raft.RequestVote{term 13} from n1 to n4
+  sim.Changed raft.Term of n4 from 12 to 13
+  sim.Changed raft.VotedFor of n4 from n5 to nobody
+  sim.Changed raft.VotedFor of n4 from nobody to n1
+  net.Sent #127 raft.Vote{term 13, granted true} from n4 to n1
+@2679.206ms receive n1
+  net.Arrived #126 raft.Vote{term 13, granted true} from n3 to n1
+@2679.293ms receive n2
+  net.Arrived #121 raft.RequestVote{term 13} from n1 to n2
+  sim.Changed raft.Term of n2 from 12 to 13
+  sim.Changed raft.VotedFor of n2 from n5 to nobody
+  sim.Changed raft.VotedFor of n2 from nobody to n1
+  net.Sent #128 raft.Vote{term 13, granted true} from n2 to n1
+@2685.695ms receive n1
+  net.Arrived #125 raft.Vote{term 13, granted true} from n5 to n1
+  sim.Changed raft.Role of n1 from "candidate" to "leader"
+@2689.142ms receive n1
+  net.Arrived #127 raft.Vote{term 13, granted true} from n4 to n1
+@2689.69ms receive n1
+  net.Arrived #128 raft.Vote{term 13, granted true} from n2 to n1
+@2711.592ms timer n2
+  sim.Fired n2
+@2773.406ms timer n5
+  sim.Fired n5
+@2801.91ms timer n4
+  sim.Fired n4
+@2832.977ms timer n1
+  sim.Fired n1
+@2864.538ms timer n3
+  sim.Fired n3
+  sim.Changed raft.Role of n3 from "follower" to "candidate"
+  sim.Changed raft.Term of n3 from 13 to 14
+  sim.Changed raft.VotedFor of n3 from n1 to n3
+  net.Sent #129 raft.RequestVote{term 14} from n3 to n1
+  net.Sent #130 raft.RequestVote{term 14} from n3 to n2
+  net.Sent #131 raft.RequestVote{term 14} from n3 to n4
+  net.Sent #132 raft.RequestVote{term 14} from n3 to n5
+@2871.639ms receive n2
+  net.Arrived #130 raft.RequestVote{term 14} from n3 to n2
+  sim.Changed raft.Term of n2 from 13 to 14
+  sim.Changed raft.VotedFor of n2 from n1 to nobody
+  sim.Changed raft.VotedFor of n2 from nobody to n3
+  net.Sent #133 raft.Vote{term 14, granted true} from n2 to n3
+@2871.899ms receive n5
+  net.Arrived #132 raft.RequestVote{term 14} from n3 to n5
+  sim.Changed raft.Term of n5 from 13 to 14
+  sim.Changed raft.VotedFor of n5 from n1 to nobody
+  sim.Changed raft.VotedFor of n5 from nobody to n3
+  net.Sent #134 raft.Vote{term 14, granted true} from n5 to n3
+@2875.665ms receive n1
+  net.Arrived #129 raft.RequestVote{term 14} from n3 to n1
+  sim.Changed raft.Term of n1 from 13 to 14
+  sim.Changed raft.Role of n1 from "leader" to "follower"
+  sim.Changed raft.VotedFor of n1 from n1 to nobody
+  sim.Changed raft.VotedFor of n1 from nobody to n3
+  net.Sent #135 raft.Vote{term 14, granted true} from n1 to n3
+@2878.497ms receive n4
+  net.Arrived #131 raft.RequestVote{term 14} from n3 to n4
+  sim.Changed raft.Term of n4 from 13 to 14
+  sim.Changed raft.VotedFor of n4 from n1 to nobody
+  sim.Changed raft.VotedFor of n4 from nobody to n3
+  net.Sent #136 raft.Vote{term 14, granted true} from n4 to n3
+@2881.83ms receive n3
+  net.Arrived #135 raft.Vote{term 14, granted true} from n1 to n3
+@2882.404ms receive n3
+  net.Arrived #133 raft.Vote{term 14, granted true} from n2 to n3
+  sim.Changed raft.Role of n3 from "candidate" to "leader"
+@2883.127ms receive n3
+  net.Arrived #134 raft.Vote{term 14, granted true} from n5 to n3
+@2888.778ms receive n3
+  net.Arrived #136 raft.Vote{term 14, granted true} from n4 to n3
+@2961.24ms timer n4
+  sim.Fired n4
+@2968.534ms timer n2
+  sim.Fired n2
+  sim.Ended stop
+final:
+  n1 up  raft.Role "follower", raft.Term 14, raft.VotedFor n3, raft.Peers {n2, n3, n4, n5}
+  n2 up  raft.Role "follower", raft.Term 14, raft.VotedFor n3, raft.Peers {n1, n3, n4, n5}
+  n3 up  raft.Role "leader", raft.Term 14, raft.VotedFor n3, raft.Peers {n1, n2, n4, n5}
+  n4 up  raft.Role "follower", raft.Term 14, raft.VotedFor n3, raft.Peers {n1, n2, n3, n5}
+  n5 up  raft.Role "follower", raft.Term 14, raft.VotedFor n3, raft.Peers {n1, n2, n3, n4}

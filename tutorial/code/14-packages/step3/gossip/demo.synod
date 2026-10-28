@@ -1,0 +1,9 @@
+# package main
+use example.com/tutorial/gossip
+use std/sim
+
+define main
+  sim.Seed 15
+  set nodes to (sim.Cluster of 5 running gossip)
+  gossip.Meet nodes
+  sim.StopAt 12s

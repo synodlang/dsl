@@ -1,0 +1,27 @@
+# package service
+use example.com/tutorial/rumor
+use std/net
+use std/sim
+
+Ask has
+  set Of to sim.Nobody
+
+Question has
+  set Topic to ""
+
+Answer has
+  set Text to ""
+
+Node has
+  set Heard to ""
+
+# A client is told which server to ask
+when [n: Node] (sim.Delivered Ask)
+  net.Send (message Question with Topic "rumor") from n to Ask.Of
+
+# A server answers with what its rumor package knows
+when [n: Node] (net.Received Question from client)
+  net.Send (message Answer with Text n.rumor.Known) from n to client
+
+when [n: Node] (net.Received Answer from server)
+  set n.Heard to Answer.Text

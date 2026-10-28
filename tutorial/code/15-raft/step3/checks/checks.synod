@@ -1,0 +1,26 @@
+# package checks
+use example.com/tutorial/rumor
+use std/lists
+use std/sim
+
+# True while the running nodes know at most one rumor between them
+define Agree
+  set texts to {}
+  each n in (sim.NodesRunning rumor)
+    if ((n.rumor.Known is not "") and (n.rumor.Known is not in texts))
+      set texts to (lists.Append n.rumor.Known to texts)
+  result ((lists.Size texts) at most 1)
+
+# Must hold after every step of the run
+always Agree
+
+# How many nodes are down
+define Down
+  set count to 0
+  each n in sim.Nodes
+    if (not (sim.IsUp n))
+      set count to (count plus 1)
+  result count
+
+# Fewer than three nodes down, always
+always (Down less than 3)

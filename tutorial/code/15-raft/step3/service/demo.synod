@@ -1,0 +1,12 @@
+# package main
+use example.com/tutorial/checks
+use example.com/tutorial/rumor
+use example.com/tutorial/service
+use std/sim
+
+define main
+  set nodes to (sim.Cluster of 5 running service)
+  rumor.Connect nodes
+  deliver (message rumor.Rumor with Text "The leader is n1") to (item 0 of nodes)
+  after 3s
+    deliver (message service.Ask with Of (item 3 of nodes)) to (item 4 of nodes)

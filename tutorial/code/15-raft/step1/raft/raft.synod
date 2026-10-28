@@ -1,0 +1,20 @@
+# package raft
+use std/lists
+use std/sim
+
+Node has
+  set Role to "follower"
+  set Term to 0
+  set VotedFor to sim.Nobody
+  set Peers to {}
+  set votes to 0
+  set lastHeard to 0s
+
+define Meet [ns: list of Node]
+  each n in ns
+    set n.Peers to (lists.Without n from ns)
+
+define [n: Node] BecomeFollower [t: number]
+  set n.Term to t
+  set n.Role to "follower"
+  set n.VotedFor to sim.Nobody

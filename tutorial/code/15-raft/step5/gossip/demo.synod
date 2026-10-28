@@ -1,0 +1,15 @@
+# package main
+use example.com/tutorial/gossip
+use std/lesson
+use std/sim
+use std/text
+
+define main
+  sim.Seed 15
+  set nodes to (sim.Cluster of 5 running gossip)
+  gossip.Meet nodes
+  after 6s
+    sim.Crash (item 2 of nodes)
+  after 14s
+    lesson.Note (text.Join {"n1 believes ", (text.From (gossip.Alive at (item 0 of nodes))), " of 5 nodes are alive"})
+  sim.StopAt 16s

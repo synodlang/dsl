@@ -1,0 +1,8 @@
+# package gossip
+use github.com/synodlang/examples/gossip as base
+
+# Join every node to the first one
+define Meet [ns: list of Node]
+  each i, n in ns
+    if (i more than 0)
+      base.Join n to (item 0 of ns)

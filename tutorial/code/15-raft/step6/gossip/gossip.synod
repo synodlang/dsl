@@ -1,0 +1,14 @@
+# package gossip
+use github.com/synodlang/examples/gossip as base
+use std/lists
+use std/maps
+
+# Join every node to the first one
+define Meet [ns: list of Node]
+  each i, n in ns
+    if (i more than 0)
+      base.Join n to (item 0 of ns)
+
+# How many nodes n believes are alive
+define Alive at [n: Node]
+  result ((maps.Size n.base.Known) minus (lists.Size n.base.Down))
