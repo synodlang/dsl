@@ -1,0 +1,14 @@
+# package strokes
+use std/look
+use std/sim
+use std/theme
+
+# The frame is dashed, the circle is drawn on with its outline first
+when sim.Started
+  draw look.Frame as frame
+  look.Stroke frame with theme.Line
+  look.Dash frame on 8 off 6
+  draw (look.Circle 60) as disc
+  look.Fill disc with theme.Accent
+  look.Stroke disc with theme.Ink
+  look.Reveal disc

@@ -1,0 +1,22 @@
+# package arcs
+use std/look
+use std/net
+use std/sim
+use std/theme
+
+when sim.Started
+  look.Layout "row"
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+
+# The ball bends a quarter of the way and leaves a trail 200ms long
+when (net.Sent m from a to b)
+  draw (look.Circle 6) as ball for (net.Id m)
+  look.Fill ball with theme.Accent
+  look.Bend ball by 0.25
+  look.Trail ball for 200ms
+  look.Flight ball from (card of a) to (card of b) for m
+
+when (net.Arrived m from a to b)
+  look.Remove (ball of (net.Id m))

@@ -30,11 +30,17 @@ That is a lot of code to redo what the default look already did. A look package 
 
 <!-- step 4 program=rumor -->
 
+The colors in a look come from somewhere. `theme.Quiet` is a **theme value**: the program has one theme, a package with the header `# theme <word>` that defines every theme name once, from the colors (`Paper`, `Ink`, `Accent`…) to the type face (`Sans`) and the shape of a node card (`NodeShape`). Until now the program used the default theme of `std`. Step 5 picks its own. The default theme is the template: a program cannot write `std/theme/default`, so you copy its definitions into a new local package, `rumortheme`, and change what you like. Here `Paper` is a plum instead of navy, `Accent` is rose instead of amber, and `Sans` is a serif. A theme defines all of its names, not some of them. A program is given its theme by importing it in the main file, and a program with no theme import keeps the default one:
+
+<!-- step 5 program=rumor -->
+
+Like a look, a theme only changes how the run is drawn. The trace of step 5 is the trace of step 4 to the letter.
+
 Looks are the place for taste. The behaviour never changes: run the program without the look and you get the same trace.
 
 ## What to watch
 
-Step 1: six empty cards on a ring and no messages. Step 2: balls travel between cards; a dropped message stops halfway. Step 3 and 4: a card is grey until its node learns the rumor, then it turns amber, smoothly. The partition is visible: the amber spreads on one side and waits on the other.
+Step 1: six empty cards on a ring and no messages. Step 2: balls travel between cards; a dropped message stops halfway. Step 3 and 4: a card is grey until its node learns the rumor, then it turns amber, smoothly. The partition is visible: the amber spreads on one side and waits on the other. Step 5: the same picture on a plum ground, the messages and captions in rose, and a serif face.
 
 ## Why it looks like this
 
@@ -43,6 +49,12 @@ A look cannot change what happens. An observer that tries to set a node field is
 <!-- why context -->
 
 `synod check` says `error[context]`: setting state is not allowed in look context. This is what lets the trace be the same with and without a look.
+
+A theme is held to the same standard: it must define every name. Take `Fill` out of `rumortheme`:
+
+<!-- why bad-theme -->
+
+`synod check` says `error[bad-theme]`: the theme "rumortheme" does not define "Fill". With a name missing, a look could ask for a value that does not exist, so the theme is refused before anything runs.
 
 ## Exercises
 
@@ -64,5 +76,12 @@ The six cards stand in a row instead of a ring.
 <details><summary>Expected</summary>
 
 The program still checks, but messages are no longer drawn, because only the cards are drawn by this package.
+
+</details>
+
+4. In step 5, change the `result` of `NodeShape` in `rumortheme` from `"card"` to `"circle"`.
+<details><summary>Expected</summary>
+
+The cards become circles with the name in the middle; the ring, the colors and the messages are as before. The trace is the same, because a theme never changes what happens.
 
 </details>

@@ -1,0 +1,10 @@
+# package main
+# Shows look.Bend and look.Trail: a message ball flies along an arc and leaves a trail
+use example.com/library/look/arcs
+use example.com/library/look/pingpong
+use std/sim
+
+define main
+  set nodes to (sim.Cluster of 2 running pingpong)
+  deliver (message pingpong.Start with Peer (item 1 of nodes)) to (item 0 of nodes)
+  sim.StopAt 1s

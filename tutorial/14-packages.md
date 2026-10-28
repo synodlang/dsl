@@ -28,6 +28,8 @@ require github.com/synodlang/examples v0.2.1
 
 and `synod get` downloads it into `vendor/` (git ignores that folder) and writes a file `synod.sum` that pins the exact commit, so the program replays the same years from now. Commit `synod.sum`, never `vendor/`. Everything works offline once fetched.
 
+The same works for looks and themes: the module `github.com/synodlang/looks` holds ready-made ones, fetched and imported like any package.
+
 We also write our own package called `gossip`, and it builds on theirs. Both are named `gossip`, so the import of the other would be ambiguous inside ours. That is the one case for `use … as`: the import is given another name, `base`. A node of our `gossip` also runs `base`, so a `gossip.Node` is accepted by `base.Join`:
 
 <!-- step 3 program=gossip -->

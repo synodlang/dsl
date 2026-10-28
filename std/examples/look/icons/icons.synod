@@ -1,0 +1,11 @@
+# package icons
+use std/look
+use std/sim
+
+# A server icon and a disk icon; the server becomes a check mark
+when sim.Started
+  draw (look.Icon "server") as server
+  draw (look.Icon "disk") as disk
+  look.Place disk beside server
+  after 500ms
+    look.Tween "icon" of server to "check" over 400ms

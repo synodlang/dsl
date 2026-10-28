@@ -1,0 +1,7 @@
+# package main
+# Shows every theme value of std/theme not yet shown by the palette: message colors, effects, shapes and type
+use example.com/library/theme/values
+use std/sim
+
+define main
+  sim.StopAt 1s

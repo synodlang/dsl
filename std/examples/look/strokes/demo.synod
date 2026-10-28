@@ -1,0 +1,7 @@
+# package main
+# Shows look.Dash, look.Reveal and look.Frame: a dashed frame, and a circle drawn on
+use example.com/library/look/strokes
+use std/sim
+
+define main
+  sim.StopAt 2s

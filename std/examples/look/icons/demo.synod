@@ -1,0 +1,7 @@
+# package main
+# Shows look.Icon and look.Tween of "icon": an icon morphs into another of the set
+use example.com/library/look/icons
+use std/sim
+
+define main
+  sim.StopAt 2s

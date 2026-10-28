@@ -1,0 +1,13 @@
+# package camera
+use std/look
+use std/sim
+
+when sim.Started
+  look.Layout "row"
+
+# The camera zooms in on each new card, then returns to the centre
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+  look.Focus (card of n) zoom 2 over 500ms
+  after 1s
+    look.Focus look.Center zoom 1 over 500ms

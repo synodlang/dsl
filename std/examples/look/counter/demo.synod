@@ -1,0 +1,7 @@
+# package main
+# Shows look.Counter, look.Role and look.Face, and look.Tween of "count": a counter whose digits roll
+use example.com/library/look/counter
+use std/sim
+
+define main
+  sim.StopAt 2s

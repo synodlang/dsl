@@ -1,0 +1,17 @@
+# package entrance
+use std/look
+use std/sim
+use std/theme
+
+# A big disc pops in alone, then three small ones enter 150ms apart
+when sim.Started
+  draw (look.Circle 40) as big
+  look.Fill big with theme.Accent
+  look.PopIn big
+  draw (look.Circle 12) as a
+  draw (look.Circle 12) as b
+  draw (look.Circle 12) as c
+  look.Place b beside a
+  look.Place c beside b
+  look.Place a below big
+  look.Enter {a, b, c} every 150ms

@@ -1,0 +1,21 @@
+# package effects
+use std/look
+use std/net
+use std/sim
+
+when (sim.Added n)
+  draw (look.Card for n) as card for n
+
+when sim.Started
+  look.Layout "row"
+
+# A message gets a dot in the color of its record type, and the sender's card plays an effect
+when (net.Sent m from a to b)
+  draw (look.Circle 8) as dot for (net.Id m)
+  look.Fill dot with (look.MessageColor m)
+  look.Effect "glow" on (card of a)
+  look.Effect "indicate" on (card of a)
+  look.Effect "flash" on (card of a)
+  look.Effect "circumscribe" on (card of a)
+  look.Effect "ripple" on (card of b)
+  look.Effect "sweep" on (card of b)

@@ -1,0 +1,7 @@
+# package main
+# Shows look.PopIn and look.Enter: one shape pops in, then a list of shapes enters one after another
+use example.com/library/look/entrance
+use std/sim
+
+define main
+  sim.StopAt 2s

@@ -285,7 +285,7 @@ brand for the colors) are:
 A name is one definition whose block is one `result` line, as in this
 beginning of the file:
 
-```
+```synod
 # theme default
 # scene ground
 define Paper

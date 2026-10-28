@@ -2,6 +2,7 @@
 use example.com/tutorial/checks
 use example.com/tutorial/rumor
 use example.com/tutorial/rumorlook
+use example.com/tutorial/rumortheme
 use std/lesson
 use std/net
 use std/sim

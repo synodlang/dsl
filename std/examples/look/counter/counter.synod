@@ -1,0 +1,14 @@
+# package counter
+use std/look
+use std/sim
+
+# A counter in the value role and the mono face, counting up to 42
+when sim.Started
+  draw (look.Counter 0) as total
+  look.Role total as "value"
+  look.Face total as "mono"
+  draw (look.Label "messages") as caption
+  look.Role caption as "caption"
+  look.Place caption below total
+  after 300ms
+    look.Tween "count" of total to 42 over 800ms

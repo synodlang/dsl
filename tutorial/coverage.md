@@ -1,10 +1,11 @@
 # Coverage
 
-Which chapter teaches each item of the compiler's catalog of forms, types, contexts and std packages (decision 104). A step uses only items named for its chapter or an earlier one. `internal/forms/cmd/doccheck` checks this file; `Item` is `<kind>:<id>`, and rows `phrase:<pattern>` may name std phrases. Every item is used by a step of its chapter, except `form:define-native` and `type:value`, which a chapter explains in prose only.
+Which chapter teaches each item of the compiler's catalog of forms, types, contexts and std packages (decision 104). A step uses only items named for its chapter or an earlier one. `internal/forms/cmd/doccheck` checks this file; `Item` is `<kind>:<id>`, and rows `phrase:<pattern>` may name std phrases. Every item is used by a step of its chapter, except `form:define-native`, `type:value` and `package:std/theme/default`, which a chapter explains in prose only.
 
 | Item | Shown as | Reference | Chapter |
 | --- | --- | --- | --- |
 | `form:header` | `# package main` | spec/06 §6.1 | 1 |
+| `form:header-theme` | `# theme rumortheme` | spec/06 §6.7 | 12 |
 | `form:comment` | `# Say hello.` | spec/01 §1.3 | 1 |
 | `form:block` | indented lines under `define main` | spec/01 §1.2 | 1 |
 | `form:paren` | `(apples times price)` | spec/02 §2.3 | 2 |
@@ -98,4 +99,5 @@ Which chapter teaches each item of the compiler's catalog of forms, types, conte
 | `package:std/sim` | `sim.StopAt` | std/README.md § std/sim | 3 |
 | `package:std/text` | `text.Join` | std/README.md § std/text | 2 |
 | `package:std/theme` | `theme.Accent` | std/README.md § std/theme | 12 |
+| `package:std/theme/default` | the template to copy | std/README.md § std/theme | 12 |
 | `package:std/time` | `time.Now` | std/README.md § std/time | 3 |

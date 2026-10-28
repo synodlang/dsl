@@ -1,0 +1,62 @@
+# package values
+use std/look
+use std/sim
+use std/theme
+
+# The four message colors as swatches, the numbers as counters, the texts as labels
+when sim.Started
+  draw (look.Rect 60 by 60) as m1
+  look.Fill m1 with theme.Message1
+  draw (look.Rect 60 by 60) as m2
+  look.Fill m2 with theme.Message2
+  look.Place m2 beside m1
+  draw (look.Rect 60 by 60) as m3
+  look.Fill m3 with theme.Message3
+  look.Place m3 beside m2
+  draw (look.Rect 60 by 60) as m4
+  look.Fill m4 with theme.Message4
+  look.Place m4 beside m3
+  draw (look.Counter theme.Vignette) as vignette
+  look.Place vignette below m1
+  draw (look.Counter theme.Sketch) as sketch
+  look.Place sketch below vignette
+  draw (look.Counter theme.Glow) as glow
+  look.Place glow below sketch
+  draw (look.Counter theme.Shadow) as shadow
+  look.Place shadow below glow
+  draw (look.Counter theme.StrokeWidth) as strokewidth
+  look.Place strokewidth below shadow
+  draw (look.Counter theme.CornerRadius) as cornerradius
+  look.Place cornerradius below strokewidth
+  draw (look.Counter theme.LinkOpacity) as linkopacity
+  look.Place linkopacity below cornerradius
+  draw (look.Counter theme.Drift) as drift
+  look.Place drift below linkopacity
+  draw (look.Counter theme.TitleSize) as titlesize
+  look.Place titlesize below drift
+  draw (look.Counter theme.LabelSize) as labelsize
+  look.Place labelsize below titlesize
+  draw (look.Counter theme.ValueSize) as valuesize
+  look.Place valuesize below labelsize
+  draw (look.Counter theme.CaptionSize) as captionsize
+  look.Place captionsize below valuesize
+  draw (look.Counter theme.TitleWeight) as titleweight
+  look.Place titleweight below captionsize
+  draw (look.Counter theme.LabelWeight) as labelweight
+  look.Place labelweight below titleweight
+  draw (look.Counter theme.Tracking) as tracking
+  look.Place tracking below labelweight
+  draw (look.Counter theme.Margin) as margin
+  look.Place margin below tracking
+  draw (look.Counter theme.Fill) as fill
+  look.Place fill below margin
+  draw (look.Label theme.NodeShape) as nodeshape
+  look.Place nodeshape below fill
+  draw (look.Label theme.NodeFill) as nodefill
+  look.Place nodefill below nodeshape
+  draw (look.Label theme.Easing) as easing
+  look.Place easing below nodefill
+  draw (look.Label theme.Sans) as sans
+  look.Place sans below easing
+  draw (look.Label theme.Mono) as mono
+  look.Place mono below sans
