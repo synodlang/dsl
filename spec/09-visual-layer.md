@@ -244,7 +244,7 @@ and how it moves (decision 115). Looks read theme values as `theme.<Name>`
   its bare name (`Accent`); any other is `<qualifier>.<Name>` with the
   qualifier as in the trace (`raftlook.Hot`). The scene lists colors by name
   and hex (`implementation/04-formats.md`).
-- A theme defines exactly the 37 names below, each of the type and in the
+- A theme defines exactly the 34 names below, each of the type and in the
   domain shown. The Default column is `std/theme/default`, the Synod brand
   (navy ground, pale nodes, amber accent; see `assets/icon.svg`); the scene
   column says where the value goes (`implementation/04-formats.md`). The
