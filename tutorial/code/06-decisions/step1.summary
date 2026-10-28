@@ -1,0 +1,95 @@
+run example.com/tutorial/pingpong seed 1
+end: empty at 2033.503ms, 2 nodes, 24 steps, 67 events
+steps:
+@0s main
+  sim.Started
+  sim.Added n1 runs pingpong: pingpong.Peer nobody, pingpong.Rounds 0, pingpong.Done false
+  sim.Added n2 runs pingpong: pingpong.Peer nobody, pingpong.Rounds 0, pingpong.Done false
+  sim.Changed pingpong.Peer of n1 from nobody to n2
+  sim.Injected pingpong.Start{Round 1} into n1
+@0s deliver n1
+  net.Sent #1 pingpong.Ping{round 1} from n1 to n2
+@110.711ms receive n2
+  net.Arrived #1 pingpong.Ping{round 1} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 0 to 1
+  net.Sent #2 pingpong.Pong{round 1} from n2 to n1
+@165.474ms receive n1
+  net.Arrived #2 pingpong.Pong{round 1} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 0 to 1
+  net.Sent #3 pingpong.Ping{round 2} from n1 to n2
+@296.174ms receive n2
+  net.Arrived #3 pingpong.Ping{round 2} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 1 to 2
+  net.Sent #4 pingpong.Pong{round 2} from n2 to n1
+@397.022ms receive n1
+  net.Arrived #4 pingpong.Pong{round 2} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 1 to 2
+  net.Sent #5 pingpong.Ping{round 3} from n1 to n2
+@504.929ms receive n2
+  net.Arrived #5 pingpong.Ping{round 3} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 2 to 3
+  net.Sent #6 pingpong.Pong{round 3} from n2 to n1
+@565.655ms receive n1
+  net.Arrived #6 pingpong.Pong{round 3} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 2 to 3
+  net.Sent #7 pingpong.Ping{round 4} from n1 to n2
+@684.353ms receive n2
+  net.Arrived #7 pingpong.Ping{round 4} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 3 to 4
+  net.Sent #8 pingpong.Pong{round 4} from n2 to n1
+@813.046ms receive n1
+  net.Arrived #8 pingpong.Pong{round 4} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 3 to 4
+  net.Sent #9 pingpong.Ping{round 5} from n1 to n2
+@876.976ms receive n2
+  net.Arrived #9 pingpong.Ping{round 5} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 4 to 5
+  net.Sent #10 pingpong.Pong{round 5} from n2 to n1
+@973.466ms receive n1
+  net.Arrived #10 pingpong.Pong{round 5} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 4 to 5
+  net.Sent #11 pingpong.Ping{round 6} from n1 to n2
+@1059.088ms receive n2
+  net.Arrived #11 pingpong.Ping{round 6} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 5 to 6
+  net.Sent #12 pingpong.Pong{round 6} from n2 to n1
+@1142.656ms receive n1
+  net.Arrived #12 pingpong.Pong{round 6} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 5 to 6
+  net.Sent #13 pingpong.Ping{round 7} from n1 to n2
+@1244.238ms receive n2
+  net.Arrived #13 pingpong.Ping{round 7} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 6 to 7
+  net.Sent #14 pingpong.Pong{round 7} from n2 to n1
+@1339.271ms receive n1
+  net.Arrived #14 pingpong.Pong{round 7} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 6 to 7
+  net.Sent #15 pingpong.Ping{round 8} from n1 to n2
+@1466.883ms receive n2
+  net.Arrived #15 pingpong.Ping{round 8} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 7 to 8
+  net.Sent #16 pingpong.Pong{round 8} from n2 to n1
+@1607.012ms receive n1
+  net.Arrived #16 pingpong.Pong{round 8} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 7 to 8
+  net.Sent #17 pingpong.Ping{round 9} from n1 to n2
+@1749.298ms receive n2
+  net.Arrived #17 pingpong.Ping{round 9} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 8 to 9
+  net.Sent #18 pingpong.Pong{round 9} from n2 to n1
+@1808.343ms receive n1
+  net.Arrived #18 pingpong.Pong{round 9} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 8 to 9
+  net.Sent #19 pingpong.Ping{round 10} from n1 to n2
+@1887.394ms receive n2
+  net.Arrived #19 pingpong.Ping{round 10} from n1 to n2
+  sim.Changed pingpong.Rounds of n2 from 9 to 10
+  net.Sent #20 pingpong.Pong{round 10} from n2 to n1
+@2033.503ms receive n1
+  net.Arrived #20 pingpong.Pong{round 10} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 9 to 10
+  sim.Changed pingpong.Done of n1 from false to true
+  sim.Ended empty
+final:
+  n1 up  pingpong.Peer n2, pingpong.Rounds 10, pingpong.Done true
+  n2 up  pingpong.Peer nobody, pingpong.Rounds 10, pingpong.Done false

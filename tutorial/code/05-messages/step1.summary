@@ -1,0 +1,21 @@
+run example.com/tutorial/pingpong seed 1
+end: empty at 33.094ms, 2 nodes, 6 steps, 11 events
+steps:
+@0s main
+  sim.Started
+  sim.Added n1 runs pingpong: pingpong.Peer nobody, pingpong.Rounds 0
+  sim.Added n2 runs pingpong: pingpong.Peer nobody, pingpong.Rounds 0
+  sim.Changed pingpong.Peer of n1 from nobody to n2
+  sim.Injected pingpong.Start{Round 1} into n1
+@0s deliver n1
+  net.Sent #1 pingpong.Ping{round 1} from n1 to n2
+@22.142ms receive n2
+  net.Arrived #1 pingpong.Ping{round 1} from n1 to n2
+  net.Sent #2 pingpong.Pong{round 1} from n2 to n1
+@33.094ms receive n1
+  net.Arrived #2 pingpong.Pong{round 1} from n2 to n1
+  sim.Changed pingpong.Rounds of n1 from 0 to 1
+  sim.Ended empty
+final:
+  n1 up  pingpong.Peer n2, pingpong.Rounds 1
+  n2 up  pingpong.Peer nobody, pingpong.Rounds 0

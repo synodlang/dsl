@@ -1,0 +1,12 @@
+# package main
+use example.com/tutorial/pingpong
+use std/net
+use std/sim
+
+define main
+  set a to (sim.Spawn pingpong)
+  set b to (sim.Spawn pingpong)
+  set a.pingpong.Peer to b
+  net.Latency between 50ms and 150ms
+  deliver (message pingpong.Start with Round 1) to a
+  sim.StopAt 3s

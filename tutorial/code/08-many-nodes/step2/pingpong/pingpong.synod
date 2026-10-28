@@ -1,0 +1,71 @@
+# package pingpong
+use std/lists
+use std/math
+use std/net
+use std/sim
+
+Start has
+  set Round to 0
+
+Ping has
+  set round to 0
+
+Pong has
+  set round to 0
+
+Node has
+  set Peers to {}
+  set Heard to {}
+  set Round to 0
+  set Done to false
+
+# Ten rounds are played
+define Limit
+  result 10
+
+# More than half of n
+define Majority of [n: number]
+  result ((math.Floor (n divided by 2)) plus 1)
+
+# Every node in the list learns all the others
+define Connect [ns: list of Node]
+  each n in ns
+    set n.Peers to (lists.Without n from ns)
+
+# The peers that answered round r
+define Answerers [heard: map of node to number] in round [r: number]
+  set who to {}
+  each k, v in heard
+    if (v is r)
+      set who to (lists.Append k to who)
+  result who
+
+# Send a message to another node
+define [n: Node] Reply [m: msg] to [p: node]
+  net.Send m from n to p
+
+# Ping every peer with the current round
+define [n: Node] Ask
+  each p in n.Peers
+    n.Reply (message Ping with round n.Round) to p
+
+# The first node asks round one
+when [n: Node] (sim.Delivered Start)
+  set n.Round to Start.Round
+  n.Ask
+
+# Whoever is pinged answers
+when [n: Node] (net.Received Ping from sender)
+  n.Reply (message Pong with round Ping.round) to sender
+
+# The asking node notes each answer and moves on when a majority has answered
+when [n: Node] (net.Received Pong from sender)
+  if ((sender is in n.Peers) and (Pong.round is n.Round))
+    set item sender of n.Heard to Pong.round
+    set answered to ((lists.Size (Answerers n.Heard in round n.Round)) plus 1)
+    if (answered is (Majority of ((lists.Size n.Peers) plus 1)))
+      if (n.Round less than Limit)
+        set n.Round to (n.Round plus 1)
+        n.Ask
+      else
+        set n.Done to true

@@ -1,0 +1,51 @@
+# package pingpong
+use std/lists
+use std/net
+use std/sim
+
+Start has
+  set Round to 0
+
+Ping has
+  set round to 0
+
+Pong has
+  set round to 0
+
+Node has
+  set Peers to {}
+  set Rounds to 0
+  set Done to false
+
+# Ten rounds are played
+define Limit
+  result 10
+
+# Every node in the list learns all the others
+define Connect [ns: list of Node]
+  each n in ns
+    set n.Peers to (lists.Without n from ns)
+
+# Send a message to another node
+define [n: Node] Reply [m: msg] to [p: node]
+  net.Send m from n to p
+
+# The first node serves every peer
+when [n: Node] (sim.Delivered Start)
+  each p in n.Peers
+    net.Send (message Ping with round Start.Round) from n to p
+
+# Whoever is pinged answers
+when [n: Node] (net.Received Ping from sender)
+  set n.Rounds to (n.Rounds plus 1)
+  n.Reply (message Pong with round Ping.round) to sender
+  if (Ping.round at least Limit)
+    set n.Done to true
+
+# Whoever hears the answer pings again, until round ten
+when [n: Node] (net.Received Pong from sender)
+  set n.Rounds to (n.Rounds plus 1)
+  if (Pong.round less than Limit)
+    n.Reply (message Ping with round (Pong.round plus 1)) to sender
+  else
+    set n.Done to true

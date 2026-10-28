@@ -1,0 +1,34 @@
+# package pingpong
+use std/net
+use std/sim
+
+Start has
+  set Round to 0
+
+Ping has
+  set round to 0
+
+Pong has
+  set round to 0
+
+Node has
+  set Peer to sim.Nobody
+  set Rounds to 0
+  set Done to false
+
+# The first node serves
+when [n: Node] (sim.Delivered Start)
+  net.Send (message Ping with round Start.Round) from n to n.Peer
+
+# Whoever is pinged answers
+when [n: Node] (net.Received Ping from sender)
+  set n.Rounds to (n.Rounds plus 1)
+  net.Send (message Pong with round Ping.round) from n to sender
+
+# Whoever hears the answer pings again, until round ten
+when [n: Node] (net.Received Pong from sender)
+  set n.Rounds to (n.Rounds plus 1)
+  if (Pong.round less than 10)
+    net.Send (message Ping with round (Pong.round plus 1)) from n to sender
+  else
+    set n.Done to true

@@ -1,0 +1,36 @@
+# package rumor
+use std/lists
+use std/net
+use std/random
+use std/sim
+
+Rumor has
+  set Text to ""
+
+Node has
+  set Peers to {}
+  set Known to ""
+
+# Every node in the list learns all the others
+define Connect [ns: list of Node]
+  each n in ns
+    set n.Peers to (lists.Without n from ns)
+
+# Tell one random peer, then maybe again after a random pause
+define [n: Node] Tell
+  net.Send (message Rumor with Text n.Known) from n to (random.Pick n.Peers)
+  after (random.TimeBetween 200ms and 600ms)
+    if (random.Chance 0.7)
+      n.Tell
+
+# Believe a rumor the first time it is heard, and start telling it
+define [n: Node] Learn [t: text]
+  if (n.Known is "")
+    set n.Known to t
+    n.Tell
+
+when [n: Node] (sim.Delivered Rumor)
+  n.Learn Rumor.Text
+
+when [n: Node] (net.Received Rumor from sender)
+  n.Learn Rumor.Text

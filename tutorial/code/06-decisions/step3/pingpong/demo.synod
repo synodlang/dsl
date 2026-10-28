@@ -1,0 +1,20 @@
+# package main
+use example.com/tutorial/pingpong
+use std/lesson
+use std/net
+use std/sim
+
+define main
+  set a to (sim.Spawn pingpong)
+  set b to (sim.Spawn pingpong)
+  set a.pingpong.Peer to b
+  net.Latency between 50ms and 150ms
+  deliver (message pingpong.Start with Round 1) to a
+  after 5s
+    if ((a.pingpong.Rounds at most 0) or (b.pingpong.Rounds at most 0))
+      lesson.Note "Somebody never played."
+    else
+      if (a.pingpong.Done and b.pingpong.Done)
+        lesson.Note "Both nodes stopped after ten rounds."
+      else
+        lesson.Note "Someone is still playing."

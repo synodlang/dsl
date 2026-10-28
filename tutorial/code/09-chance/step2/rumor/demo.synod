@@ -1,0 +1,8 @@
+# package main
+use example.com/tutorial/rumor
+use std/sim
+
+define main
+  set nodes to (sim.Cluster of 6 running rumor)
+  rumor.Connect nodes
+  deliver (message rumor.Rumor with Text "The leader is n1") to (item 0 of nodes)

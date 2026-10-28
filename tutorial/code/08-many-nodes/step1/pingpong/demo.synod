@@ -1,0 +1,10 @@
+# package main
+use example.com/tutorial/pingpong
+use std/net
+use std/sim
+
+define main
+  set nodes to (sim.Cluster of 5 running pingpong)
+  pingpong.Connect nodes
+  net.Latency between 50ms and 150ms
+  deliver (message pingpong.Start with Round 1) to (item 0 of nodes)

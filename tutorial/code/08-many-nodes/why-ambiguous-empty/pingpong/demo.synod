@@ -1,0 +1,21 @@
+# package main
+use example.com/tutorial/pingpong
+use std/lesson
+use std/lists
+use std/maps
+use std/net
+use std/sim
+use std/text
+
+define main
+  set caller to (sim.Spawn pingpong)
+  set near to (sim.Cluster of 2 running pingpong)
+  set far to (sim.Cluster of 2 running pingpong)
+  set caller.pingpong.Peers to (lists.Extend near with far)
+  set nobody to {}
+  lesson.Note (text.From nobody)
+  net.Latency between 50ms and 150ms
+  deliver (message pingpong.Start with Round 1) to caller
+  after 5s
+    set heard to caller.pingpong.Heard
+    lesson.Note (text.Join {"Heard from ", (text.From (maps.Size heard)), " peers, the first was ", (text.From (item 0 of (maps.Keys heard)))})
