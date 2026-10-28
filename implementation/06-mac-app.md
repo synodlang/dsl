@@ -130,11 +130,24 @@ editor is M9; the prompt bar (M10) sits above the editor, see "Claude" below.
 - **Player (M8).** A `WKWebView` hosting the bundled `player` library
   (offline), fed `scene.json` through a JS bridge; the same renderer as
   the site. The library draws by the reader rules of `04-formats.md`:
-  keyframes with smootherstep, colors in OKLab, no shadows except glow,
-  rounded corners on, 3Blue1Brown-style dark ground from the theme. Swift
-  loads it with `SynodPlayer.mount("#stage", opts)` and then
-  `player.setScene(<json string>)`; `attachWebKitBridge` posts the player's
-  events (time, marker, fact, play, pause, scene) to the host.
+  keyframes with smootherstep (position, scale, rotation and the camera use
+  the theme's `Easing`), colors in OKLab, and the skin the scene `style`
+  gives (fonts, glow, shadow, vignette, sketch, drift); the ground is the
+  scene theme's `Paper` (M12, decisions 112 to 120). Swift loads it with
+  `SynodPlayer.mount("#stage", opts)` and then `player.setScene(<json string>)`;
+  `attachWebKitBridge` posts the player's events (time, marker, fact, play,
+  pause, scene) to the host.
+  - *Fonts (M12, decision 118).* The app bundles the player's fonts asset
+    (`synod-player-fonts-<tag>.tar.gz`: Inter, JetBrains Mono, Source Serif 4
+    and Shantell Sans, each with its `OFL-<family>.txt`) in
+    `Contents/Resources/fonts/` and mounts every player with `fontBase` set to
+    that folder (a `file` URL the web view may read). The app and its
+    notes include the four licence texts. The viewer needs no network for text.
+  - *The program's theme.* The app shows the theme the program's main file
+    imports (decision 113); it has no theme picker in M12 and never re-skins a
+    scene without re-running, so what the viewer shows is what the source says.
+    A Theme menu that rewrites the main file's `use` line (a source edit like
+    Break it, decision 85) and re-runs is planned for M13.
 - **Timeline (M8).** Play, pause, step to previous/next fact, scrub, speed
   (0.25× to 4×), ordered/proportional toggle, markers for `pause`
   (from `lesson.Ask`), `caption`, `broken` (the scene `markers` in
@@ -153,7 +166,10 @@ editor is M9; the prompt bar (M10) sits above the editor, see "Claude" below.
   1080p/4K, 30 or 60 fps, BT.709) from the `player`'s `renderFrame(at)`,
   the one render path. A separate offscreen web view holds a player on its
   own canvas; the host asks it for each frame as a lossless PNG at a fixed
-  time and appends it to the video (decision 75). The speed defaults to the
+  time and appends it to the video (decision 75). The offscreen player is
+  mounted with the same `fontBase`, and the export awaits `player.fontsReady()`
+  before it asks for the first frame, so no frame is drawn in a fallback face
+  (decision 118). The speed defaults to the
   timeline's current speed. With duration `D` ms, rate `r` and `fps`, frame
   `k` shows `at_k = min(k·r·1000/fps, D)` and has presentation time `k/fps`,
   and there are `N = ceil(D·fps/(1000·r)) + 1` frames, so the first frame
@@ -173,7 +189,9 @@ editor is M9; the prompt bar (M10) sits above the editor, see "Claude" below.
     frames above. The app encodes GIF89a itself, frame by frame, so memory does
     not grow with the length: one global palette of at most 256 colors derived
     from the scene `theme`, in file order (Paper first, then the other theme
-    colors, then OKLab mixes of Paper and of Ink with them),
+    colors, then OKLab mixes of Paper and of Ink with them, and, when the
+    scene `style.vignette` or `style.shadow` is greater than 0, `Paper` at 0.5
+    and at 0.25 of its lightness),
     each pixel mapped to its nearest entry in OKLab (ties to the lower index)
     with no dithering, frames after the first reduced to the rectangle that
     changed, disposal 1, LZW with 12-bit codes, and the NETSCAPE2.0 loop count 0
@@ -333,12 +351,17 @@ session the user allowed.
 
 ## Distribution
 
-The app's releases are `v0.2.x`, numbered with the language (decision 61).
+The app's releases are `v0.3.x`, numbered with the language (decision 61).
 Each release is `Synod-<tag>-macos.zip` with a `SHA256SUMS`, ad-hoc signed and
-not notarized, and its notes name the bundled `synod`, `player` and examples.
+not notarized, and its notes name the bundled `synod`, `player`, fonts, examples and `looks`.
 The app bundles a pinned `synod` (the darwin-universal release archive), a
-pinned `player` release and the examples at a pinned commit, listed in
-`deps.env` and verified by `SHA256SUMS` and the pinned hashes (decision 76).
+pinned `player` release with its fonts asset, and the examples and the
+`looks` module (`github.com/synodlang/looks`, decision 122) at pinned commits,
+listed in `deps.env` and verified by `SHA256SUMS` and the pinned hashes
+(decision 76). The app works offline, so the bundled demos find `looks` and
+`examples` under a prefilled `vendor/` (decision 71) and `synod get` is not
+needed to open them; the bundled `looks` is read-only like the bundled
+examples.
 The bundle also holds the editor MCP bridge, `Contents/Helpers/synod-editor-mcp`
 (signed like `synod`, `07-claude-integration.md`).
 Because the app is not notarized, macOS blocks the first launch: the README

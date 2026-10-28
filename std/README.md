@@ -186,10 +186,64 @@ checking it, and fails with `bad-argument` (`lesson.Ask … choosing needs 2 to
 6 different, non-empty choices`) unless `c` has 2 to 6 distinct, non-empty
 texts, so `choosing {}` is never a second spelling of `Ask [q: text]`.
 
-## std/theme — named colors
+## std/theme — the program's theme values
 
-`Ink`, `Paper`, `Line`, `Quiet`, `Accent`, `Good`, `Warning`, `Critical`:
-one-word color phrases, look context. Default values (the Synod brand):
+A theme is a package whose files start `# theme <word>` (`spec/06` §6.7). The
+program's theme is the theme its main file imports, else `std/theme/default`.
+`std/theme` is the interface to it: each of these 34 names is a one-word
+look-context native whose result is the value the program's theme gives, read
+in a look as `theme.<Name>` (for example `theme.Paper`). A theme exports no
+phrase, so `theme.<Name>` is the only spelling. The names are look context
+only, so a theme never changes a run. Every theme defines each name exactly
+once, with a value of the name's type inside the domain its Meaning gives
+(`bad-theme`). Colors keep their bare names in the scene `theme`
+(`spec/09` §9.5). `Sans` and `Mono` name only the four families of the font
+set (decision 118).
+
+| Pattern | Gives | Context | Kind | Meaning |
+| --- | --- | --- | --- | --- |
+| `Paper` | color | look | N | Scene ground color |
+| `Ink` | color | look | N | Node cards and primary text color |
+| `Line` | color | look | N | Links and borders color |
+| `Quiet` | color | look | N | Secondary text and idle nodes color |
+| `Accent` | color | look | N | Messages color: the one thing to look at |
+| `Good` | color | look | N | Success and committed color |
+| `Warning` | color | look | N | Candidate and pending color |
+| `Critical` | color | look | N | Broken invariant and crashed color |
+| `Message1` | color | look | N | First of four message colors, picked by `look.MessageColor` |
+| `Message2` | color | look | N | Second of four message colors |
+| `Message3` | color | look | N | Third of four message colors |
+| `Message4` | color | look | N | Fourth of four message colors |
+| `Vignette` | number | look | N | Darkening of the scene edges, 0 to 1 |
+| `Sketch` | number | look | N | Hand-drawn wobble of outlines, 0 to 1 |
+| `Glow` | number | look | N | Glow blur in units, 0 to 48 |
+| `Shadow` | number | look | N | Shadow strength of filled shapes, 0 to 1 |
+| `StrokeWidth` | number | look | N | Outline width in units, 0.5 to 6 |
+| `CornerRadius` | number | look | N | Corner radius of rects in units, 0 to 40 |
+| `NodeShape` | text | look | N | Shape of a node card: `"card"` or `"circle"` |
+| `NodeFill` | text | look | N | Fill of a node card: `"solid"` or `"outline"` |
+| `LinkOpacity` | number | look | N | Opacity of links, 0 to 1 |
+| `Easing` | text | look | N | Curve of position, scale, rotation and camera moves: `"smooth"` or `"spring"` |
+| `Drift` | number | look | N | Slow camera drift in units, 0 to 24 |
+| `Sans` | text | look | N | Family of the sans face: `"Inter"`, `"JetBrains Mono"`, `"Source Serif 4"` or `"Shantell Sans"` |
+| `Mono` | text | look | N | Family of the mono face: `"Inter"`, `"JetBrains Mono"`, `"Source Serif 4"` or `"Shantell Sans"` |
+| `TitleSize` | number | look | N | Size of the title role in units, 12 to 64 |
+| `LabelSize` | number | look | N | Size of the label role in units, 10 to 40 |
+| `ValueSize` | number | look | N | Size of the value role in units, 10 to 40 |
+| `CaptionSize` | number | look | N | Size of the caption role in units, 12 to 48 |
+| `TitleWeight` | number | look | N | Weight of the title role: 400, 500, 600 or 700 |
+| `LabelWeight` | number | look | N | Weight of the label, value and caption roles: 400, 500, 600 or 700 |
+| `Tracking` | number | look | N | Letter spacing in em, -0.05 to 0.2 |
+| `Margin` | number | look | N | Inset of `look.Frame` in units, 0 to 100 |
+| `Fill` | number | look | N | Scale of layout radii and spacing, 0.5 to 1.5 |
+
+## std/theme/default — the default theme values
+
+`std/theme/default` is the theme of a program whose main file imports none, and
+the template to copy for a new theme: its files start `# theme default`, and a
+copy keeps all 34 names and changes values. A main file never imports it
+(`non-canonical`, and `synod fmt` removes the `use`). Its values (the Synod
+brand for the colors) are:
 
 | Name | Value | Use |
 | --- | --- | --- |
@@ -201,25 +255,74 @@ one-word color phrases, look context. Default values (the Synod brand):
 | `Good` | `#5CC8B8` | success, committed |
 | `Warning` | `#E8C35A` | candidate, pending |
 | `Critical` | `#E86F5A` | broken invariant, crashed |
+| `Message1` | `#F4A340` | message color 1 |
+| `Message2` | `#7FB2F0` | message color 2 |
+| `Message3` | `#C79BEA` | message color 3 |
+| `Message4` | `#F08FB0` | message color 4 |
+| `Vignette` | `0` | edges not darkened |
+| `Sketch` | `0` | outlines not wobbled |
+| `Glow` | `24` | glow blur |
+| `Shadow` | `0` | no shadow |
+| `StrokeWidth` | `2` | outline width |
+| `CornerRadius` | `12` | rect corners |
+| `NodeShape` | `"card"` | node cards are rects |
+| `NodeFill` | `"solid"` | node cards are filled |
+| `LinkOpacity` | `1` | links are opaque |
+| `Easing` | `"smooth"` | smootherstep moves |
+| `Drift` | `0` | no drift |
+| `Sans` | `"Inter"` | default sans face |
+| `Mono` | `"JetBrains Mono"` | default mono face |
+| `TitleSize` | `28` | title role |
+| `LabelSize` | `16` | label role |
+| `ValueSize` | `15` | value role |
+| `CaptionSize` | `20` | caption role |
+| `TitleWeight` | `600` | title role |
+| `LabelWeight` | `500` | label, value, caption roles |
+| `Tracking` | `0` | no letter spacing |
+| `Margin` | `4` | `look.Frame` inset |
+| `Fill` | `1` | layout scale |
+
+A name is one definition whose block is one `result` line, as in this
+beginning of the file:
+
+```
+# theme default
+# scene ground
+define Paper
+  result #151A2E
+
+# node cards, primary text
+define Ink
+  result #EDE9E1
+```
 
 ## std/look — shapes, motion, layout (look context only)
 
 | Pattern | Gives | Kind | Meaning |
 | --- | --- | --- | --- |
 | `Circle [r: number]` | shape | N | A circle of radius `r` points |
-| `Rect [w: number] by [h: number]` | shape | N | A rounded rectangle |
+| `Rect [w: number] by [h: number]` | shape | N | A rectangle with the corner radius `theme.CornerRadius` |
 | `Label [t: text]` | shape | N | Text |
-| `Line from [a: shape] to [b: shape]` | shape | N | A line that follows both shapes |
+| `Line from [a: shape] to [b: shape]` | shape | N | A line that follows both shapes, at opacity `theme.LinkOpacity` |
 | `Group [l: list of shape]` | shape | N | Shapes moved and faded together |
-| `Card for [n: node]` | shape | S | The standard node card: rounded rect, name label |
+| `Card for [n: node]` | shape | S | The standard node card: a box and a name label, shaped and filled by `theme.NodeShape` and `theme.NodeFill` |
 | `Fill [s: shape] with [c: color]` | — | N | Fill color (morphs) |
 | `Stroke [s: shape] with [c: color]` | — | N | Outline color (morphs) |
 | `Tween [p: text] of [s: shape] to [v: value] over [d: time]` | — | N | The only motion primitive (`spec/09`); of `"x"` or `"y"` it also takes a shape: that shape's position |
-| `Effect [e: text] on [s: shape]` | — | N | `"glow"`, `"blur"` or `"trail"`, for 600ms |
-| `Layout [kind: text]` | — | N | `"ring"`, `"row"` or `"grid"` for node cards |
+| `Effect [e: text] on [s: shape]` | — | N | `"glow"` (600ms), `"indicate"` (600ms), `"flash"` (500ms), `"circumscribe"` (900ms), `"ripple"` (700ms) or `"sweep"` (800ms), scaled by pace |
+| `Layout [kind: text]` | — | N | `"ring"`, `"row"` or `"grid"` for node cards, spaced by `theme.Fill` |
 | `Place [s: shape] above [t: shape]` | — | N | Position relative to another shape; likewise `below`, `beside` |
 | `Place [s: shape] below [t: shape]` | — | N | Position relative to another shape: below |
 | `Place [s: shape] beside [t: shape]` | — | N | Position relative to another shape: beside |
+| `Icon [name: text]` | shape | N | An icon of the fixed set, 32 units, stroked |
+| `Counter [v: number]` | shape | N | A whole number whose digits roll when it changes |
+| `Role [s: shape] as [r: text]` | — | N | Type role of a label or counter: `"title"`, `"label"`, `"value"` or `"caption"` |
+| `Face [s: shape] as [f: text]` | — | N | Font face of a label or counter: `"sans"` or `"mono"` |
+| `Dash [s: shape] on [a: number] off [b: number]` | — | N | Dashed outline; `on 0` draws solid |
+| `Bend [s: shape] by [c: number]` | — | N | Later moves of `s` follow an arc bent by `c` (−1..1) of their length |
+| `Trail [s: shape] for [d: time]` | — | N | Moving `s` leaves a fading trail `d` long (0s to 2s) |
+| `Focus [s: shape] zoom [z: number] over [d: time]` | — | N | Move the camera to `s` at zoom `z` (0.5..4) |
+| `MessageColor [m: msg]` | color | N | One of `theme.Message1`..`4`, chosen by the record type of `m` |
 | `Center` | shape | N | An invisible point at the scene centre |
 | `Orbit [s: shape] around [c: shape] at [f: number]` | — | N | Place on a circle of radius 300 around `c`, at fraction `f` of a turn (0 is 12 o'clock, clockwise) |
 | `Flight [s: shape] from [a: shape] to [b: shape] for [m: msg]` | — | N | Move `s` from `a` to `b`, landing when `m` arrives (halfway when dropped) |
@@ -228,6 +331,10 @@ one-word color phrases, look context. Default values (the Synod brand):
 | `Pulse [s: shape]` | — | S | Scale to 1.15 and back over 300ms |
 | `Travel [s: shape] from [a: shape] to [b: shape] over [d: time]` | — | S | Move along a straight path |
 | `Remove [s: shape]` | — | S | Fade out, then delete |
+| `Frame` | shape | S | A rect of the canvas inset by `theme.Margin` |
+| `Reveal [s: shape]` | — | S | Draw `s` on: its outline, then its fill; a label writes itself |
+| `PopIn [s: shape]` | — | S | Grow from 0 past 1.12 to 1 over 400ms |
+| `Enter [l: list of shape] every [d: time]` | — | S | `PopIn` each shape, `d` after the one before |
 
 ```synod
 # package look
@@ -243,4 +350,5 @@ define Pulse [s: shape]
 ```
 
 `std/look/basic` is the default look described in `spec/09`. It is an
-ordinary Synod package using the phrases above.
+ordinary Synod package using the phrases above. Looks and themes beyond the
+defaults are in `github.com/synodlang/looks`, not in std (decision 122).

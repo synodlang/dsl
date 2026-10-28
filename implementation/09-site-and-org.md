@@ -9,9 +9,11 @@ the organization at https://synodlang.github.io until a domain exists
 
 ### Build
 
-- `deps.json` pins, per docs version (one entry per MINOR), the `dsl`, `std`
-  and `examples` tags with their commits, and the compiler and player release
-  tags with the SHA-256 of each asset used (decision 106).
+- `deps.json` pins, per docs version (one entry per MINOR), the `dsl`, `std`,
+  `examples` and (from v0.3) `looks` tags with their commits, and the compiler
+  and player release tags with the SHA-256 of each asset used, the player's
+  fonts asset included (decision 106). The v0.3 entry is `/docs/v0.3/` and
+  `latest` is `v0.3`; `/docs/v0.2/` stays as built.
 - `go run ./tools/build fetch` downloads the assets, checks each against the
   release `SHA256SUMS` and the pin, extracts the native `synod` (the host's
   own: linux-amd64 in CI, darwin-universal locally), checks that `synod
@@ -26,8 +28,13 @@ the organization at https://synodlang.github.io until a domain exists
   `main`; the pull-request workflow also runs the browser tests (Playwright,
   used for tests only). The owner switches Pages from the legacy branch build
   to Actions once.
-- JetBrains Mono (Regular and Bold, OFL) is committed and self-hosted; the
-  site loads no font service. The player's labels use the system sans.
+- The site self-hosts the four families of the font set (decision 118):
+  Inter, JetBrains Mono, Source Serif 4 and Shantell Sans, each SIL OFL 1.1,
+  as variable woff2 files with their `OFL-<family>.txt`, in `web/fonts/`. The
+  build copies them from the verified fonts asset of the pinned `player`
+  release (`synod-player-fonts-<tag>.tar.gz`), so the page text and the player
+  draw the same glyphs; the site loads no font service. Every player on the
+  site is mounted with `fontBase` set to that folder.
 - Docs live at `/docs/v<MAJOR>.<MINOR>/` and `/docs/` leads to the latest
   (decision 107). The site highlights code from `synod-check/1` tokens only
   (decision 108), and a Run calls `synod.wasm` in a Web Worker (decision 109).
@@ -55,19 +62,37 @@ the organization at https://synodlang.github.io until a domain exists
   against `SHA256SUMS` and serves it from the site; the module runs in a
   Web Worker. It likewise downloads the assets of a pinned `player` release
   (ESM bundle, IIFE bundle, `.d.ts`), verifies them against `SHA256SUMS` and
-  serves them itself. The player bundles no fonts: the site serves JetBrains
-  Mono itself, and the home loop plays with `loop: true`. An example page passes the examples module as `files` with
+  serves them itself, with the fonts asset above; the home loop plays with
+  `loop: true` and starts after `player.fontsReady()` resolves. An example page passes the examples module as `files` with
   `program` set to the example's folder; a snippet that imports the
   examples carries them under `vendor/`.
+- **Looks & Themes (M12):** `/docs/v0.3/looks/`, linked from the Library. One
+  section per package of `github.com/synodlang/looks` (looks `lumen` and
+  `doodle`; themes `solarized/light`, `solarized/dark`, `terminal`, `sketch`
+  and `chalk`) and per std package `std/look/basic`, `std/theme` and
+  `std/theme/default`, each with its source, its doc comments and an
+  editable `demo.synod` with a Run button. A **gallery** shows the matrix of
+  every look × every theme: the build makes each cell's scene with the native
+  pinned `synod run` of the look's `demo.synod` under that theme (the demo
+  main file imports the look and the theme), so the gallery loads no wasm,
+  and every cell plays with `player` (`loop: true`). A Run on a demo passes
+  the looks module as `files` with `program` set to the demo's folder, and a
+  snippet that imports `looks` carries it under
+  `vendor/github.com/synodlang/looks@<ver>/` (decision 71). `synod.wasm`
+  embeds only std, so the page never fetches modules. The pairings it names
+  are `lumen` + default, `doodle` + `sketch` and `lumen` + `chalk`.
 - **Tribute:** a short page on Leslie Lamport's "The Part-Time Parliament"
-  and why the language is named after the Synod protocol.
+  and why the language is named after the Synod protocol. It credits Manim
+  (MIT) and Solarized (MIT) by name as inspiration only; no look, theme or font
+  uses another project's name or marks.
 
 Design: the brand from `assets/icon.svg`: navy ground `#151A2E`, pale
-`#EDE9E1`, amber accent `#F4A340`, JetBrains Mono for the wordmark and code.
+`#EDE9E1`, amber accent `#F4A340`, JetBrains Mono for the wordmark and code
+(the colors are the values of `std/theme/default`).
 
 ## `.github`
 
-- `profile/README.md`: what Synod is, links to every repository. It lists `player` and the site (follow-up in that repo).
+- `profile/README.md`: what Synod is, links to every repository. It lists `player`, `looks` (looks and themes beyond the defaults, decision 122) and the site (follow-up in that repo).
 - Shared workflows: `go.yml` (vet, test, golden tests), `synod.yml`
   (install `synod`, run `synod fmt --check` and `synod check ./...`). The
   `agent-skills` sync workflow lives in `agent-skills` itself, not here

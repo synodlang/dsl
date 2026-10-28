@@ -77,7 +77,9 @@ description: Read, write, check and run Synod (.synod) programs that model
    `deliver` and faults live in `define main`.
 5. Types are explicit: `[ns: list of Node]`, `[m: map of node to number]`.
    A `node` has no fields; `Node` or `pkg.Node` does.
-6. Looks are optional: `std/look/basic` animates everything by default.
+6. Looks and themes are optional: `std/look/basic` with `std/theme/default`
+   animates everything by default. A theme is chosen only in the main file by
+   importing it (see "Themes" below).
 7. Run `synod fmt`, then `synod check` until clean, then `synod run` and
    confirm the trace shows what was asked. Never hand back unchecked code.
 8. Piped output is the one-line form with a hint, which is what you read.
@@ -98,6 +100,35 @@ how to use `synod mcp` in any session: `claude mcp add synod -- synod mcp`.
 `SKILL.md` stays under about 200 lines, stamps the `dsl` version it was written
 for, and carries the budget rules of `07-claude-integration.md`.
 
+## Themes (M12)
+
+`AGENTS.md` and `SKILL.md` carry a short "Themes" section, generated into
+`AGENTS.md` with the rest of `SKILL.md`. It teaches these rules, each stated
+once (decisions 112 to 115, 121):
+
+- A theme is a package whose files start `# theme <word>` and hold only
+  `define <Name>` blocks with one `result <literal>` each, one for every name
+  of the theme table in `std/theme` (the template is `std/theme/default`,
+  which the agent reads with `synod doc std/theme/default`). Copy it and change
+  values; never write a partial theme (`bad-theme` names the first name that
+  is missing).
+- A program's theme is the theme its main file imports (`use
+  github.com/synodlang/looks/terminal`), else `std/theme/default`. Only a main
+  file imports a theme, and at most one (`theme-outside-main`, `extra-theme`).
+  Never write `use std/theme/default` (`non-canonical`).
+- A theme exports no phrase; a look reads a value as `theme.<Name>`. A theme
+  changes only the picture, never the run: the trace is the same under every
+  theme, so an agent changes the look or theme to restyle and never to fix
+  behavior.
+- A theme gives skin (colors, type, stroke, sketch, glow, shadow, vignette,
+  easing, node shape and fill) and a look gives what is drawn and how it moves
+  (arcs, trails, entrances, effects, camera focus), so any look combines with
+  any theme.
+- Looks and themes beyond the defaults are in `github.com/synodlang/looks`
+  (`synod get`, then `use github.com/synodlang/looks/doodle` and `use
+  github.com/synodlang/looks/sketch`); `std-catalog.md` lists the std look
+  phrases and the theme names, and `errors.md` the three theme codes.
+
 ## Sync rules
 
 - `tools/sync` regenerates every generated file from the pins;
@@ -110,7 +141,7 @@ for, and carries the budget rules of `07-claude-integration.md`.
   `reference/examples` and on every `synod` code block of the skill files that
   starts with `# package`, as a whole file in a temporary module. **stale**
   (on pushes, pull requests and daily) fails when `git ls-remote --tags` shows
-  a higher `v0.2.x` tag of `dsl`, `compiler` or `examples` than the pin
+  a higher `v0.3.x` tag of `dsl`, `compiler` or `examples` than the pin
   (`std` is covered through the compiler, which embeds it). **text** is the
   repository's text check. The sync workflow lives in `agent-skills`, not in
   the organization's `.github`.

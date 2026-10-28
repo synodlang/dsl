@@ -9,7 +9,7 @@ The site carries all Synod documentation. It is built from `dsl` and
 | --- | --- | --- |
 | **Tutorial** | `dsl/tutorial/` | Learn Synod from nothing, bottom up (below) |
 | **Reference** | `dsl/spec/` | The specification, one page per chapter, normative |
-| **Library** | `dsl/std/README.md` and `synod doc --json` of the pinned compiler | One page per std package: every phrase with its pattern, result, contexts and a runnable example from `dsl/std/examples/` (decision 105) |
+| **Library** | `dsl/std/README.md` and `synod doc --json` of the pinned compiler | One page per std package: every phrase with its pattern, result, contexts and a runnable example from `dsl/std/examples/` (decision 105). A **Looks & Themes** page (`09-site-and-org.md`) beside it shows the looks and themes of `github.com/synodlang/looks` and the std look and theme packages, with a look × theme gallery |
 | **Examples** | `examples` repo | One page per example: editable source, Run, and the story to watch |
 | **Guides** | `dsl/tutorial/guides/` | Task pages: install the CLI (points to `/install/`), use the Mac app (Predict, Break it, Compare), write a look, publish a package, use Synod with Claude or another agent |
 | **Errors** | `synod explain --json` of the pinned compiler | One page per diagnostic code (`spec/11`): the message, a minimal program that triggers it, the fix |
@@ -30,7 +30,7 @@ Rules for every section:
   that imports the examples is bundled with them under
   `vendor/github.com/synodlang/examples@<ver>/`. Diagnostics are shown inline, with a
   link to their Errors page.
-- Docs are versioned by `dsl` tag (`/docs/v0.2/…`); the latest version is
+- Docs are versioned by `dsl` tag (`/docs/v0.3/…`, with `/docs/v0.2/…` kept); the latest version is
   the default. Search is static (built at deploy time, no server).
 - Pages link between sections: a tutorial chapter links to the reference
   section of each form it introduces, and each reference section links
@@ -87,7 +87,7 @@ no `synod.mod`. From chapter 4 the reader keeps one growing module, created by
 `synod new tutorial --module example.com/tutorial`; step 2 of chapter 4 renames
 the package folder to `counter` (the reason is the `bad-header` diagnostic
 shown in that chapter). The packages are `counter` (chapter 4), `pingpong`
-(5–8), `rumor` (9–11 and 13), `rumorlook` (12–13), `service` and `gossip`
+(5–8), `rumor` (9–11 and 13), `rumorlook` (12–13), `rumortheme` (12), `service` and `gossip`
 (14), `checks` (14), `raft` and `raftlook` (15). Every step folder is the
 whole module as the reader has it at that step.
 
@@ -127,7 +127,7 @@ chapter, and a step uses only items introduced in its chapter or an earlier one
 
 | # | Chapter | Goal | New in this chapter |
 | --- | --- | --- | --- |
-| 12 | `12-looks` | Draw the system your way | `when` on trace events and typed bindings; `draw … as … for …` and reactive blocks; attachments (`name of v`); color values; types `shape` and `color`; context `look`; `std/look` (`Card`, `Fill`, `Layout`, `Label`…), `std/theme`, `std/look/basic`; why `context`: setting a field in an observer |
+| 12 | `12-looks` | Draw the system your way | `when` on trace events and typed bindings; `draw … as … for …` and reactive blocks; attachments (`name of v`); color values; types `shape` and `color`; context `look`; `std/look` (`Card`, `Fill`, `Layout`, `Label`…), `std/theme`, `std/look/basic`; a theme: header `# theme <word>` (`form:header-theme`), selected by importing it in the main file, `std/theme/default` as the template to copy (prose, `package:std/theme/default`); why `context`: setting a field in an observer; why `bad-theme`: a theme with a name missing |
 | 13 | `13-story` | Make the important moment stand out | `emit … by n` and `sim.Emitted`; type `field`; `sim.Changed` with a `field` hole; `look.Pulse` and `look.Effect`; captions from `lesson.Note`; why `emit-for-other`: emitting for another node |
 
 **Part V — Building real systems**
@@ -136,6 +136,17 @@ chapter, and a step uses only items introduced in its chapter or an earlier one
 | --- | --- | --- | --- |
 | 14 | `14-packages` | Build a service on top of the rumour package | `use … as`; `require`, `synod get` and `synod.sum`; running is transitive, so `n.rumor.Known` and `p.Node` accepted as `q.Node`; a package that only holds invariants (`checks/`); a local `gossip` that builds on `examples/gossip`; a `service` package over `rumor`; why `unneeded-alias`: `use … as` only for a collision |
 | 15 | `15-raft` | Build `examples/raft` from an empty folder | Nothing new: seven steps, each adding one piece (roles and terms, a randomized election timeout, votes and majority, heartbeats, the "one leader per term" invariant, crashing the leader, a look); the last step equals the example |
+
+Chapter 12 has five steps. Steps 1 to 4 are as before. **Step 5** adds a local
+theme: the folder `rumortheme/` holds `rumortheme.synod` with the header
+`# theme rumortheme`, copied from `std/theme/default` (the reader cannot write
+that package; it is the template) with `Paper`, `Accent` and `Sans` changed, and
+the step's main file imports it, which selects it (decision 113). The trace of
+step 5 equals the trace of step 4 byte for byte (decision 114). The folder
+`why-bad-theme/` holds the same theme with one name missing and an `expect` of
+`bad-theme`. The exercise switches `NodeShape` to `"circle"` and predicts
+the new picture. The `looks` module is mentioned only in the prose of chapter
+14, next to `synod get`.
 
 The tutorial ends with "Where next": the examples, the reference, and
 the Break it and Compare guides.
@@ -208,6 +219,19 @@ package uses it, or when an example fails `fmt --check`, `check` or `run`, or ru
 its `expect` (decision 105). `dsl/std/examples/README.md`, `| Phrase | Examples |`, is generated
 by `doccheck -update` and CI fails when it is stale; the Library page shows these
 examples as runnable widgets.
+
+M12 adds these examples (each a main file under `dsl/std/examples/`):
+
+| Example | Uses |
+| --- | --- |
+| `look/icons` | `look.Icon`, `look.Tween` of `"icon"` |
+| `look/counter` | `look.Counter`, `look.Role`, `look.Face`, `look.Tween` of `"count"` |
+| `look/strokes` | `look.Dash`, `look.Reveal`, `look.Frame` |
+| `look/effects` | every `look.Effect` name, `look.MessageColor` |
+| `look/arcs` | `look.Bend`, `look.Trail` |
+| `look/camera` | `look.Focus` |
+| `look/entrance` | `look.PopIn`, `look.Enter` |
+| `theme/values` | every `theme.<Name>` of `std/theme` |
 
 ### Sources and checks
 
