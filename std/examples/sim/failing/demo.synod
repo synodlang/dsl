@@ -1,5 +1,5 @@
 # package main
-# Shows the event sim.Failed: the run stops with an error and the look shows it (this example exits with code 1 on purpose)
+# Shows the event sim.Failed: the run stops with an error and the look shows it; its run fails on purpose with the code in expect
 use example.com/library/sim/failing
 use std/sim
 
