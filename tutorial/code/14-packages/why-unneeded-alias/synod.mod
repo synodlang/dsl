@@ -1,3 +1,3 @@
 module example.com/tutorial
-synod 0.2
+synod 0.3
 require github.com/synodlang/examples v0.2.1

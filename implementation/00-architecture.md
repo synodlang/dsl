@@ -22,13 +22,13 @@ Everything belonging to the language lives in the
 Rules:
 
 - **Versioning** (decision 61). Every repository shares MAJOR.MINOR with
-  the language version (`synod 0.2` in `synod.mod`): language 0.2 means
-  every repository releases `v0.2.x`. PATCH is each repository's own. A
+  the language version (`synod 0.3` in `synod.mod`): language 0.3 means
+  every repository releases `v0.3.x`. PATCH is each repository's own. A
   `dsl` patch is a clarification or spec bug fix; a `compiler`, `std`,
   `player`… patch is a bug fix or a feature that implements more of the
   same language version. A new language feature raises MINOR: the spec
-  changes first (`dsl` `v0.3.0`), and each repository moves to `v0.3.x`
-  when it implements it. READMEs say "implements Synod 0.2".
+  changes first (`dsl` `v0.4.0`), and each repository moves to `v0.4.x`
+  when it implements it. READMEs say "implements Synod 0.3".
 - **Release notes.** Each release's notes (and `CHANGELOG.md`) state the
   Synod version implemented and what changed; a `dsl` release lists spec
   changes, other repositories list fixes and newly implemented features.

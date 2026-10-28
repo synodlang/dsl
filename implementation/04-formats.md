@@ -10,7 +10,7 @@ never removed or renamed, and readers ignore keys they do not know.
 
 ```
 module github.com/synodlang/examples
-synod 0.2
+synod 0.3
 require github.com/someone/raft v1.2.0
 ```
 
@@ -37,7 +37,7 @@ Downloaded modules are not part of any format: `synod get` fills `vendor/` (whic
 One JSON object per line. Line 1 is the header:
 
 ```json
-{"format":"synod-trace/1","synod":"0.2","seed":7,"program":"github.com/synodlang/examples/paxos","packages":["github.com/synodlang/examples/paxos","std/net","std/sim"]}
+{"format":"synod-trace/1","synod":"0.3","seed":7,"program":"github.com/synodlang/examples/paxos","packages":["github.com/synodlang/examples/paxos","std/net","std/sim"]}
 ```
 
 `synod` is the language version. `seed` is the seed in force when `define main` returns (`spec/07` §7.7). `program` is the import path of the main file's folder; `packages` are the import paths of all other packages of the program, `std/` ones included, sorted by byte order.
@@ -326,10 +326,19 @@ frames, clamped to `[0, duration]`.
 - **Counter** (0.3). A counter draws `round(count)` as digit columns, the
   rightmost column k = 0 first. Column `k` is drawn while `k = 0` or
   `round(|count|) ≥ 10^k`; it is `0.6·size` wide, the row is centered on
-  `(x, y)`, a minus sign precedes a negative number. With `q = |count|/10^k`
-  the column shows glyph `floor(q) mod 10` moved up by `frac(q)` of the
-  line height (`1.2·size`) and glyph `(floor(q) + 1) mod 10` entering below
-  it, clipped to the line. So a column rolls continuously as `count` moves.
+  `(x, y)`, a minus sign precedes a negative number. With `a = |count|` and
+  `q = a/10^k` the column shows glyph `floor(q) mod 10`, moved up by `r_k`
+  of the line height (`1.2·size`), and glyph `(floor(q) + 1) mod 10` entering
+  below it, clipped to the line. The roll `r_k` is an odometer's: the units
+  column (`k = 0`) rolls with the fraction of the count, `r_0 = frac(a)`; a
+  higher column waits until every lower column is on its 9 and then rolls
+  with the units fraction, `r_k = max(0, (a mod 10^k) − (10^k − 1))`, which
+  is `max(0, 10·frac(a/10) − 9)` for `k = 1`. So `r_k > 0` only while
+  `a mod 10^k > 10^k − 1`, and a whole number has every `r_k = 0`: each
+  glyph is drawn crisp, at its row, with no second glyph. As `count` moves
+  between two whole numbers the columns roll together only where a carry
+  happens (`19 → 20` turns the units and the tens column), and `count` that
+  changes by less than one rolls the units column alone.
 - **Icon morph** (0.3). Between two keys with `icon` names A and B, contour `i`
   of the drawn icon is `a_i + (b_i − a_i)·S(u)` pointwise, for each of the 32
   points; a contour that one icon lacks collapses to the center `(0.5, 0.5)`.

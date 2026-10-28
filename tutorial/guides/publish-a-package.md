@@ -19,7 +19,7 @@ so write the URL of the repository you will push to:
 
 ```
 module github.com/you/pulse
-synod 0.2
+synod 0.3
 ```
 
 A module comes from `https://` plus the first three segments of its path
@@ -106,7 +106,7 @@ another import; `use ... as` is allowed only for a collision.
 
 | File | Holds | In git? |
 | --- | --- | --- |
-| `synod.mod` | `module`, `synod 0.2` and one `require` line per direct dependency | yes |
+| `synod.mod` | `module`, `synod 0.3` and one `require` line per direct dependency | yes |
 | `synod.sum` | for every module in the build list: the version, the commit of its tag and a hash of its files | yes |
 | `vendor/` | one copy of each module and version, at `vendor/<module path>@<version>/` | no (in `.gitignore`) |
 

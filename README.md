@@ -235,7 +235,7 @@ the design changes; no principle is traded against another.
 ## Versioning
 
 Every repository shares MAJOR.MINOR with the language version (decision 61).
-Language 0.2 means every repository releases `v0.2.x`, and each repository
+Language 0.3 means every repository releases `v0.3.x`, and each repository
 numbers its own PATCH.
 
 - A `dsl` patch is a clarification or a spec bug fix. A patch elsewhere is a

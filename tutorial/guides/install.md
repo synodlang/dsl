@@ -59,7 +59,7 @@ synod version
 
 It prints three lines: the language version, the compiler version with its
 commit, and the file formats it reads and writes. The language line should say
-`language 0.2`.
+`language 0.3`.
 
 ## Try it
 
