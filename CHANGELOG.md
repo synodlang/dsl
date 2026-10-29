@@ -17,6 +17,8 @@ GitHub release page.
 - `implementation/04-formats.md`: the Counter reader rule gives the exact roll of every column (an odometer: a whole number draws crisp).
 - Decision 94 and `implementation/05-cli.md`: `synod new` also refuses the package name `demo`, the demo program's file name.
 - The placeholder Library folder `std/examples/themedefault/` is gone: a std package without exported phrases needs no example.
+- `look.Place s beside t` is on the right of `t` when the box of `s` lies inside the canvas there and on the left otherwise (`spec/09` §9.2, decision 126, the `Place … beside` row of the std catalog).
+- `look.Place s beside t` is on the right of `t` when the box of `s` lies inside the canvas there and on the left otherwise (`spec/09` §9.2, decision 126, the `Place … beside` row of the std catalog).
 
 ## v0.2.14 — 2026-10-28
 

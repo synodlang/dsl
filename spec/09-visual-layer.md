@@ -70,7 +70,10 @@ attachment = word "of" arg ;     (* look context: a shape attached with draw …
   (decision 69). A cycle is `bad-argument`. Sizes: circle `2r` by `2r`; rect
   `w` by `h`; label `8` per character by `18`; group the bounding box of its
   members; line and `look.Center` zero; gap 8. `above`: `dy = -(ht/2 + 8 +
-  hs/2)`; `below`: `dy = ht/2 + 8 + hs/2`; `beside`: `dx = wt/2 + 8 + ws/2`.
+  hs/2)`; `below`: `dy = ht/2 + 8 + hs/2`; `beside`: `dx = wt/2 + 8 + ws/2` when the box of `s` at that
+  offset, with `t` at the position it settles at, lies inside the canvas, and
+  `dx = -(wt/2 + 8 + ws/2)` otherwise; the side is chosen by the `Place` and
+  the offset keeps it.
 - **Pinning.** `Tween` of `x` or `y`, `Place` (as the moved shape),
   `Orbit`, `Flight` or `Travel` on a node card takes it out of the layout
   for good (§9.4).

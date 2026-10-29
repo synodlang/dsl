@@ -313,7 +313,7 @@ define Ink
 | `Layout [kind: text]` | — | N | `"ring"`, `"row"` or `"grid"` for node cards, spaced by `theme.Fill` |
 | `Place [s: shape] above [t: shape]` | — | N | Position relative to another shape; likewise `below`, `beside` |
 | `Place [s: shape] below [t: shape]` | — | N | Position relative to another shape: below |
-| `Place [s: shape] beside [t: shape]` | — | N | Position relative to another shape: beside |
+| `Place [s: shape] beside [t: shape]` | — | N | Position relative to another shape: beside, on its right when the box lies inside the canvas there and on its left otherwise |
 | `Icon [name: text]` | shape | N | An icon of the fixed set, 32 units, stroked |
 | `Counter [v: number]` | shape | N | A whole number whose digits roll when it changes |
 | `Role [s: shape] as [r: text]` | — | N | Type role of a label or counter: `"title"`, `"label"`, `"value"` or `"caption"` |
