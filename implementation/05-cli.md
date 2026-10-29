@@ -100,8 +100,9 @@ The compiler reads `vendor/` only, never the store. `synod fmt` applies the fixe
   otherwise exit 2, `synod new: <dir> is not empty`. Nothing is overwritten.
 - The module path is `--module` or the base name of `dir`, and must be a
   valid module path. The package name is the path's last segment: it must be
-  a lower-case word that is not `main` and not the last element of a std
-  package the template imports (`time`, `sim`); otherwise exit 2,
+  a lower-case word that is not `main`, not `demo` (the demo program's file
+  name) and not the last element of a std package the template imports
+  (`time`, `sim`); otherwise exit 2,
   `synod new: "<x>" is not a package name; use a lower-case word`.
 - It writes `synod.mod` (`module <path>`, `synod 0.3`), `.gitignore`
   (`vendor/` and `out/`), `<pkg>/<pkg>.synod`, a node that counts, and,

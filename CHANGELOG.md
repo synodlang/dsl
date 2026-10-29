@@ -8,6 +8,7 @@ GitHub release page.
 
 - Language version 0.3: the tutorial and Library `synod.mod` files say `synod 0.3`, and the current-version text in the spec and the implementation guides reads 0.3 (history stays). `implementation/05-cli.md` states that the `synod` line is a floor, not a gate: a 0.3 compiler accepts `synod 0.2`.
 - `implementation/04-formats.md`: the Counter reader rule gives the exact roll of every column (an odometer: a whole number draws crisp).
+- Decision 94 and `implementation/05-cli.md`: `synod new` also refuses the package name `demo`, the demo program's file name.
 - The placeholder Library folder `std/examples/themedefault/` is gone: a std package without exported phrases needs no example.
 
 ## v0.2.14 — 2026-10-28
