@@ -53,7 +53,7 @@ Then one line per trace event:
 {"seq":13,"t":31877,"ev":"net.Arrived","node":"n3","msg":{"id":5,"type":"paxos.Prepare","fields":{"number":"…"}},"from":"n1","to":"n3"}
 {"seq":14,"t":31877,"ev":"sim.Changed","node":"n3","field":"paxos.Promised","old":0,"new":101}
 {"seq":20,"t":52010,"ev":"sim.Emitted","node":"n2","record":{"type":"paxos.Learned","fields":{"Value":"x"}}}
-{"seq":31,"t":90000,"ev":"sim.Broken","rule":"paxos/paxos.synod:109: always ((lists.Size ChosenValues) at most 1)"}
+{"seq":31,"t":90000,"ev":"sim.Broken","rule":"paxos/paxos.synod:125: always ((lists.Size ChosenValues) at most 1)"}
 ```
 
 | `ev` | Extra keys |
