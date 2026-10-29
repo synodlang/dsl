@@ -197,14 +197,13 @@ step with `std/theme/theme.synod` by a test.
 
 ## Stable ids (G50)
 
-The id of a shape hashes the line and column of its creating handler, so any
-edit of `std/look/basic` that moves a line changes every scene and golden.
-From M12 the rule is: an edit of `std/look/basic` keeps the line and column of
-every existing handler and of every statement that creates a shape; a new
-handler is appended after the last one. The same holds for the packages of
-`examples` that draw (`raftlook`, `ringlook`). A check compares the scenes of
-every example between the previous release and the branch, byte for byte,
-under the default theme.
+The id of a shape hashes the line and column of its creating handler, so an
+edit of `std/look/basic` that moves a line changes the ids of every scene. Such
+an edit comes with a full regeneration of every golden (the scenes of the
+compiler, the looks and the player) in the same round. The same holds for the
+packages of `examples` that draw (`raftlook`, `ringlook`). A check compares the
+scenes of every example with the goldens, byte for byte, under the default
+theme.
 
 ## Markers
 
