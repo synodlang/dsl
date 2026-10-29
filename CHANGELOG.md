@@ -4,7 +4,9 @@ Changes to the Synod language specification, the std catalog and the
 implementation guides. Each released version's section is the text of its
 GitHub release page.
 
-## Unreleased
+## v0.3.0 — 2026-10-29
+
+Synod 0.3: themes (`# theme`), richer drawing phrases and effects, the 1040 by 650 canvas, and the looks and themes of the new `looks` repository. The tutorial's compiler pins follow in v0.3.1, after compiler v0.3.0 is released.
 
 - `implementation/04-formats.md`: the sample `sim.Broken` line names `paxos/paxos.synod:125`, the rule's line in the examples `paxos`, which now keeps its state on `std/disk`. No decision or spec text states the positions of the lesson note or the reason, so none changes.
 - The ring is wider and sits higher (`spec/09` §9.4, decision 123): radii 380·F·e and 170·F·g around the layout centre (520, 315), which the row and grid layouts share; an even number of cards turns half a slot counter-clockwise, so `n1` is at the left or top left. `implementation/03-scene-builder.md` lists `LayoutCY` and `StateRowMax`.

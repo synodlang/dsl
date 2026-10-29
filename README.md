@@ -122,14 +122,14 @@ uses what is written here.
 
 | Repository | What it is | Status |
 | --- | --- | --- |
-| `dsl` (this one) | The specification, the std catalog, the implementation guides | v0.2 |
-| [compiler](https://github.com/synodlang/compiler) | The `synod` command: `fmt`, `check`, `run` | v0.2.2 implements Synod 0.2 |
-| [std](https://github.com/synodlang/std) | The standard library packages | v0.2 |
-| [examples](https://github.com/synodlang/examples) | Sample programs; the acceptance tests | v0.2 |
-| `player`, `mac-app`, `agent-skills`, the site | Animation player, Mac app, agent skills, website | Later milestones (M5 onwards in the roadmap) |
+| `dsl` (this one) | The specification, the std catalog, the implementation guides, the tutorial | v0.3 |
+| [compiler](https://github.com/synodlang/compiler) | The `synod` command and `synod.wasm` | v0.3 |
+| [std](https://github.com/synodlang/std) | The standard library packages and the default theme | v0.3 |
+| [examples](https://github.com/synodlang/examples) | Sample programs; the acceptance tests | v0.3 |
+| [looks](https://github.com/synodlang/looks) | The looks lumen and doodle, the themes solarized, terminal, sketch and chalk | v0.3 |
+| [player](https://github.com/synodlang/player), [mac-app](https://github.com/synodlang/mac-app), [agent-skills](https://github.com/synodlang/agent-skills), [the site](https://synodlang.github.io/) | Animation player, Mac app, agent skills, website | v0.3 |
 
-The compiler checks and runs programs today. The scene builder, which turns
-a trace into an animation, and everything after it are still to come.
+Every repository implements Synod 0.3 and releases `v0.3.x`.
 
 ## What is in this repository
 
@@ -268,7 +268,7 @@ has the rest.
 
 ## Status
 
-Specification v0.2, October 2026 (v0.1.0 was the first draft, before review). The earlier design document in Claude
+Specification v0.3, October 2026 (v0.1.0 was the first draft, before review). The earlier design document in Claude
 Docs is superseded by this repository.
 
 Licensed under [CC BY 4.0](LICENSE).
