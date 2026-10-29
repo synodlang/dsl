@@ -5,7 +5,7 @@ use std/theme
 
 # One swatch per theme color, in a row
 when sim.Started
-  draw (look.Rect 1592 by 992) as ground
+  draw (look.Rect 1032 by 642) as ground
   look.Fill ground with theme.Paper
   look.Stroke ground with theme.Line
   draw (look.Rect 100 by 100) as ink

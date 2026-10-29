@@ -87,8 +87,8 @@ by `synod run` beside the trace, byte for byte as below: no spaces, numbers as
 in the trace, one shape per line.
 
 ```
-{"format":"synod-scene/1","duration":18450,"canvas":{"w":1600,"h":1000},"theme":{"Paper":"#151A2E","Ink":"#EDE9E1","Line":"#3A4366","Quiet":"#8A90A8","Accent":"#F4A340","Good":"#5CC8B8","Warning":"#E8C35A","Critical":"#E86F5A"},"shapes":[
-{"id":"s7a1f03c2b9d4","kind":"rect","props":{"w":96,"h":56,"radius":12},"keys":[{"at":0,"x":800,"y":300,"opacity":0,"fill":"Ink"},{"at":300,"opacity":1},{"at":5200,"fill":"Accent"}],"end":9000},
+{"format":"synod-scene/1","duration":18450,"canvas":{"w":1040,"h":650},"theme":{"Paper":"#151A2E","Ink":"#EDE9E1","Line":"#3A4366","Quiet":"#8A90A8","Accent":"#F4A340","Good":"#5CC8B8","Warning":"#E8C35A","Critical":"#E86F5A"},"shapes":[
+{"id":"s7a1f03c2b9d4","kind":"rect","props":{"w":96,"h":56,"radius":12},"keys":[{"at":0,"x":520,"y":300,"opacity":0,"fill":"Ink"},{"at":300,"opacity":1},{"at":5200,"fill":"Accent"}],"end":9000},
 {"id":"s0c3e91ab5d27","kind":"label","props":{},"keys":[{"at":0,"x":0,"y":40,"opacity":1,"fill":"Ink","text":"n1"}]}
 ],"markers":[
 {"at":4100,"kind":"pause","text":"Who becomes leader next?","choices":["It times out and elects a new leader","It waits for the old leader"]},
@@ -178,7 +178,7 @@ not empty, `style`, in that order.
 - **Camera** (0.3). `camera` is an array of keys `{"at","x","y","zoom"}`, one
   per line, strictly increasing in `at`, each with all three values; it is
   omitted when no `look.Focus` ran. Before the first key the camera is at
-  `x` 800, `y` 500, `zoom` 1.
+  the canvas centre `(w/2, h/2)`, `zoom` 1.
 - **Key properties** (0.3). Each is written only when it changes, and its
   default holds before the first key:
 
@@ -210,7 +210,7 @@ frames, clamped to `[0, duration]`.
 - **Lifetime.** A shape is drawn for `firstKey.at ≤ at < end`; with no `end`,
   until the scene ends. A group draws nothing itself.
 - **Tracks.** Each property is its own track of the keys that set it. Before
-  the first key of a property, its default holds: `x` and `y` 800 and 500,
+  the first key of a property, its default holds: `x` and `y` the canvas centre `w/2` and `h/2`,
   `scale` 1, `opacity` 1, `rotation` 0, `fill` and `stroke` none, `text`
   empty, `effect` `"none"`, and the defaults of the 0.3 properties above; a line's `stroke` defaults to `Line` and a label's
   `fill` to `Ink`. At and after the last key the last value holds; at a key's
@@ -354,7 +354,7 @@ frames, clamped to `[0, duration]`.
   in the reader's area (letterbox). The area is filled with `Paper`
   and the canvas rectangle clips what is drawn.
 - **Camera and drift** (0.3). Shapes are drawn through the world view
-  `translate(800, 500) · scale(zoom) · translate(−cx', −cy')` inside the
+  `translate(w/2, h/2) · scale(zoom) · translate(−cx', −cy')` (`(w, h)` the canvas) inside the
   letterbox, where `zoom` and `(cx, cy)` are the camera at `at` (its keys use
   `F = E`) and `cx' = cx + D·sin(2π·at/19000)`, `cy' = cy + 0.6·D·sin(2π·at/23000)`
   with `D = style.drift`. With no camera keys and `D = 0` the view is the

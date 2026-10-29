@@ -324,7 +324,7 @@ define Ink
 | `Focus [s: shape] zoom [z: number] over [d: time]` | — | N | Move the camera to `s` at zoom `z` (0.5..4) |
 | `MessageColor [m: msg]` | color | N | One of `theme.Message1`..`4`, chosen by the record type of `m` |
 | `Center` | shape | N | An invisible point at the scene centre |
-| `Orbit [s: shape] around [c: shape] at [f: number]` | — | N | Place on a circle of radius 300 around `c`, at fraction `f` of a turn (0 is 12 o'clock, clockwise) |
+| `Orbit [s: shape] around [c: shape] at [f: number]` | — | N | Place on a circle of radius 200 around `c`, at fraction `f` of a turn (0 is 12 o'clock, clockwise) |
 | `Flight [s: shape] from [a: shape] to [b: shape] for [m: msg]` | — | N | Move `s` from `a` to `b`, landing when `m` arrives (halfway when dropped) |
 | `delete [s: shape]` | — | N | Unexported: delete the shape now (used by `Remove`) |
 | `Fade [s: shape] to [o: number]` | — | S | Opacity over 300ms |

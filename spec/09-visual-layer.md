@@ -72,8 +72,9 @@ attachment = word "of" arg ;     (* look context: a shape attached with draw …
 - **Pinning.** `Tween` of `x` or `y`, `Place` (as the moved shape),
   `Orbit`, `Flight` or `Travel` on a node card takes it out of the layout
   for good (§9.4).
-- **Defaults.** The scene is 1600 by 1000, origin top-left, `y` down. A new
-  shape sits at the centre `(800, 500)` with opacity 1, scale 1, rotation 0.
+- **Defaults.** The canvas is 1040 by 650, origin top-left, `y` down; its
+  centre `(520, 325)` is the scene centre. A new shape sits at the scene
+  centre with opacity 1, scale 1, rotation 0.
   A circle and a rect have no fill and no stroke; a rect has corner radius
   `theme.CornerRadius`; a label and a counter are filled `theme.Ink`, with
   role `label` and face `sans` (§9.5); an icon is stroked `theme.Ink` and
@@ -182,8 +183,8 @@ of `raft`.
   to `"title"`, `"label"`, `"value"` or `"caption"`, and `look.Face [s: shape]
   as [f: text]` sets its face to `"sans"` or `"mono"` (§9.5). Any other
   value, or a shape that is not a label or counter, is `bad-argument`.
-- `look.Orbit` puts a shape on the circle of radius 300 around the centre at
-  a fraction `f` of a turn: `x = cx + 300·sin(2πf)`, `y = cy − 300·cos(2πf)`,
+- `look.Orbit` puts a shape on the circle of radius 200 around the centre at
+  a fraction `f` of a turn: `x = cx + 200·sin(2πf)`, `y = cy − 200·cos(2πf)`,
   and pins it.
 - Everything else (`look.Fade`, `look.Pulse`, `look.Travel`,
   `look.Remove`, `look.Reveal`, `look.PopIn`, `look.Enter`) is defined in
@@ -213,11 +214,14 @@ Node cards are placed by layout, never by coordinates in behaviour code.
 `card`, for nodes not removed, whose card is not deleted or pinned, in node
 id order. With `N` members and index `i` from 0:
 
-- `ring`: fraction `i/N`, radius `300·F`, 0 at 12 o'clock, clockwise (the
-  Orbit formula with that radius).
-- `row`: `x = 800 + (2i − (N−1))·80·F`, `y = 500`.
+- `ring`: slot `i` sits on an ellipse around the scene centre at fraction
+  `u = (i + h)/N` of a turn, clockwise from 12 o'clock:
+  `x = 520 + 300·F·g·sin(2πu)`, `y = 325 − 150·F·g·cos(2πu)`. `h` is 1/2 for
+  an even `N` and 0 for an odd `N`; `g` is 0 for `N = 1` and
+  `min(1.4, max(1, (N − 3)/3))` for `N ≥ 2`.
+- `row`: `x = 520 + (2i − (N−1))·80·F`, `y = 325`.
 - `grid`: `c` is the smallest integer with `c² ≥ N`, `r = ceil(N/c)`,
-  `x = 800 + (2·col − (c−1))·100·F`, `y = 500 + (2·row − (r−1))·80·F`.
+  `x = 520 + (2·col − (c−1))·100·F`, `y = 325 + (2·row − (r−1))·80·F`.
 
 `F` is the layout scale of the theme, `theme.Fill` (§9.5).
 
