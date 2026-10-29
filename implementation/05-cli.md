@@ -16,7 +16,13 @@
 Folders: `synod fmt` and `synod check` walk a folder argument for `.synod`
 files and skip folders whose names start with `.` or `_` and folders named
 `testdata` or `vendor`; a file or folder named on the command line is always
-processed.
+processed. If the folders found hold two module folders that declare the
+same `module` path (for instance `counter/synod.mod` and
+`proj/counter/synod.mod` under a folder with no `synod.mod`), their packages
+would share one import path, so nothing is resolved or checked: the command
+prints one `duplicate-name` error at the second `synod.mod`, `module "counter"
+is declared by two folders, counter and proj/counter`, with the hint to check
+one module folder at a time, and exits 1.
 
 Diagnostic output (`fmt`, `check`, `run`):
 

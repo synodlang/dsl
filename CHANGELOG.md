@@ -6,6 +6,7 @@ GitHub release page.
 
 ## Unreleased
 
+- `implementation/05-cli.md`: two module folders with one module path in the same `check` are a `duplicate-name` error, exit 1, instead of a crash.
 - 0.3 scenes use a 1040 by 650 canvas (centre (520, 325), `OrbitRadius` 200) and an elliptical ring layout (`spec/09` §9.2 to §9.4, decision 123); default-theme scenes change once. Decision 119 no longer promises that default-theme scenes keep their bytes. The camera home and the default `x`, `y` are the canvas centre (`implementation/04-formats.md`).
 - Language version 0.3: the tutorial and Library `synod.mod` files say `synod 0.3`, and the current-version text in the spec and the implementation guides reads 0.3 (history stays). `implementation/05-cli.md` states that the `synod` line is a floor, not a gate: a 0.3 compiler accepts `synod 0.2`.
 - `implementation/04-formats.md`: the Counter reader rule gives the exact roll of every column (an odometer: a whole number draws crisp).
