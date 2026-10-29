@@ -20,10 +20,10 @@ The invariants of chapter 11 sit in `rumor` and make it harder to reuse. A rule 
 
 <!-- step 2 program=service -->
 
-The next package is not yours. Packages come from Git repositories, and a module says which ones it needs in `synod.mod`. We want the `gossip` package of the examples repository, tagged `v0.2.1`. Step 3 adds the line
+The next package is not yours. Packages come from Git repositories, and a module says which ones it needs in `synod.mod`. We want the `gossip` package of the examples repository, tagged `v0.3.0`. Step 3 adds the line
 
 ```
-require github.com/synodlang/examples v0.2.1
+require github.com/synodlang/examples v0.3.0
 ```
 
 and `synod get` downloads it into `vendor/` (git ignores that folder) and writes a file `synod.sum` that pins the exact commit, so the program replays the same years from now. Commit `synod.sum`, never `vendor/`. Everything works offline once fetched.

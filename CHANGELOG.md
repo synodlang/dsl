@@ -4,6 +4,11 @@ Changes to the Synod language specification, the std catalog and the
 implementation guides. Each released version's section is the text of its
 GitHub release page.
 
+## v0.3.1 — 2026-10-29
+
+- `tutorial/versions.env` pins compiler v0.3.0 (`cb8836c`) and its linux-amd64 checksum, so the docs job checks the tutorial and the Library examples with the released compiler.
+- The tutorial's modules require examples v0.3.0 (`synod.mod`, `synod.sum` and the text of chapter 14).
+
 ## v0.3.0 — 2026-10-29
 
 Synod 0.3: themes (`# theme`), richer drawing phrases and effects, the 1040 by 650 canvas, and the looks and themes of the new `looks` repository. The tutorial's compiler pins follow in v0.3.1, after compiler v0.3.0 is released.
