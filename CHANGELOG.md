@@ -6,6 +6,8 @@ GitHub release page.
 
 ## Unreleased
 
+- The ring is wider and sits higher (`spec/09` §9.4, decision 123): radii 380·F·e and 170·F·g around the layout centre (520, 315), which the row and grid layouts share; an even number of cards turns half a slot counter-clockwise, so `n1` is at the left or top left. `implementation/03-scene-builder.md` lists `LayoutCY` and `StateRowMax`.
+- `sim.StateRows` gives each row at most 24 characters, a longer one keeping its first 23 and ending in `…` (`spec/09` §9.3, decision 125, and the `StateRows` row of the std catalog).
 - `implementation/03-scene-builder.md` (G50): an edit of `std/look/basic` that moves a line changes every scene id and comes with a full golden regeneration.
 - `look.Flight` runs from the edge of `a` to the edge of `b` (the flown shape 8 clear of each box, straight up when both are at one position, proportionally closer when distinct shapes are near, halfway between the ends when dropped): `spec/09` §9.3, decision 124, and the `Flight` row of the std catalog.
 - `implementation/05-cli.md`: two module folders with one module path in the same `check` are a `duplicate-name` error, exit 1, instead of a crash.

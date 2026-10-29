@@ -37,7 +37,7 @@ A change to this catalog is not done until `agent-skills` is regenerated
 | `Nodes` | `list of node` | main, check, look | N | All nodes not removed, in creation order |
 | `NodesRunning [p: package]` | `list of p.Node` | main, check, look | N | Nodes running `p` |
 | `IsUp [n: node]` | bool | main, check, look | N | Not crashed and not removed |
-| `StateRows [n: node]` | `list of text` | look | N | One line per exported field of `n`: name and value as text |
+| `StateRows [n: node]` | `list of text` | look | N | One line per exported field of `n`: name and value as text, at most 24 characters (a longer one ends in `…`) |
 
 **Node event:** `Delivered [r: msg]`, a record injected with `deliver` (used as
 `when [n: Node] (sim.Delivered Open)`).

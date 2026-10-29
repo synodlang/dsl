@@ -46,7 +46,9 @@ attachment = word "of" arg ;     (* look context: a shape attached with draw …
   to the new one. This gives the 3Blue1Brown transform feel without
   writing animation code. The read-set is replaced on every run. It holds
   the pairs (node, field), (node, up) and node membership, and
-  `sim.StateRows n` reads every exported field of `n`. Instances re-run in
+  `sim.StateRows n` reads every exported field of `n`; each of its rows has
+  at most 24 characters, a longer one keeping its first 23 and ending in
+  `…`. Instances re-run in
   creation order, after the observers of the fact. Shapes drawn without
   `for` during a reactive run belong to the instance and are deleted
   before it re-runs.
@@ -228,14 +230,17 @@ Node cards are placed by layout, never by coordinates in behaviour code.
 `card`, for nodes not removed, whose card is not deleted or pinned, in node
 id order. With `N` members and index `i` from 0:
 
-- `ring`: slot `i` sits on an ellipse around the scene centre at fraction
-  `u = (i + h)/N` of a turn, clockwise from 12 o'clock:
-  `x = 520 + 300·F·g·sin(2πu)`, `y = 325 − 150·F·g·cos(2πu)`. `h` is 1/2 for
-  an even `N` and 0 for an odd `N`; `g` is 0 for `N = 1` and
-  `min(1.4, max(1, (N − 3)/3))` for `N ≥ 2`.
-- `row`: `x = 520 + (2i − (N−1))·80·F`, `y = 325`.
+- `ring`: slot `i` sits on an ellipse around the layout centre `(520, 315)`
+  at fraction `u = (i − h)/N` of a turn, clockwise from 12 o'clock:
+  `x = 520 + 380·F·e·sin(2πu)`, `y = 315 − 170·F·g·cos(2πu)`. `h` is 1/2 for
+  an even `N` and 0 for an odd `N`; `e` is 0 for `N = 1` and 1 for `N ≥ 2`;
+  `g` is 0 for `N = 1` and `min(1.4, max(1, (N − 3)/3))` for `N ≥ 2`.
+- `row`: `x = 520 + (2i − (N−1))·80·F`, `y = 315`.
 - `grid`: `c` is the smallest integer with `c² ≥ N`, `r = ceil(N/c)`,
-  `x = 520 + (2·col − (c−1))·100·F`, `y = 325 + (2·row − (r−1))·80·F`.
+  `x = 520 + (2·col − (c−1))·100·F`, `y = 315 + (2·row − (r−1))·80·F`.
+
+The layout centre is 10 above the scene centre, since state rows hang below
+the cards.
 
 `F` is the layout scale of the theme, `theme.Fill` (§9.5).
 

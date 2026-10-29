@@ -57,7 +57,8 @@ All times are integer milliseconds; `scale(ms) = ms·1000/pace`, rounded down.
 Constants, named in one place and covered by golden tests: `GapScale 8`,
 `MaxIdle 600`, `MinFlight 400`, `MinStep 30`, `Morph 300`, `EffectLen 600`,
 `TimerTail 2000`, `ProportionalLen 30000`, canvas 1040 by 650, centre
-(520, 325), `OrbitRadius 200`, ring radii 300 and 150 (growth up to 1.4).
+(520, 325), `OrbitRadius 200`, `LayoutCY 315`, ring radii 380 and 170 (growth up to 1.4),
+`StateRowMax 24`.
 
 ```
 schedule(e):                                    // ordered mode
