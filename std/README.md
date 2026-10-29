@@ -325,7 +325,7 @@ define Ink
 | `MessageColor [m: msg]` | color | N | One of `theme.Message1`..`4`, chosen by the record type of `m` |
 | `Center` | shape | N | An invisible point at the scene centre |
 | `Orbit [s: shape] around [c: shape] at [f: number]` | — | N | Place on a circle of radius 200 around `c`, at fraction `f` of a turn (0 is 12 o'clock, clockwise) |
-| `Flight [s: shape] from [a: shape] to [b: shape] for [m: msg]` | — | N | Move `s` from `a` to `b`, landing when `m` arrives (halfway when dropped) |
+| `Flight [s: shape] from [a: shape] to [b: shape] for [m: msg]` | — | N | Move `s` from the edge of `a` to the edge of `b`, landing when `m` arrives (halfway when dropped) |
 | `delete [s: shape]` | — | N | Unexported: delete the shape now (used by `Remove`) |
 | `Fade [s: shape] to [o: number]` | — | S | Opacity over 300ms |
 | `Pulse [s: shape]` | — | S | Scale to 1.15 and back over 300ms |

@@ -146,12 +146,23 @@ of `raft`.
   instant, not a replacement); on any other shape they tween over 300ms.
   `Tween` keeps its own duration.
 - `look.Flight [s: shape] from [a: shape] to [b: shape] for [m: msg]` moves
-  `s` from `a` to `b` on a path with the motion curve of the program: a straight line if `s` has
+  `s` from the edge of `a` to the edge of `b` on a path with the motion curve of the program: a straight line if `s` has
   no bend, else the arc of its bend (below). It starts now
   and lands at the presentation slot of the `net.Arrived` of `m`, or stops
   halfway at the slot of its `net.Dropped`, so no look-ahead is needed
   (decision 63). If `m` has already landed, `s` jumps to the end point; if it
   never lands (the run stopped), `s` stops halfway at the scene's last slot.
+  Let `A` be the world position of `a` when the flight starts and `B` that of
+  `b` (when the flight starts for the first end, at the landing slot for the
+  second), and `u` the unit vector from `A` to `B` (the zero vector for
+  `A = B`). `s` starts at `A + k_a·u` and lands at `B − k_b·u`, where `k_a` is
+  the least distance at which the box of `s` is 8 (the `Place` gap) clear of
+  the box of `a`, and `k_b` the same for the box of `b`. Boxes use the `Place`
+  size model, centred on the position of the shape; the box of a group is the
+  bounding box of its members' boxes, around the group's position. When
+  `k_a + k_b` is larger than `|B − A|`, both are multiplied by
+  `|B − A| / (k_a + k_b)`. A dropped message stops halfway between the two
+  ends. `Travel` is a different phrase and stays centre to centre.
   `m` must be bound by a net event (`net.Id m`), else `bad-argument`; a later
   `x` or `y` tween on `s` cancels the pending flight.
 - `look.Effect [name: text] on [s: shape]` starts the effect `name` on `s` now
