@@ -6,7 +6,7 @@ GitHub release page.
 
 ## Unreleased
 
-- `look.Flight` runs from the edge of `a` to the edge of `b` (the flown shape 8 clear of each box, proportionally closer when the shapes are near, halfway between the ends when dropped): `spec/09` §9.3, decision 124, and the `Flight` row of the std catalog.
+- `look.Flight` runs from the edge of `a` to the edge of `b` (the flown shape 8 clear of each box, straight up when both are at one position, proportionally closer when distinct shapes are near, halfway between the ends when dropped): `spec/09` §9.3, decision 124, and the `Flight` row of the std catalog.
 - `implementation/05-cli.md`: two module folders with one module path in the same `check` are a `duplicate-name` error, exit 1, instead of a crash.
 - 0.3 scenes use a 1040 by 650 canvas (centre (520, 325), `OrbitRadius` 200) and an elliptical ring layout (`spec/09` §9.2 to §9.4, decision 123); default-theme scenes change once. Decision 119 no longer promises that default-theme scenes keep their bytes. The camera home and the default `x`, `y` are the canvas centre (`implementation/04-formats.md`).
 - Language version 0.3: the tutorial and Library `synod.mod` files say `synod 0.3`, and the current-version text in the spec and the implementation guides reads 0.3 (history stays). `implementation/05-cli.md` states that the `synod` line is a floor, not a gate: a 0.3 compiler accepts `synod 0.2`.

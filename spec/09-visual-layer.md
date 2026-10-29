@@ -154,15 +154,18 @@ of `raft`.
   never lands (the run stopped), `s` stops halfway at the scene's last slot.
   Let `A` be the world position of `a` when the flight starts and `B` that of
   `b` (when the flight starts for the first end, at the landing slot for the
-  second), and `u` the unit vector from `A` to `B` (the zero vector for
-  `A = B`). `s` starts at `A + k_a·u` and lands at `B − k_b·u`, where `k_a` is
-  the least distance at which the box of `s` is 8 (the `Place` gap) clear of
-  the box of `a`, and `k_b` the same for the box of `b`. Boxes use the `Place`
-  size model, centred on the position of the shape; the box of a group is the
-  bounding box of its members' boxes, around the group's position. When
-  `k_a + k_b` is larger than `|B − A|`, both are multiplied by
-  `|B − A| / (k_a + k_b)`. A dropped message stops halfway between the two
-  ends. `Travel` is a different phrase and stays centre to centre.
+  second). `u` is the unit vector from `A` to `B`; for `A = B` it points
+  straight up, `(0, −1)`. `s` starts at `A + k_a·u`, where `k_a` is the least
+  distance at which the box of `s` is 8 (the `Place` gap) clear of the box of
+  `a`. For distinct `A` and `B`, `s` lands at `B − k_b·u`, where `k_b` is the
+  same distance for the box of `b`; for `A = B`, `s` lands at `B + k_a·u`, the
+  point it started at. Boxes use the `Place` size model, centred on the
+  position of the shape; the box of a group is the bounding box of its
+  members' boxes, around the group's position. The proportional pull-in
+  applies to distinct `A` and `B` closer than `k_a + k_b`: both distances are
+  multiplied by `|B − A| / (k_a + k_b)`. A dropped message stops halfway
+  between the two ends. `Travel` is a different phrase and stays centre to
+  centre.
   `m` must be bound by a net event (`net.Id m`), else `bad-argument`; a later
   `x` or `y` tween on `s` cancels the pending flight.
 - `look.Effect [name: text] on [s: shape]` starts the effect `name` on `s` now
